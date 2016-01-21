@@ -1,14 +1,8 @@
 (ns provisdom.test.utility-belt.core
   (:require [midje.sweet :refer :all]
             [criterium.core :refer :all]
-            [pro.test :refer :all]
-            [pro.core :refer :all]))
-
-(facts "find-first"
-       (fact "normally works like this"
-             (find-first #(>= % 2.5) [1.0 2.0 3.0 4.0 3.0]) => 3.0)
-       (fact "pre-condition is that inputs are a function and a collection"
-             (find-first 1.0 1.0) => (throws))) ;put in pre-condition
+            [provisdom.test.core :refer :all]
+            [provisdom.utility-belt.core :refer :all]))
 
 (facts "sum floating-point series"
        (fact "kahan sum for precision"

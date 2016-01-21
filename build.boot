@@ -1,11 +1,6 @@
 (set-env!
   :source-paths #{"src" "test"}
   :resource-paths #{"src" "test"}
-  :repositories [["clojars" "http://clojars.org/repo/"]
-                 ["maven-central" "http://repo1.maven.org/maven2/"]
-                 ["my.datomic.com" {:url "https://my.datomic.com/repo"
-                                    :username (System/getenv "DATOMIC_USERNAME")
-                                    :password (System/getenv "DATOMIC_PASSWORD")}]]
   :dependencies '[[adzerk/boot-cljs "1.7.228-1" :scope "test"]
                   [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
                   [adzerk/boot-reload "0.4.4" :scope "test"]
