@@ -333,3 +333,15 @@ This is useful for when there is potentially many rows, since that would
   ([f-coll ac1 ac2] (map (fn [f a b] (f a b)) f-coll ac1 ac2))
   ([f-coll ac1 ac2 ac3] (map (fn [f a b c] (f a b c)) f-coll ac1 ac2 ac3)))  
 
+;;;ARITIES
+(defn arities
+  "Uses reflection to return the arity number of the function 'f'"
+  [f]
+  (let [all-declared-methods (.getDeclaredMethods (class f)),
+        methods-named (fn [name] (filter #(= (.getName %) name)
+                                         all-declared-methods))
+        methods-named-invoke (methods-named "invoke")
+        methods-named-do-invoke (methods-named "doInvoke")
+        is-rest-fn (seq methods-named-do-invoke),
+        x (sort (map #(alength (.getParameterTypes %)) methods-named-invoke))]
+    (if is-rest-fn (conj (vec x) :rest) x)))
