@@ -347,3 +347,22 @@ This is useful for when there is potentially many rows, since that would
     (if is-rest-fn (conj (vec x) :rest) x)))
 
 (defn maybe-first [x] (if (sequential? x) (first x) x))     ; TODO - think about design which requires this function. Is there a better way?
+
+(defn interleave-all
+  "Returns a lazy seq of the first item in each coll, then the second etc.
+Difference from interleave is that all elements are consumed."
+  ([c1 c2]
+   (lazy-seq
+     (let [s1 (seq c1), s2 (seq c2)]
+       (cond (and s1 s2) (cons (first s1)
+                               (cons (first s2) (interleave-all
+                                                  (rest s1) (rest s2))))
+             s1 s1,
+             s2 s2))))
+  ([c1 c2 & colls]
+   (lazy-seq
+     (let [ss (map seq (conj colls c2 c1))]
+       (if (every? identity ss)
+         (concat (map first ss) (apply interleave-all (map rest ss)))
+         (let [ns (filter identity ss)]
+           (concat (map first ns) (apply interleave-all (map rest ns)))))))))
