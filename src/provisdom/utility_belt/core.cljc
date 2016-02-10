@@ -345,3 +345,5 @@ This is useful for when there is potentially many rows, since that would
         is-rest-fn (seq methods-named-do-invoke),
         x (sort (map #(alength (.getParameterTypes %)) methods-named-invoke))]
     (if is-rest-fn (conj (vec x) :rest) x)))
+
+(defn maybe-first [x] (if (sequential? x) (first x) x))     ; TODO - think about design which requires this function. Is there a better way?
