@@ -346,6 +346,24 @@ This is useful for when there is potentially many rows, since that would
         x (sort (map #(alength (.getParameterTypes %)) methods-named-invoke))]
     (if is-rest-fn (conj (vec x) :rest) x)))
 
+;;;CHANGING DEFAULT FUNCTION BEHAVIOR WITH NILS
+(defn ignore-nils
+  "Applies function 'f' and ignores any nil values in 'x'."
+  [f & x]
+  (apply f (remove nil? x)))
+
+(defn throw-nils
+  "Applies function 'f' and throws error on any nil value in 'x' or on nil return value."
+  [f & x]
+  (let [ex (throw (ex-info "nil not allowed" {:fn (var throw-nils)}))]
+  (if (some nil? x) ex (or (apply f x) ex))))
+
+(defn nil-nils
+  "Applies function 'f' and returns nil on any nil value."
+  [f & x]
+  (if (some nil? x) nil (apply f x)))
+
+;;;MAYBE FIRST
 (defn maybe-first [x] (if (sequential? x) (first x) x))     ; TODO - think about design which requires this function. Is there a better way?
 
 (defn interleave-all
