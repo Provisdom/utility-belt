@@ -384,3 +384,14 @@ Difference from interleave is that all elements are consumed."
          (concat (map first ss) (apply interleave-all (map rest ss)))
          (let [ns (filter identity ss)]
            (concat (map first ns) (apply interleave-all (map rest ns)))))))))
+
+;;;ADDED BACK
+(defn replace-nils
+  "Returns a lazy sequence constructed by replacing nil values"
+  [[h & t :as coll] r-coll]
+  (if (or (empty? r-coll) (empty? coll))
+    coll
+    (lazy-seq
+      (if (nil? h)
+        (cons (first r-coll) (replace-nils t (rest r-coll)))
+        (cons h (replace-nils t r-coll))))))
