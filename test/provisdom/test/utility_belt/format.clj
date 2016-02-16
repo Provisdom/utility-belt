@@ -15,15 +15,6 @@
              (maybe-keyword-to-string "A") => "A" 
              (maybe-keyword-to-string :A) => "A"
              (maybe-keyword-to-string 1) => 1)
-       (fact "ends-with?"
-             (ends-with? "apple bean pear" "ear") => true
-             (ends-with? "apple bean pear" "ears") => false)
-       (fact "starts-with?"
-             (starts-with? "apple bean pear" "app") => true
-             (starts-with? "apple bean pear" "bap") => false)
-       (fact "substring"
-             (substring "apple bean pear" 8) => "an pear"
-             (substring "apple bean pear" 7 12) => "ean pe")
        (fact "trim-end"
              (trim-end "apple bean pear" "pear") => "apple bean "
              (trim-end "apple bean pearrrrr" "r") => "apple bean pea")

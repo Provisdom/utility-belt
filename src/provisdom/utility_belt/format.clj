@@ -47,23 +47,37 @@ See also documentation for java.util.regex.Matcher's appendReplacement method."
   ([s re] (str/split s re))
   ([s re limit] (str/split s re limit)))
 
-;;;STRING MANIPULATION
+(defn ends-with?
+  "Tests whether s ends with suffix"
+  [s suffix] (str/ends-with? (str s) (str suffix)))
+
+(defn starts-with?
+  "Tests whether s starts with prefix"
+  [s prefix] (str/starts-with? (str s) (str prefix)))
+
 (defn substring?
   "True if s contains the substring."
-  [sub s] (.contains (str s) sub))
+  [sub s] (str/includes? (str s) sub))
 
+(defn index-of
+  "Return index of value (string or char) in s, optionally searching forward from from-index or nil if not found."
+  ([s value]
+   (str/index-of s value))
+  ([s value ^long from-index]
+   (str/index-of s value from-index)))
+
+(defn last-index-of
+  "Return last index of value (string or char) in s, optionally searching backward from from-index or nil if not found."
+  ([s value]
+   (str/last-index-of s value))
+  ([s value ^long from-index]
+   (str/last-index-of s value from-index)))
+
+;;;STRING MANIPULATION
 (defn maybe-keyword-to-string 
   "If 'x' is a keyword, returns string.
 Otherwise, returns 'x'"
   [x] (if (keyword? x) (str/join (rest (str x))) x))
-
-(defn ends-with? 
-  "Tests whether s ends with suffix"
-  [s suffix] (.endsWith (str s) (str suffix)))
-
-(defn starts-with? 
-  "Tests whether s starts with prefix"
-  [s prefix] (.startsWith (str s) (str prefix)))
 
 (defn substring
   "Returns substring of s by index"
