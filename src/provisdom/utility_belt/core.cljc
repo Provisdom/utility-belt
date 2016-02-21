@@ -395,3 +395,9 @@ Difference from interleave is that all elements are consumed."
       (if (nil? h)
         (cons (first r-coll) (replace-nils t (rest r-coll)))
         (cons h (replace-nils t r-coll))))))
+
+;;ADDED NEW
+(defn submap?
+  "Checks whether m contains all entries in sub."
+  [^java.util.Map m ^java.util.Map sub]
+  (.containsAll (.entrySet m) (.entrySet sub)))
