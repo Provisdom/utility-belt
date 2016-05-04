@@ -402,6 +402,14 @@ Difference from interleave is that all elements are consumed."
         (cons (first r-coll) (replace-nils t (rest r-coll)))
         (cons h (replace-nils t r-coll))))))
 
+(defn map-hashmap
+  [f hashmap]
+  (apply hash-map (interleave (keys hashmap) (map f (vals hashmap)))))
+
+(defn map-sortedmap
+  [f sortedmap]
+  (apply sorted-map (interleave (keys sortedmap) (map f (vals sortedmap)))))
+
 ;;ADDED NEW
 (defn submap?
   "Checks whether m contains all entries in sub."
