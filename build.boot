@@ -1,36 +1,25 @@
+(def project 'provisdom/utility-belt)
+(def version "0.1.0")
+
 (set-env!
   :source-paths #{"src" "test"}
-  :resource-paths #{"src" "test"}
-  :dependencies '[[adzerk/boot-cljs "1.7.228-1" :scope "test"]
-                  [adzerk/boot-cljs-repl "0.3.0" :scope "test"]
-                  [adzerk/boot-reload "0.4.4" :scope "test"]
-                  [pandeiro/boot-http "0.7.0" :scope "test"]
-                  [provisdom/boot-tasks "0.4.0" :scope "test"]])
+  :resource-paths #{"src"}
+  :asset-paths #{}
+  :dependencies '[[org.clojure/clojure "1.8.0"]
+                  [provisdom/boot-tasks "0.6.0" :scope "tests"]
+                  [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                  [org.apache.commons/commons-lang3 "3.1"]
+
+                  [provisdom/test "0.1.0" :scope "test"]
+                  [midje "1.8.3" :scope "test" :exclusions [org.clojure/clojure]]])
 
 (require
-  '[adzerk.boot-cljs :refer :all]
-  '[adzerk.boot-reload :refer :all]
-  '[provisdom.boot-tasks :refer :all]
-  '[pandeiro.boot-http :refer :all])
-
-(set-project-deps!)
-
-(default-task-options!)
+  '[provisdom.boot-tasks.core :refer :all])
 
 (task-options!
-  reload {:on-jsload 'allgress.cereus.core/on-jsload})
-
-(deftask web-dev
-         "Developer workflow for web-component UX."
-         []
-         (comp
-           (asset-paths :asset-paths #{"bower_components" "html"})
-           (serve :dir "target/")
-           (watch)
-           (speak)
-           (reload)
-           #_(cljx)
-           #_(cljs-repl)
-           (cljs)
-           ))
-
+  pom {:project     project
+       :version     version
+       :description "Provisdom utility-belt"
+       :url         "https://gitlab.com/provisdom/utility-belt"
+       :scm         {:url "https://gitlab.com/provisdom/utility-belt"}
+       :license     {"Provisdom" "(c) 2015 Provisdom Inc."}})
