@@ -273,12 +273,18 @@ Thus function f should return a collection."
   [f & colls]
   (apply concat (apply map-indexed f colls)))
 
-;;;INSERTV
+;;;VECTOR MANIPULATION
 (defn insertv
   "Returns a vector with the new value inserted into index"
   [coll value index]
-  (let [sp (split-at index coll), f (first sp), l (second sp)]
-    (into [] (flatten [f value l]))))
+  (let [f (subvec coll 0 index), l (subvec coll index)]
+    (vec (concat f [value] l))))
+
+(defn removev
+  "Returns a vector with the value in the index removed"
+  [coll index]
+  (let [f (subvec coll 0 index), l (subvec coll (inc index))]
+    (vec (concat f l))))
 
 ;;;SEQ CREATION EXTENSIONS
 ;;these can be nearly replaced with mx/compute 
@@ -401,3 +407,8 @@ Difference from interleave is that all elements are consumed."
   "Checks whether m contains all entries in sub."
   [^java.util.Map m ^java.util.Map sub]
   (.containsAll (.entrySet m) (.entrySet sub)))
+
+(defn fmap
+  "Maps a function onto the values of a map."
+  [f m]
+  (into (empty m) (for [[k v] m] [k (f v)])))
