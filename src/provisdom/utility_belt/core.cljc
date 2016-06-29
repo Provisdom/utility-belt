@@ -267,8 +267,7 @@ First collection must be the shortest."
 
 ;;;MAPCAT-INDEXED
 (defn mapcat-indexed
-  "Returns the result of applying concat to the result of applying map-indexed 
-   to f and colls.  
+  "Returns the result of applying concat to the result of applying map-indexed to f and colls.
 Thus function f should return a collection."
   [f & colls]
   (apply concat (apply map-indexed f colls)))
@@ -412,3 +411,6 @@ Difference from interleave is that all elements are consumed."
   "Maps a function onto the values of a map."
   [f m]
   (into (empty m) (for [[k v] m] [k (f v)])))
+
+(defn index-of [coll item]
+  (count (take-while (partial not= item) coll)))
