@@ -1,4 +1,5 @@
-(ns provisdom.utility-belt.core)
+(ns provisdom.utility-belt.core
+  (:import (java.lang.reflect Method)))
 
 (set! *warn-on-reflection* true)
 
@@ -343,12 +344,12 @@ This is useful for when there is potentially many rows, since that would
   "Uses reflection to return the arity number of the function 'f'"
   [f]
   (let [all-declared-methods (.getDeclaredMethods (class f))
-        methods-named (fn [name] (filter #(= (.getName %) name)
+        methods-named (fn [name] (filter #(= (.getName ^Method %) name)
                                          all-declared-methods))
         methods-named-invoke (methods-named "invoke")
         methods-named-do-invoke (methods-named "doInvoke")
         is-rest-fn (seq methods-named-do-invoke)
-        x (sort (map #(alength (.getParameterTypes %)) methods-named-invoke))]
+        x (sort (map #(alength (.getParameterTypes ^Method %)) methods-named-invoke))]
     (if is-rest-fn (conj (vec x) :rest) x)))
 
 ;;;CHANGING DEFAULT FUNCTION BEHAVIOR WITH NILS
