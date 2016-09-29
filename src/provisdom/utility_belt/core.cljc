@@ -93,7 +93,7 @@ as fast alternative to bigDecimal"
   [coll]
   (loop [[h & t] coll sum 0.0 carry 0.0]
     (if-not h sum
-              (let [y (- h carry), new-sum (+ y sum)]
+              (let [y (- h carry) new-sum (+ y sum)]
                 (recur t new-sum (- new-sum sum y))))))
 
 ;;;SEQUENCE MANIPULATIONS
@@ -119,10 +119,10 @@ Function f takes the result value, an index, and the item value(s)"
   ([f init coll]
    (reduce-kv f init coll))
   ([f init c1 c2]
-   (let [a1 (to-array c1), a2 (to-array c2)]
+   (let [a1 (to-array c1) a2 (to-array c2)]
      (areduce a1 i ret init (f ret i (aget a1 i) (aget a2 i)))))
   ([f init c1 c2 c3]
-   (let [a1 (to-array c1), a2 (to-array c2), a3 (to-array c3)]
+   (let [a1 (to-array c1) a2 (to-array c2) a3 (to-array c3)]
      (areduce a1 i ret init (f ret i (aget a1 i) (aget a2 i) (aget a3 i))))))
 
 ;;;perhaps upgrade these by using 'reduced'
@@ -135,19 +135,19 @@ Function f and predicates take the result value, an index,
   ([f init c1 c2 stop-pred]
    (reduce-kv-with-stop f init c1 c2 stop-pred nil nil))
   ([f init coll stop-pred err-pred err-return-fn]
-   (loop [i 0, [h & t] coll, res init]
+   (loop [i 0 [h & t] coll res init]
      (cond
        (or (not h) (stop-pred res i h)) res
        (and err-pred (err-pred res i h)) (err-return-fn res i h)
        :else (recur (inc i) t (f res i h)))))
   ([f init c1 c2 stop-pred err-pred err-return-fn]
-   (loop [i 0, [h1 & t1] c1, [h2 & t2] c2, res init]
+   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 res init]
      (cond
        (or (not h1) (not h2) (stop-pred res i h1 h2)) res
        (and err-pred (err-pred res i h1 h2)) (err-return-fn res i h1 h2)
        :else (recur (inc i) t1 t2 (f res i h1 h2)))))
   ([f init c1 c2 c3 stop-pred err-pred err-return-fn]
-   (loop [i 0, [h1 & t1] c1, [h2 & t2] c2, [h3 & t3] c3, res init]
+   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 [h3 & t3] c3 res init]
      (cond
        (or (not h1) (not h2) (not h3) (stop-pred res i h1 h2 h3)) res
        (and err-pred (err-pred res i h1 h2 h3)) (err-return-fn res i h1 h2 h3)
@@ -165,20 +165,20 @@ Function f takes the result value, an index, and the item value(s)"
                                      (g (inc i) (f res i h) t)))))]
                    (g 1 (f init 0 init-h) init-t))))
   ([f init c1 c2]
-   (when-all-let [[init-h1 & init-t1] (seq c1), [init-h2 & init-t2] (seq c2)]
+   (when-all-let [[init-h1 & init-t1] (seq c1) [init-h2 & init-t2] (seq c2)]
                  (letfn [(g [i res c1 c2]
                            (cons res
                                  (lazy-seq
-                                   (when-all-let [[h1 & t1] (seq c1), [h2 & t2] (seq c2)]
+                                   (when-all-let [[h1 & t1] (seq c1) [h2 & t2] (seq c2)]
                                                  (g (inc i) (f res i h1 h2) t1 t2)))))]
                    (g 1 (f init 0 init-h1 init-h2) init-t1 init-t2))))
   ([f init c1 c2 c3]
-   (when-all-let [[init-h1 & init-t1] (seq c1), [init-h2 & init-t2] (seq c2),
+   (when-all-let [[init-h1 & init-t1] (seq c1) [init-h2 & init-t2] (seq c2)
                   [init-h3 & init-t3] (seq c3)]
                  (letfn [(g [i res c1 c2 c3]
                            (cons res
                                  (lazy-seq
-                                   (when-all-let [[h1 & t1] (seq c1), [h2 & t2] (seq c2),
+                                   (when-all-let [[h1 & t1] (seq c1) [h2 & t2] (seq c2)
                                                   [h3 & t3] (seq c3)]
                                                  (g (inc i) (f res i h1 h2 h3) t1 t2 t3)))))]
                    (g 1 (f init 0 init-h1 init-h2 init-h3) init-t1 init-t2 init-t3)))))
@@ -187,7 +187,7 @@ Function f takes the result value, an index, and the item value(s)"
 (defn flip-dbl-layered
   "Returns a double-layered that has layering flipped"
   [dbl-layered]
-  (loop [flip '(), idx (dec (count (first dbl-layered)))]
+  (loop [flip '() idx (dec (count (first dbl-layered)))]
     (if (neg? idx)
       flip
       (recur (cons (map #(nth % idx) dbl-layered) flip) (dec idx)))))
@@ -202,10 +202,10 @@ First collection must be the shortest."
   ([f coll]
    (map-indexed f coll))
   ([f c1 c2]
-   (let [a1 (to-array c1), a2 (to-array c2)]
+   (let [a1 (to-array c1) a2 (to-array c2)]
      (lazy-seq (amap a1 i ret (f i (aget a1 i) (aget a2 i))))))
   ([f c1 c2 c3]
-   (let [a1 (to-array c1), a2 (to-array c2), a3 (to-array c3)]
+   (let [a1 (to-array c1) a2 (to-array c2) a3 (to-array c3)]
      (lazy-seq (amap a1 i ret (f i (aget a1 i) (aget a2 i) (aget a3 i)))))))
 
 (defn map-dbl-indexed
@@ -276,13 +276,13 @@ Thus function f should return a collection."
 (defn insertv
   "Returns a vector with the new value inserted into index"
   [coll value index]
-  (let [f (subvec coll 0 index), l (subvec coll index)]
+  (let [f (subvec coll 0 index) l (subvec coll index)]
     (vec (concat f [value] l))))
 
 (defn removev
   "Returns a vector with the value in the index removed"
   [coll index]
-  (let [f (subvec coll 0 index), l (subvec coll (inc index))]
+  (let [f (subvec coll 0 index) l (subvec coll (inc index))]
     (vec (concat f l))))
 
 ;;;SEQ CREATION EXTENSIONS
@@ -316,7 +316,7 @@ For example, a 100-element could be double-layered into 10s"
               (iterate #(partition n %) coll))))
 
 ;;;FOR EXT
-(defn for-ext* ;replace with map f cartesian dbl-layered (or use mx/compute)
+(defn for-ext*                                              ;replace with map f cartesian dbl-layered (or use mx/compute)
   "Returns a double-layered that has been expanded.  
 Each original row represents a series of values to be part of a list 
    comprehension.
@@ -325,10 +325,10 @@ Function f takes a sequence with an element for each original row.
 This is useful for when there is potentially many rows, since that would 
    require a 'for' loop for each."
   [f dbl-layered]
-  (let [nrow (count dbl-layered), ncol (count (first dbl-layered))]
+  (let [nrow (count dbl-layered) ncol (count (first dbl-layered))]
     (for [idx (range (Math/pow ncol nrow))]
       (f (for [v (range nrow)]
-           (let [p (- nrow v),
+           (let [p (- nrow v)
                  j (quot (rem idx (Math/pow ncol p)) (Math/pow ncol (dec p)))]
              (deep-nth dbl-layered v j)))))))
 
@@ -336,18 +336,18 @@ This is useful for when there is potentially many rows, since that would
 (defn in-place-functional
   ([f-coll arg-coll] (map (fn [f a] (f a)) f-coll arg-coll))
   ([f-coll ac1 ac2] (map (fn [f a b] (f a b)) f-coll ac1 ac2))
-  ([f-coll ac1 ac2 ac3] (map (fn [f a b c] (f a b c)) f-coll ac1 ac2 ac3)))  
+  ([f-coll ac1 ac2 ac3] (map (fn [f a b c] (f a b c)) f-coll ac1 ac2 ac3)))
 
 ;;;ARITIES
 (defn arities
   "Uses reflection to return the arity number of the function 'f'"
   [f]
-  (let [all-declared-methods (.getDeclaredMethods (class f)),
+  (let [all-declared-methods (.getDeclaredMethods (class f))
         methods-named (fn [name] (filter #(= (.getName %) name)
                                          all-declared-methods))
         methods-named-invoke (methods-named "invoke")
         methods-named-do-invoke (methods-named "doInvoke")
-        is-rest-fn (seq methods-named-do-invoke),
+        is-rest-fn (seq methods-named-do-invoke)
         x (sort (map #(alength (.getParameterTypes %)) methods-named-invoke))]
     (if is-rest-fn (conj (vec x) :rest) x)))
 
@@ -361,7 +361,7 @@ This is useful for when there is potentially many rows, since that would
   "Applies function 'f' and throws error on any nil value in 'x' or on nil return value."
   [f & x]
   (let [ex (throw (ex-info "nil not allowed" {:fn (var throw-nils)}))]
-  (if (some nil? x) ex (or (apply f x) ex))))
+    (if (some nil? x) ex (or (apply f x) ex))))
 
 (defn nil-nils
   "Applies function 'f' and returns nil on any nil value."
@@ -376,11 +376,11 @@ This is useful for when there is potentially many rows, since that would
 Difference from interleave is that all elements are consumed."
   ([c1 c2]
    (lazy-seq
-     (let [s1 (seq c1), s2 (seq c2)]
+     (let [s1 (seq c1) s2 (seq c2)]
        (cond (and s1 s2) (cons (first s1)
                                (cons (first s2) (interleave-all
                                                   (rest s1) (rest s2))))
-             s1 s1,
+             s1 s1
              s2 s2))))
   ([c1 c2 & colls]
    (lazy-seq
