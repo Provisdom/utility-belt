@@ -4,7 +4,7 @@
 (set-env!
   :source-paths #{"test"}
   :resource-paths #{"src"}
-  :dependencies '[[provisdom/boot-tasks "0.7.0" :scope "tests"]
+  :dependencies '[[provisdom/boot-tasks "1.2" :scope "tests"]
                   [provisdom/test "0.1.0" :scope "test"]
                   [midje "1.9.0-alpha5" :scope "test" :exclusions [org.clojure/clojure]]
 
