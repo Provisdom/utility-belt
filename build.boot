@@ -9,7 +9,7 @@
                   [midje "1.9.0-alpha5" :scope "test" :exclusions [org.clojure/clojure]]
 
                   [org.clojure/clojure "1.9.0-alpha13" :scope "provided"]
-                  [org.clojure/core.async "0.2.391"]
+                  [org.clojure/core.async "0.3.442"]
                   [org.apache.commons/commons-lang3 "3.1"]])
 
 (require
