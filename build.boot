@@ -1,5 +1,5 @@
 (def project 'provisdom/utility-belt)
-(def version "0.1.1")
+(def version "0.1.2-alpha1")
 
 (set-env!
   :source-paths #{"test"}
