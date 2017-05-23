@@ -12,7 +12,7 @@
 Default-fn should take an Exception or Error and can return anything."
   ([f] (catch-error-or-nil f (fn [e] false)))
   ([f default-fn]
-   (try (let [r (f)] (if (nil? r)
+   (try (let [r (f)] (if (or (nil? r) (instance? Exception r))
                        (throw (ex-info "nil result" {:fn (var catch-error-or-nil)}))
                        r))
         (catch Exception e (if (fn? default-fn) (default-fn e) default-fn))
