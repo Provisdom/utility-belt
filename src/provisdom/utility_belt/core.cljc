@@ -87,16 +87,6 @@
     (assoc m k (apply update-in-ext (get m k not-found) ks f not-found args))
     (assoc m k (apply f (get m k not-found) args))))
 
-;;;FLOATING-POINT FAST SUM
-(defn kahan-sum
-  "Kahan Summation algorithm -- for greater floating-point summation accuracy, 
-as fast alternative to bigDecimal"
-  [coll]
-  (loop [[h & t] coll sum 0.0 carry 0.0]
-    (if-not h sum
-              (let [y (- h carry) new-sum (+ y sum)]
-                (recur t new-sum (- new-sum sum y))))))
-
 ;;;SEQUENCE MANIPULATIONS
 (defn concat-by-index
   "Returns a lazy sequence constructed by concatenating two collections with 

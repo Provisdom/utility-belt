@@ -1,6 +1,5 @@
 (ns provisdom.utility-belt.async
-  (:require [provisdom.utility-belt.core :as co]
-            [clojure.core.async :as async]))
+  (:require [clojure.core.async :as async]))
 
 (set! *warn-on-reflection* true)
 
