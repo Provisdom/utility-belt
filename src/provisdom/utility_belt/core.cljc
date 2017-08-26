@@ -1,4 +1,8 @@
 (ns provisdom.utility-belt.core
+  (:require [clojure.spec.alpha :as s]
+            [clojure.spec.gen.alpha :as gen]
+            [clojure.spec.test.alpha :as st]
+            [orchestra.spec.test :as ost])
   (:import (java.lang.reflect Method)))
 
 (set! *warn-on-reflection* true)
@@ -80,6 +84,40 @@
 
 (defn sort-map [m] (apply sorted-map (flatten (into [] m))))
 
+;;;ANOMALIES
+;; Copyright (c) Cognitect, Inc.
+;; All rights reserved.
+
+;; Licensed under the Apache License, Version 2.0 (the "License");
+;; you may not use this file except in compliance with the License.
+;; You may obtain a copy of the License at
+;;
+;;      http://www.apache.org/licenses/LICENSE-2.0
+;;
+;; Unless required by applicable law or agreed to in writing, software
+;; distributed under the License is distributed on an "AS-IS" BASIS,
+;; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;; See the License for the specific language governing permissions and
+;; limitations under the License.
+
+(s/def ::category #{::unavailable
+                    ::interrupted
+                    ::incorrect
+                    ::forbidden
+                    ::unsupported
+                    ::not-found
+                    ::conflict
+                    ::fault
+                    ::busy
+                    ::third-party
+                    ::no-solve})
+
+(s/def ::message string?)
+
+(s/def ::anomaly (s/keys :req [::category]
+                         :opt [::message ::fn]))
+
+
 ;;; TODO - is this necessary to disambiguate between case where key exists and has nil value vs. key does not exist?
 (defn update-in-ext
   [m [k & ks] f not-found & args]
@@ -107,13 +145,15 @@ Preference goes to c2 and empty spaces are filled with 'nil'."
   "Extension of clojure's 'reduce-kv'.  
 First collection must be the shortest.  
 Function f takes the result value, an index, and the item value(s)"
-  ([f init coll]
-   (reduce-kv f init coll))
+  ([f init coll] (reduce-kv f init coll))
   ([f init c1 c2]
-   (let [a1 (to-array c1) a2 (to-array c2)]
+   (let [a1 (to-array c1)
+         a2 (to-array c2)]
      (areduce a1 i ret init (f ret i (aget a1 i) (aget a2 i)))))
   ([f init c1 c2 c3]
-   (let [a1 (to-array c1) a2 (to-array c2) a3 (to-array c3)]
+   (let [a1 (to-array c1)
+         a2 (to-array c2)
+         a3 (to-array c3)]
      (areduce a1 i ret init (f ret i (aget a1 i) (aget a2 i) (aget a3 i))))))
 
 ;;;perhaps upgrade these by using 'reduced'
