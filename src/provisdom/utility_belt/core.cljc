@@ -244,57 +244,72 @@ First collection must be the shortest."
 Function f takes two indexes and the item value(s).  
 First collection must be the shortest."
   ([f dbl-layered]
-   (map-indexed
-     (fn [outer-idx outer]
-       (map-indexed
-         (fn [inner-idx item]
-           (f outer-idx inner-idx item)) outer)) dbl-layered))
+   (vec (map-indexed
+          (fn [outer-idx outer]
+            (vec (map-indexed
+                   (fn [inner-idx item]
+                     (f outer-idx inner-idx item))
+                   outer)))
+          dbl-layered)))
   ([f d1 d2]
-   (map-indexed-ext
-     (fn [outer-idx o1 o2]
-       (map-indexed-ext
-         (fn [inner-idx i1 i2] (f outer-idx inner-idx i1 i2)) o1 o2)) d1 d2))
+   (vec (map-indexed-ext
+          (fn [outer-idx o1 o2]
+            (vec (map-indexed-ext
+                   (fn [inner-idx i1 i2]
+                     (f outer-idx inner-idx i1 i2))
+                   o1
+                   o2)))
+          d1
+          d2)))
   ([f d1 d2 d3]
-   (map-indexed-ext
-     (fn [outer-idx o1 o2 o3]
-       (map-indexed-ext
-         (fn [inner-idx i1 i2 i3]
-           (f outer-idx inner-idx i1 i2 i3)) o1 o2 o3)) d1 d2 d3)))
+   (vec (map-indexed-ext
+          (fn [outer-idx o1 o2 o3]
+            (vec (map-indexed-ext
+                   (fn [inner-idx i1 i2 i3]
+                     (f outer-idx inner-idx i1 i2 i3))
+                   o1
+                   o2
+                   o3)))
+          d1
+          d2
+          d3))))
 
 (defn map-triple-indexed
-  "For triple-layered sequences.  
-Function f takes three indexes and the item value(s).  
-First collection must be the shortest."
+  "For triple-layered sequences.
+  Function f takes three indexes and the item value(s).
+  First collection must be the shortest."
   ([f triple-layered]
-   (map-indexed
-     (fn [outer-idx outer]
-       (map-indexed
-         (fn [middle-idx middle]
-           (map-indexed
-             (fn [inner-idx item] (f outer-idx middle-idx inner-idx item))
-             middle))
-         outer))
-     triple-layered))
+   (vec (map-indexed
+          (fn [outer-idx outer]
+            (vec (map-indexed
+                   (fn [middle-idx middle]
+                     (vec (map-indexed
+                            (fn [inner-idx item]
+                              (f outer-idx middle-idx inner-idx item))
+                            middle)))
+                   outer)))
+          triple-layered)))
   ([f t1 t2]
-   (map-indexed-ext (fn [outer-idx o1 o2]
-                      (map-indexed-ext
-                        (fn [middle-idx m1 m2]
-                          (map-indexed-ext
+   (vec (map-indexed-ext
+          (fn [outer-idx o1 o2]
+            (vec (map-indexed-ext
+                   (fn [middle-idx m1 m2]
+                     (vec (map-indexed-ext
                             (fn [inner-idx i1 i2]
                               (f outer-idx middle-idx inner-idx i1 i2))
-                            m1 m2))
-                        o1 o2))
-                    t1 t2))
+                            m1 m2)))
+                   o1 o2)))
+          t1 t2)))
   ([f t1 t2 t3]
-   (map-indexed-ext
-     (fn [outer-idx o1 o2 o3]
-       (map-indexed-ext
-         (fn [middle-idx m1 m2 m3]
-           (map-indexed-ext (fn [inner-idx i1 i2 i3]
-                              (f outer-idx middle-idx inner-idx i1 i2 i3))
-                            m1 m2 m3))
-         o1 o2 o3))
-     t1 t2 t3)))
+   (vec (map-indexed-ext
+          (fn [outer-idx o1 o2 o3]
+            (vec (map-indexed-ext
+                   (fn [middle-idx m1 m2 m3]
+                     (vec (map-indexed-ext (fn [inner-idx i1 i2 i3]
+                                             (f outer-idx middle-idx inner-idx i1 i2 i3))
+                                           m1 m2 m3)))
+                   o1 o2 o3)))
+          t1 t2 t3))))
 
 ;;;MAPCAT-INDEXED
 (defn mapcat-indexed
@@ -307,20 +322,23 @@ Thus function f should return a collection."
 (defn insertv
   "Returns a vector with the new value inserted into index"
   [coll value index]
-  (let [f (subvec coll 0 index) l (subvec coll index)]
+  (let [f (subvec coll 0 index)
+        l (subvec coll index)]
     (vec (concat f [value] l))))
 
 (defn removev
   "Returns a vector with the value in the index removed"
   [coll index]
-  (let [f (subvec coll 0 index) l (subvec coll (inc index))]
+  (let [f (subvec coll 0 index)
+        l (subvec coll (inc index))]
     (vec (concat f l))))
 
 ;;;SEQ CREATION EXTENSIONS
 ;;these can be nearly replaced with mx/compute 
 ;;(can move to mx and use with :sequence implementation)
 (defn create-seq
-  [size f] (map-indexed (fn [i _] (f i)) (repeat size 0)))
+  [size f]
+  (map-indexed (fn [i _] (f i)) (repeat size 0)))
 
 (defn create-dbl-layered
   [outer inner f]
@@ -356,11 +374,13 @@ Function f takes a sequence with an element for each original row.
 This is useful for when there is potentially many rows, since that would 
    require a 'for' loop for each."
   [f dbl-layered]
-  (let [nrow (count dbl-layered) ncol (count (first dbl-layered))]
+  (let [nrow (count dbl-layered)
+        ncol (count (first dbl-layered))]
     (for [idx (range (Math/pow ncol nrow))]
       (f (for [v (range nrow)]
            (let [p (- nrow v)
-                 j (quot (rem idx (Math/pow ncol p)) (Math/pow ncol (dec p)))]
+                 j (quot (rem idx (Math/pow ncol p))
+                         (Math/pow ncol (dec p)))]
              (deep-nth dbl-layered v j)))))))
 
 ;;;FUNCTIONALS
@@ -397,10 +417,15 @@ This is useful for when there is potentially many rows, since that would
 (defn nil-nils
   "Applies function 'f' and returns nil on any nil value."
   [f & x]
-  (if (some nil? x) nil (apply f x)))
+  (when-not (some nil? x)
+    (apply f x)))
 
 ;;;MAYBE FIRST
-(defn maybe-first [x] (if (sequential? x) (first x) x))     ; TODO - think about design which requires this function. Is there a better way?
+(defn maybe-first
+  [x]
+  (if (sequential? x)
+    (first x)
+    x))                                                     ; TODO - think about design which requires this function. Is there a better way?
 
 (defn interleave-all
   "Returns a lazy seq of the first item in each coll, then the second etc.
