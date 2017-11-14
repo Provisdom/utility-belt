@@ -1,5 +1,5 @@
 (def project 'provisdom/utility-belt)
-(def version "0.2.0-alpha1")
+(def version "0.2.0-alpha2")
 
 (set-env!
   :resource-paths #{"src"}
@@ -31,7 +31,10 @@
        :license     {"Provisdom" "(c) 2015-2017 Provisdom Corporation"}}
   ;; TODO: replace this when all namespaces are converted to clojure.test
   test {:namespaces '#{
+                       provisdom.utility-belt.t-arities
                        provisdom.utility-belt.t-async
-                       provisdom.utility-belt.t-core
-                       provisdom.utility-belt.t-format
+                       provisdom.utility-belt.t-extensions
+                       provisdom.utility-belt.t-maps
+                       provisdom.utility-belt.t-nils
+                       provisdom.utility-belt.t-strings
                        }})
