@@ -1,5 +1,5 @@
 (def project 'provisdom/utility-belt)
-(def version "0.2.0-alpha3")
+(def version "0.2.0-alpha4")
 
 (set-env!
   :resource-paths #{"src"}
@@ -12,7 +12,7 @@
                   [provisdom/boot-tasks "1.4" :scope "tests"]
                   [provisdom/test "0.3.3-alpha1" :scope "test"]
                   ;;project deps
-                  [org.clojure/clojure "1.9.0" :scope "provided"]
+                  [org.clojure/clojure "1.10.0-alpha2" :scope "provided"]
                   [org.clojure/spec.alpha "0.1.143"]
                   [orchestra "2017.11.12-1"]
                   [org.clojure/core.async "0.4.474"]
@@ -28,7 +28,7 @@
        :description "Provisdom utility-belt"
        :url         "https://gitlab.com/provisdom/utility-belt"
        :scm         {:url "https://gitlab.com/provisdom/utility-belt"}
-       :license     {"Provisdom" "(c) 2015-2017 Provisdom Corporation"}}
+       :license     {"Provisdom" "(c) 2015-2018 Provisdom Corporation"}}
   ;; TODO: replace this when all namespaces are converted to clojure.test
   test {:namespaces '#{
                        provisdom.utility-belt.t-arities
