@@ -17,10 +17,14 @@
   ([x y & z] ""))
 
 (deftest arities-test
-  (is= [{::arities/parameters 0, ::arities/variadic? false}
-        {::arities/parameters 1, ::arities/variadic? false}
-        {::arities/parameters 2, ::arities/variadic? false}
-        {::arities/parameters 3, ::arities/variadic? true}]
+  (is= [{::arities/parameters 0
+         ::arities/variadic? false}
+        {::arities/parameters 1
+         ::arities/variadic? false}
+        {::arities/parameters 2
+         ::arities/variadic? false}
+        {::arities/parameters 3
+         ::arities/variadic? true}]
        (arities/arities hi)))
 
 (defspec-test test-arities `arities/arities)

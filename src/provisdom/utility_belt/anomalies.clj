@@ -31,10 +31,21 @@
                     ::fault
                     ::busy
                     ::third-party
-                    ::no-solve})
+                    ::no-solve
+                    ::exception
+                    ::error})
 
 (s/def ::message string?)
 
 (s/def ::anomaly (s/keys :req [::category]
                          :opt [::message
                                ::fn]))
+
+(defn anomaly?
+  "Tests whether `x` is an anomaly."
+  [x]
+  (s/valid? ::anomaly x))
+
+(s/fdef anomaly?
+        :args (s/cat :x any?)
+        :ret boolean?)

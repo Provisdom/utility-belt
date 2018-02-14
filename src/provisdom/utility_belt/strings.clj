@@ -15,12 +15,14 @@
 ;;;   two places with a leading zero if necessary
 ;;;http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Formatter.html
 
-(s/def ::index (s/with-gen (s/int-in 0 Integer/MAX_VALUE) #(gen/large-integer* {:min 0 :max 6})))
+(s/def ::index
+  (s/with-gen
+    (s/int-in 0 Integer/MAX_VALUE)
+    #(gen/large-integer* {:min 0 :max 6})))
 
 ;;;STRING MANIPULATION
 (defn maybe-keyword-to-string
-  "If 'x' is a keyword, returns string.
-  Otherwise, returns 'x'."
+  "If `x` is a keyword, returns string. Otherwise, returns `x`."
   [x]
   (if (keyword? x)
     (str/join (rest (str x)))
@@ -31,7 +33,8 @@
         :ret any?)
 
 (defn substring
-  "Returns substring of string `s` starting at `start-index` and ending at optional `end-index`."
+  "Returns substring of string `s` starting at `start-index` and ending at
+  optional `end-index`."
   ([s start-index] (.substring (str s) (int start-index)))
   ([s start-index end-index]
    (.substring (str s) (int start-index) (inc (int end-index)))))
@@ -41,7 +44,7 @@
         :ret string?)
 
 (defn trim-end
-  "Trims all the 'suffix' from the end of string `s`."
+  "Trims all the `suffix` from the end of string `s`."
   [s suffix]
   (let [s (str s)]
     (if-not (str/ends-with? s suffix)
@@ -53,7 +56,7 @@
         :ret string?)
 
 (defn trim-start
-  "Trims all the 'prefix' from the start of string `s`."
+  "Trims all the `prefix` from the start of string `s`."
   [s prefix]
   (let [s (str s)]
     (if-not (str/starts-with? s prefix)

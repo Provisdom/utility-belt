@@ -11,8 +11,8 @@
 (s/def ::arities (s/keys :req [::parameters ::variadic?]))
 
 (defn arities
-  "Uses reflection to return the arity numbers of the function `f`.
-  Returns a vector with each element being a map of ::parameters and ::variadic?."
+  "Uses reflection to return the arity numbers of the function `f`. Returns a
+  vector with each element being a map of ::parameters and ::variadic?."
   [f]
   (let [all-declared-methods (.getDeclaredMethods (class f))
         methods-named-fn (fn [name]

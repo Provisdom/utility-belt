@@ -12,7 +12,8 @@
   ([bindings then else]
    (reduce (fn [subform binding]
              `(if-let [~@binding] ~subform ~else))
-           then (reverse (partition 2 bindings))))
+           then
+           (reverse (partition 2 bindings))))
   ([bindings then]
    `(if-all-let ~bindings ~then nil)))
 
@@ -22,11 +23,11 @@
 
 ;;;FUNCTIONS
 (defn update-in-with-not-found
-  "'Updates' a value in a nested associative structure, where `ks` is a sequence of keys
-  and `f` is a function that will take the old value and any supplied args and return
-  the new value, and returns a new nested structure.
-  If any key does not exist, `not-found` will be used as the old value.
-  If any levels do not exist, hash-maps will be created."
+  "'Updates' a value in a nested associative structure, where `ks` is a sequence
+  of keys and `f` is a function that will take the old value and any supplied
+  args and return the new value, and returns a new nested structure. If any key
+  does not exist, `not-found` will be used as the old value. If any levels do
+  not exist, hash-maps will be created."
   [m [k & ks] f not-found & args]
   (if ks
     (assoc m k (apply update-in-with-not-found (get m k not-found) ks f not-found args))
@@ -44,22 +45,31 @@
   "Returns a lazy seq of the first item in each coll, then the second etc.
   Difference from interleave is that all elements are consumed."
   ([] '())
-  ([c1] (lazy-seq (if (sequential? c1) (seq c1) '())))
+  ([c1]
+   (lazy-seq (if (sequential? c1)
+               (seq c1)
+               '())))
   ([c1 c2]
    (lazy-seq
-     (let [s1 (seq c1) s2 (seq c2)]
-       (cond (and s1 s2) (cons (first s1)
-                               (cons (first s2)
-                                     (interleave-all (rest s1) (rest s2))))
+     (let [s1 (seq c1)
+           s2 (seq c2)]
+       (cond (and s1 s2)
+             (cons (first s1)
+                   (cons (first s2)
+                         (interleave-all (rest s1) (rest s2))))
              s1 s1
              s2 s2))))
   ([c1 c2 & colls]
    (lazy-seq
      (let [ss (map seq (conj colls c2 c1))]
        (if (every? identity ss)
-         (concat (map first ss) (apply interleave-all (map rest ss)))
+         (concat (map first ss)
+                 (apply interleave-all
+                        (map rest ss)))
          (let [ns (filter identity ss)]
-           (concat (map first ns) (apply interleave-all (map rest ns)))))))))
+           (concat (map first ns)
+                   (apply interleave-all
+                          (map rest ns)))))))))
 
 (s/fdef interleave-all
         :args (s/cat :c1 (s/? ::nilable-seq)
@@ -84,13 +94,13 @@
 
 (s/fdef reduce-kv-ext
         :args (s/or :three (s/cat :f fn?
-                                :init any?
-                                :coll ::nilable-seq)
+                                  :init any?
+                                  :coll ::nilable-seq)
                     :four+ (s/cat :f fn?
-                                 :init any?
-                                 :c1 ::nilable-seq
-                                 :c2 ::nilable-seq
-                                 :c3 (s/? ::nilable-seq)))
+                                  :init any?
+                                  :c1 ::nilable-seq
+                                  :c2 ::nilable-seq
+                                  :c3 (s/? ::nilable-seq)))
         :ret any?)
 
 (defn reductions-kv

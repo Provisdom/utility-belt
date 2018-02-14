@@ -16,7 +16,8 @@
         :ret any?)
 
 (defn anomaly-nils
-  "Applies function 'f' and returns an anomaly on any nil value in `args` or on a nil return value."
+  "Applies function 'f' and returns an anomaly on any nil value in `args` or on
+  a nil return value."
   [f & args]
   (let [anomaly {::anomalies/category ::anomalies/forbidden
                  ::anomalies/message  "nil not allowed"
