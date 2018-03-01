@@ -52,6 +52,6 @@
 
 (defn not-implemented-anomaly
   [fn-var]
-  {::anomalies/category ::anomalies/unsupported
-   ::anomalies/fn       fn-var
-   ::anomalies/message  "Not Implemented"})
+  {::category ::unsupported
+   ::fn       fn-var
+   ::message  "Not Implemented"})
