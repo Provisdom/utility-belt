@@ -49,3 +49,9 @@
 (s/fdef anomaly?
         :args (s/cat :x any?)
         :ret boolean?)
+
+(defn not-implemented-anomaly
+  [fn-var]
+  {::anomalies/category ::anomalies/unsupported
+   ::anomalies/fn       fn-var
+   ::anomalies/message  "Not Implemented"})
