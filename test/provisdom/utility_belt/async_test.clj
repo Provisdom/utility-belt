@@ -7,27 +7,30 @@
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]))
 
-;8 seconds -- problems with gen-testing in this ns
+;70 seconds
 
 (set! *warn-on-reflection* true)
 
 (ost/instrument)
 
-(deftest catch-error-or-exception-test
-  (is (spec-check async/catch-error-or-exception))
-  (is (async/catch-error-or-exception (constantly true)))
+(deftest catch-error-or-exception-or-nil-test
+  (is (spec-check async/catch-error-or-exception-or-nil))
+  (is (async/catch-error-or-exception-or-nil (constantly true)))
   (is= {::anomalies/message  "HI"
         ::anomalies/category ::anomalies/exception
-        ::anomalies/fn       (var async/catch-error-or-exception)}
-       (async/catch-error-or-exception (constantly (Exception. "HI"))))
-  (is= nil (async/catch-error-or-exception (constantly nil))))
+        ::anomalies/fn       (var async/catch-error-or-exception-or-nil)}
+       (async/catch-error-or-exception-or-nil (constantly (Exception. "HI"))))
+  (is= {::anomalies/message  "'nil' return"
+        ::anomalies/category ::anomalies/exception
+        ::anomalies/fn       (var async/catch-error-or-exception-or-nil)}
+       (async/catch-error-or-exception-or-nil (constantly nil))))
 
 (deftest thread-test
-  #_(is (spec-check async/thread {:coll-check-limit 10
-                                  :coll-error-limit 10
-                                  :fspec-iterations 10
-                                  :recursion-limit  1
-                                  :test-check       {:num-tests 1}}))
+  (is (spec-check async/thread {:coll-check-limit 10
+                                :coll-error-limit 10
+                                :fspec-iterations 10
+                                :recursion-limit  1
+                                :test-check       {:num-tests 500}}))
   (is= [] (async/thread :and []))
   (is= nil
        (async/thread :and [(constantly 2)
@@ -67,11 +70,11 @@
   (is= [] (async/thread :all [])))
 
 (deftest thread-select-test
-  #_(is (spec-check async/thread-select {:coll-check-limit 10
-                                         :coll-error-limit 10
-                                         :fspec-iterations 10
-                                         :recursion-limit  1
-                                         :test-check       {:num-tests 1}}))
+  (is (spec-check async/thread-select {:coll-check-limit 10
+                                       :coll-error-limit 10
+                                       :fspec-iterations 10
+                                       :recursion-limit  1
+                                       :test-check       {:num-tests 300}}))
   (is= [4 2]
        (async/thread-select (fn [results]
                               (when (and results
@@ -89,11 +92,11 @@
                             [(constantly {::anomalies/category ::anomalies/exception})])))
 
 (deftest thread-max-test
-  #_(is (spec-check async/thread-max {:coll-check-limit 10
-                                      :coll-error-limit 10
-                                      :fspec-iterations 10
-                                      :recursion-limit  1
-                                      :test-check       {:num-tests 1}}))
+  (is (spec-check async/thread-max {:coll-check-limit 10
+                                    :coll-error-limit 10
+                                    :fspec-iterations 10
+                                    :recursion-limit  1
+                                    :test-check       {:num-tests 400}}))
   (is= 2
        (async/thread-max [(constantly 2)
                           (constantly 1)
@@ -105,11 +108,11 @@
        (async/thread-max [(constantly 2) (constantly 1) (constantly "A")])))
 
 (deftest thread-min-test
-  #_(is (spec-check async/thread-min {:coll-check-limit 10
-                                      :coll-error-limit 10
-                                      :fspec-iterations 10
-                                      :recursion-limit  1
-                                      :test-check       {:num-tests 1}}))
+  (is (spec-check async/thread-min {:coll-check-limit 10
+                                    :coll-error-limit 10
+                                    :fspec-iterations 10
+                                    :recursion-limit  1
+                                    :test-check       {:num-tests 400}}))
   (is= 1
        (async/thread-min [(constantly 2)
                           (constantly 1)

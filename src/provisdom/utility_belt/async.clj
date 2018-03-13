@@ -7,22 +7,24 @@
     [clojure.core.async :as async]
     [provisdom.utility-belt.anomalies :as anomalies]))
 
-(defn catch-error-or-exception
-  "For a fn `f` that takes zero arguments, when Error or Exception is caught,
-  returns anomaly."
+(defn catch-error-or-exception-or-nil
+  "For a fn `f` that takes zero arguments, when nil is returned or an Error or
+  Exception is caught, returns anomaly."
   [f]
   (try (let [r (f)]
-         (if (instance? Exception r)
-           (throw (ex-info (.getMessage r) {}))
-           r))
+         (cond (instance? Exception r) (throw (ex-info (.getMessage r) {}))
+               (nil? r) {::anomalies/message  "'nil' return"
+                         ::anomalies/category ::anomalies/exception
+                         ::anomalies/fn       (var catch-error-or-exception-or-nil)}
+               :else r))
        (catch Exception e {::anomalies/message  (.getMessage e)
                            ::anomalies/category ::anomalies/exception
-                           ::anomalies/fn       (var catch-error-or-exception)})
+                           ::anomalies/fn       (var catch-error-or-exception-or-nil)})
        (catch Error e {::anomalies/message  (.getMessage e)
                        ::anomalies/category ::anomalies/error
-                       ::anomalies/fn       (var catch-error-or-exception)})))
+                       ::anomalies/fn       (var catch-error-or-exception-or-nil)})))
 
-(s/fdef catch-error-or-exception
+(s/fdef catch-error-or-exception-or-nil
         :args (s/cat :f (s/fspec :args (s/cat)
                                  :ret any?))
         :ret any?)
@@ -30,8 +32,8 @@
 ;;; TODO - has async monad written all over it
 (defn thread
   "Call each of the functions `fs` on a separate thread. Each of the `fs` are
-  wrapped such that hangs are prevented by catching Exceptions and Errors, and
-  returning an anomaly.
+  wrapped such that hangs are prevented by catching nil returns and Exceptions
+  and Errors, and returning an anomaly.
 
   Options for `threading-type`:
    `:and` -- Returns nil if any anomalies are returned, otherwise returns a
@@ -55,7 +57,7 @@
   [threading-type fs]
   (let [futures (doall
                   (for [index-and-wrap-f (map (fn [index f]
-                                                [index #(catch-error-or-exception f)])
+                                                [index #(catch-error-or-exception-or-nil f)])
                                               (range)
                                               fs)]
                     (let [channel (async/chan)]
@@ -95,7 +97,7 @@
                              (do (f-off) [first-val i])))
             :all (recur (f-on) results-and-fns)))
         (when (or (= threading-type :all)
-                (= threading-type :and))
+                  (= threading-type :and))
           results-and-fns)))))
 
 (s/def ::threading-type #{:and :first!! :or :any-ordered :all})
@@ -117,7 +119,8 @@
 (defn thread-select
   "Call each of the functions `fs` on a separate thread, and select thread
   result using `selector-fn`. Each of the `fs` are wrapped such that hangs are
-  prevented by catching Exceptions and Errors, and anomalies are ignored."
+  prevented by catching nil returns and Exceptions and Errors, and anomalies
+  are ignored."
   [selector-fn fs]
   (let [result (filter (complement anomalies/anomaly?)
                        (thread :all fs))]
@@ -132,7 +135,7 @@
 (defn thread-max
   "Calls each of the functions `fs` on a separate thread, and returns the
   maximum value. Each of the `fs` are wrapped such that hangs are prevented by
-  catching Exceptions and Errors, and anomalies are ignored."
+  catching nil returns and Exceptions and Errors, and anomalies are ignored."
   [fs]
   (let [ret (thread-select (fn [results]
                              (when (and results
@@ -152,7 +155,7 @@
 (defn thread-min
   "Calls each of the functions `fs` on a separate thread, and returns the
   minimum value. Each of the `fs` are wrapped such that hangs are prevented by
-  catching Exceptions and Errors, and anomalies are ignored."
+  catching nil returns and Exceptions and Errors, and anomalies are ignored."
   [fs]
   (let [ret (thread-select (fn [results]
                              (when (and results
