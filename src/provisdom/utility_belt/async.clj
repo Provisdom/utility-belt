@@ -9,7 +9,8 @@
 
 (defn catch-error-or-exception-or-nil
   "For a fn `f` that takes zero arguments, when nil is returned or an Error or
-  Exception is caught, returns anomaly."
+  Exception is caught, returns anomaly. 'nil' returns don't work well with
+  `clojure.core.async`."
   [f]
   (try (let [r (f)]
          (cond (instance? Exception r) (throw (ex-info (.getMessage r) {}))
