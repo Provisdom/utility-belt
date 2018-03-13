@@ -1,5 +1,5 @@
 (def project 'provisdom/utility-belt)
-(def version "0.2.0-alpha8")
+(def version "0.2.0-alpha9")
 
 (set-env!
   :resource-paths #{"src"}
