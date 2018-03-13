@@ -7,14 +7,17 @@
   (:import (java.util Map)))
 
 (defn filter-map
-  "Returns map with keys that meet `pred`."
-  [pred m]
+  "Returns map with keys that meet `pred`, which takes a key and value as
+  inputs."
+  [pred-kv m]
   (select-keys m
-               (for [[k v] m :when (pred k v)]
+               (for [[k v] m :when (pred-kv k v)]
                  k)))
 
 (s/fdef filter-map
-        :args (s/cat :pred ::pred :m map?)
+        :args (s/cat :pred-kv (s/fspec :args (s/cat :k any? :v any?)
+                                       :ret boolean?)
+                     :m map?)
         :ret map?)
 
 (defn map->sorted-map
@@ -44,7 +47,8 @@
           [k (f v)])))
 
 (s/fdef fmap
-        :args (s/cat :f (s/fspec :args (s/cat :x any?) :ret any?)
+        :args (s/cat :f (s/fspec :args (s/cat :x any?)
+                                 :ret any?)
                      :m map?)
         :ret map?)
 

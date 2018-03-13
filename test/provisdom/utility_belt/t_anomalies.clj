@@ -6,14 +6,15 @@
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]))
 
+;1 seconds
+
 (set! *warn-on-reflection* true)
 
 (ost/instrument)
 
 (deftest anomaly?-test
+  (is (spec-check anomalies/anomaly?))
   (is (anomalies/anomaly? {::anomalies/category ::anomalies/no-solve}))
   (is-not (anomalies/anomaly? {::anomalies/message "Test"})))
-
-(defspec-test test-anomaly? `anomalies/anomaly?)
 
 #_(ost/unstrument)
