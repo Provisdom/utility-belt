@@ -34,11 +34,11 @@
   returning an anomaly.
 
   Options for `threading-type`:
-   `:and` -- Returns false if any anomalies are returned, otherwise returns a
+   `:and` -- Returns nil if any anomalies are returned, otherwise returns a
              vector with all the results in order corresponding to their `fs`.
           -- Short-circuits (and cancels the calls to remaining `fs`) on first
              returned anomaly.
-   `:first!!` -- Returns false if all are anomalies, otherwise returns value of
+   `:first!!` -- Returns nil if all are anomalies, otherwise returns value of
                  first result.
               -- Short-circuits (and cancels the calls to remaining `fs`) on
                  first returned value.
@@ -46,7 +46,7 @@
                  inconsistent results.
    `:any-ordered` -- Returns a tuple containing the [value index] as soon as any
                      function returns with the previous `fs` all having
-                     returned an anomaly. Otherwise, returns false.
+                     returned an anomaly. Otherwise, returns nil.
    `:all` -- Returns a vector with all the results in order corresponding to
              their `fs`.
    `:or` -- Returns false if all are anomalies, otherwise returns true.
@@ -75,7 +75,7 @@
                        (future-cancel fus))]
           (condp = threading-type
             :and (if (anomalies/anomaly? latest-result)
-                   (do (f-off) false)
+                   (do (f-off) nil)
                    (recur (f-on) results-and-fns))
             :first!! (if (anomalies/anomaly? latest-result)
                        (recur (f-on) results-and-fns)
@@ -94,10 +94,9 @@
                              (recur (f-on) results-and-fns)
                              (do (f-off) [first-val i])))
             :all (recur (f-on) results-and-fns)))
-        (if (or (= threading-type :all)
+        (when (or (= threading-type :all)
                 (= threading-type :and))
-          results-and-fns
-          false)))))
+          results-and-fns)))))
 
 (s/def ::threading-type #{:and :first!! :or :any-ordered :all})
 
