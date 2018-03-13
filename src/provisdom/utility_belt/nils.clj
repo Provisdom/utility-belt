@@ -7,16 +7,18 @@
     [provisdom.utility-belt.anomalies :as anomalies]))
 
 (defn ignore-nils
-  "Applies function 'f' and ignores any nil values in `args`."
+  "Applies function `f` and ignores any nil values in `args`."
   [f & args]
   (apply f (remove nil? args)))
 
 (s/fdef ignore-nils
-        :args (s/cat :f fn? :args (s/* any?))
+        :args (s/cat :f (s/fspec :args (s/cat :x (s/* any?))
+                                 :ret any?)
+                     :args (s/* any?))
         :ret any?)
 
 (defn anomaly-nils
-  "Applies function 'f' and returns an anomaly on any nil value in `args` or on
+  "Applies function `f` and returns an anomaly on any nil value in `args` or on
   a nil return value."
   [f & args]
   (let [anomaly {::anomalies/category ::anomalies/forbidden
@@ -27,17 +29,21 @@
       (or (apply f args) anomaly))))
 
 (s/fdef anomaly-nils
-        :args (s/cat :f fn? :args (s/* any?))
+        :args (s/cat :f (s/fspec :args (s/cat :x (s/* any?))
+                                 :ret any?)
+                     :args (s/* any?))
         :ret any?)
 
 (defn nil-nils
-  "Applies function 'f' and returns nil on any nil value."
+  "Applies function `f` and returns nil on any nil value."
   [f & args]
   (when-not (some nil? args)
     (apply f args)))
 
 (s/fdef nil-nils
-        :args (s/cat :f fn? :args (s/* any?))
+        :args (s/cat :f (s/fspec :args (s/cat :x (s/* any?))
+                                 :ret any?)
+                     :args (s/* any?))
         :ret any?)
 
 (defn replace-nils

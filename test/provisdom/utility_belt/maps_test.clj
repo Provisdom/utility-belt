@@ -1,4 +1,4 @@
-(ns provisdom.utility-belt.t-maps
+(ns provisdom.utility-belt.maps-test
   (:require
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]

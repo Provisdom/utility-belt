@@ -23,7 +23,7 @@
 
 ;;;FUNCTIONS
 (defn update-in-with-not-found
-  "'Updates' a value in a nested associative structure, where `ks` is a sequence
+  "Updates a value in a nested associative structure, where `ks` is a sequence
   of keys and `f` is a function that will take the old value and any supplied
   args and return the new value, and returns a new nested structure. If any key
   does not exist, `not-found` will be used as the old value. If any levels do
@@ -36,7 +36,9 @@
 (s/fdef update-in-with-not-found
         :args (s/cat :m any?
                      :ks (s/coll-of any?)
-                     :f fn?
+                     :f (s/fspec :args (s/cat :v any?
+                                              :args (s/* any?))
+                                 :ret any?)
                      :not-found any?
                      :args (s/* any?))
         :ret any?)
@@ -78,9 +80,8 @@
         :ret (s/every any?))
 
 (defn reduce-kv-ext
-  "Extension of clojure's 'reduce-kv'.
-  First collection must be the shortest.
-  Function f takes the result value, an index, and the item value(s)."
+  "Extension of clojure's 'reduce-kv'. First collection must be the shortest.
+  Function `f` takes the result value, an index, and the item value(s)."
   ([f init coll] (reduce-kv f init coll))
   ([f init c1 c2]
    (let [a1 (to-array c1)
@@ -93,19 +94,35 @@
      (areduce a1 i ret init (f ret i (aget a1 i) (aget a2 i) (aget a3 i))))))
 
 (s/fdef reduce-kv-ext
-        :args (s/or :three (s/cat :f fn?
+        :args (s/or :three (s/cat :f (s/fspec :args (s/cat :result any?
+                                                           :index int?
+                                                           :value any?)
+                                              :ret any?)
                                   :init any?
                                   :coll ::nilable-seq)
-                    :four+ (s/cat :f fn?
-                                  :init any?
-                                  :c1 ::nilable-seq
-                                  :c2 ::nilable-seq
-                                  :c3 (s/? ::nilable-seq)))
+                    :four (s/cat :f (s/fspec :args (s/cat :result any?
+                                                          :index int?
+                                                          :value1 any?
+                                                          :value2 any?)
+                                             :ret any?)
+                                 :init any?
+                                 :c1 ::nilable-seq
+                                 :c2 ::nilable-seq)
+                    :five (s/cat :f (s/fspec :args (s/cat :result any?
+                                                          :index int?
+                                                          :value1 any?
+                                                          :value2 any?
+                                                          :value3 any?)
+                                             :ret any?)
+                                 :init any?
+                                 :c1 ::nilable-seq
+                                 :c2 ::nilable-seq
+                                 :c3 ::nilable-seq))
         :ret any?)
 
 (defn reductions-kv
-  "Returns a lazy seq of a reduction with indices.
-  Function f takes the result value, an index, and the item value(s)."
+  "Returns a lazy seq of a reduction with indices. Function `f` takes the
+  result value, an index, and the item value(s)."
   ([f init coll]
    (when-all-let [[init-h & init-t] (seq coll)]
                  (letfn [(g [i res coll]
@@ -138,65 +155,126 @@
                    (g 1 (f init 0 init-h1 init-h2 init-h3) init-t1 init-t2 init-t3)))))
 
 (s/fdef reductions-kv
-        :args (s/or :three (s/cat :f fn?
+        :args (s/or :three (s/cat :f (s/fspec :args (s/cat :result any?
+                                                           :index int?
+                                                           :value any?)
+                                              :ret any?)
                                   :init any?
                                   :coll ::nilable-seq)
-                    :four+ (s/cat :f fn?
-                                  :init any?
-                                  :c1 ::nilable-seq
-                                  :c2 ::nilable-seq
-                                  :c3 (s/? ::nilable-seq)))
-        :ret any?)
-
-(defn reduce-kv-with-stop
-  "Reduces a sequence using stopping predicates.
-  Function f and predicates take the result value, an index,
-   and the item value(s)."
-  ([f init coll stop-pred]
-   (reduce-kv-with-stop f init coll stop-pred nil nil))
-  ([f init c1 c2 stop-pred]
-   (reduce-kv-with-stop f init c1 c2 stop-pred nil nil))
-  ([f init coll stop-pred err-pred err-return-fn]
-   (loop [i 0 [h & t] coll res init]
-     (cond
-       (or (not h) (stop-pred res i h)) res
-       (and err-pred (err-pred res i h)) (err-return-fn res i h)
-       :else (recur (inc i) t (f res i h)))))
-  ([f init c1 c2 stop-pred err-pred err-return-fn]
-   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 res init]
-     (cond
-       (or (not h1) (not h2) (stop-pred res i h1 h2)) res
-       (and err-pred (err-pred res i h1 h2)) (err-return-fn res i h1 h2)
-       :else (recur (inc i) t1 t2 (f res i h1 h2)))))
-  ([f init c1 c2 c3 stop-pred err-pred err-return-fn]
-   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 [h3 & t3] c3 res init]
-     (cond
-       (or (not h1) (not h2) (not h3) (stop-pred res i h1 h2 h3)) res
-       (and err-pred (err-pred res i h1 h2 h3)) (err-return-fn res i h1 h2 h3)
-       :else (recur (inc i) t1 t2 t3 (f res i h1 h2 h3))))))
-
-(s/fdef reduce-kv-with-stop
-        :args (s/or :four (s/cat :f fn?
+                    :four (s/cat :f (s/fspec :args (s/cat :result any?
+                                                          :index int?
+                                                          :value1 any?
+                                                          :value2 any?)
+                                             :ret any?)
                                  :init any?
-                                 :coll ::nilable-seq
-                                 :stop-pred fn?)
-                    :five (s/cat :f fn?
+                                 :c1 ::nilable-seq
+                                 :c2 ::nilable-seq)
+                    :five (s/cat :f (s/fspec :args (s/cat :result any?
+                                                          :index int?
+                                                          :value1 any?
+                                                          :value2 any?
+                                                          :value3 any?)
+                                             :ret any?)
                                  :init any?
                                  :c1 ::nilable-seq
                                  :c2 ::nilable-seq
-                                 :stop-pred fn?)
-                    :six (s/cat :f fn?
+                                 :c3 ::nilable-seq))
+        :ret any?)
+
+(defn reduce-kv-with-stop
+  "Reduces a sequence using stopping predicates. Function `f` and predicates
+  take the result value, an index, and the item value(s)."
+  ([f init coll {::keys [stop-pred1 err-pred1 err-return-fn1]}]
+   (loop [i 0 [h & t] coll res init]
+     (cond
+       (or (not h) (stop-pred1 res i h)) res
+       (and err-pred1 (err-pred1 res i h)) (err-return-fn1 res i h)
+       :else (recur (inc i) t (f res i h)))))
+  ([f init c1 c2 {::keys [stop-pred2 err-pred2 err-return-fn2]}]
+   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 res init]
+     (cond
+       (or (not h1) (not h2) (stop-pred2 res i h1 h2)) res
+       (and err-pred2 (err-pred2 res i h1 h2)) (err-return-fn2 res i h1 h2)
+       :else (recur (inc i) t1 t2 (f res i h1 h2)))))
+  ([f init c1 c2 c3 {::keys [stop-pred3 err-pred3 err-return-fn3]}]
+   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 [h3 & t3] c3 res init]
+     (cond
+       (or (not h1) (not h2) (not h3) (stop-pred3 res i h1 h2 h3)) res
+       (and err-pred3 (err-pred3 res i h1 h2 h3)) (err-return-fn3 res i h1 h2 h3)
+       :else (recur (inc i) t1 t2 t3 (f res i h1 h2 h3))))))
+
+(s/def ::pred1
+  (s/fspec :args (s/cat :result any?
+                        :index int?
+                        :value any?)
+           :ret boolean?))
+
+(s/def ::pred2
+  (s/fspec :args (s/cat :result any?
+                        :index int?
+                        :value1 any?
+                        :value2 any?)
+           :ret boolean?))
+
+(s/def ::pred3
+  (s/fspec :args (s/cat :result any?
+                        :index int?
+                        :value1 any?
+                        :value2 any?
+                        :value3 any?)
+           :ret boolean?))
+
+(s/def ::f1
+  (s/fspec :args (s/cat :result any?
+                        :index int?
+                        :value any?)
+           :ret any?))
+
+(s/def ::f2
+  (s/fspec :args (s/cat :result any?
+                        :index int?
+                        :value1 any?
+                        :value2 any?)
+           :ret any?))
+
+(s/def ::f3
+  (s/fspec :args (s/cat :result any?
+                        :index int?
+                        :value1 any?
+                        :value2 any?
+                        :value3 any?)
+           :ret any?))
+
+(s/def ::stop-pred1 ::pred1)
+(s/def ::err-pred1 ::pred1)
+(s/def ::err-return-fn1 ::f1)
+(s/def ::stop-pred2 ::pred2)
+(s/def ::err-pred2 ::pred2)
+(s/def ::err-return-fn2 ::f2)
+(s/def ::stop-pred3 ::pred3)
+(s/def ::err-pred3 ::pred3)
+(s/def ::err-return-fn3 ::f3)
+
+(s/fdef reduce-kv-with-stop
+        :args (s/or :four (s/cat :f ::f1
+                                 :init any?
+                                 :coll ::nilable-seq
+                                 :args (s/? (s/keys :opt [::stop-pred1
+                                                          ::err-pred1
+                                                          ::err-return-fn1])))
+                    :five (s/cat :f ::f2
+                                 :init any?
+                                 :c1 ::nilable-seq
+                                 :c2 ::nilable-seq
+                                 :args (s/? (s/keys :opt [::stop-pred2
+                                                          ::err-pred2
+                                                          ::err-return-fn2])))
+                    :six (s/cat :f ::f3
                                 :init any?
-                                :coll ::nilable-seq
-                                :stop-pred fn?
-                                :err-pred (s/nilable fn?)
-                                :err-return-fn (s/nilable fn?))
-                    :seven+ (s/cat :f fn?
-                                   :init any?
-                                   :c1 ::nilable-seq
-                                   :c2 ::nilable-seq
-                                   :c3 (s/? ::nilable-seq)
-                                   :stop-pred fn?
-                                   :err-pred (s/nilable fn?)
-                                   :err-return-fn (s/nilable fn?)))
+                                :c1 ::nilable-seq
+                                :c2 ::nilable-seq
+                                :c3 ::nilable-seq
+                                :args (s/? (s/keys :opt [::stop-pred3
+                                                         ::err-pred3
+                                                         ::err-return-fn3]))))
         :ret any?)

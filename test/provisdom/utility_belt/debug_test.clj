@@ -1,4 +1,4 @@
-(ns provisdom.utility-belt.t-debug
+(ns provisdom.utility-belt.debug-test
   (:require
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]

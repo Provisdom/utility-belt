@@ -1,5 +1,5 @@
 (def project 'provisdom/utility-belt)
-(def version "0.2.0-alpha7")
+(def version "0.2.0-alpha8")
 
 (set-env!
   :resource-paths #{"src"}
@@ -31,12 +31,12 @@
        :scm         {:url "https://gitlab.com/provisdom/utility-belt"}
        :license     {"Provisdom" "(c) 2015-2018 Provisdom Corporation"}}
   test {:namespaces '#{
-                       provisdom.utility-belt.t-anomalies
-                       provisdom.utility-belt.t-arities
-                       provisdom.utility-belt.t-async
-                       provisdom.utility-belt.t-debug
-                       provisdom.utility-belt.t-extensions
-                       provisdom.utility-belt.t-maps
-                       provisdom.utility-belt.t-nils
-                       provisdom.utility-belt.t-strings
+                       provisdom.utility-belt.anomalies-test
+                       provisdom.utility-belt.arities-test
+                       provisdom.utility-belt.async-test
+                       provisdom.utility-belt.debug-test
+                       provisdom.utility-belt.extensions-test
+                       provisdom.utility-belt.maps-test
+                       provisdom.utility-belt.nils-test
+                       provisdom.utility-belt.strings-test
                        }})

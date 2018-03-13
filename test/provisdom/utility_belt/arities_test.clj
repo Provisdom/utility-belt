@@ -1,4 +1,4 @@
-(ns provisdom.utility-belt.t-arities
+(ns provisdom.utility-belt.arities-test
   (:require
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]

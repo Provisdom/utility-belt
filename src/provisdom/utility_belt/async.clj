@@ -99,9 +99,20 @@
           results-and-fns
           false)))))
 
+(s/def ::threading-type #{:and :first!! :or :any-ordered :all})
+
+(s/def ::fs
+  (s/with-gen
+    (s/coll-of (s/fspec :args (s/cat)
+                        :ret any?))
+    #(gen/vector (s/gen (s/fspec :args (s/cat)
+                                 :ret any?))
+                 0
+                 5)))
+
 (s/fdef thread
-        :args (s/cat :threading-type #{:and :first!! :or :any-ordered :all}
-                     :fs (s/coll-of fn?))
+        :args (s/cat :threading-type ::threading-type
+                     :fs ::fs)
         :ret any?)
 
 (defn thread-select
@@ -114,8 +125,9 @@
     (selector-fn result)))
 
 (s/fdef thread-select
-        :args (s/cat :selector-fn fn?
-                     :fs (s/coll-of fn?))
+        :args (s/cat :selector-fn (s/fspec :args (s/cat :x (s/coll-of any?))
+                                           :ret any?)
+                     :fs ::fs)
         :ret any?)
 
 (defn thread-max
@@ -123,27 +135,37 @@
   maximum value. Each of the `fs` are wrapped such that hangs are prevented by
   catching Exceptions and Errors, and anomalies are ignored."
   [fs]
-  (try (thread-select #(apply max %) fs)
-       (catch Exception _ {::anomalies/category ::anomalies/forbidden
-                           ::anomalies/message  "All functions 'fs' must return numbers."
-                           ::anomalies/fn       (var thread-max)})))
+  (let [ret (thread-select (fn [results]
+                             (when (and results
+                                        (not (empty? results))
+                                        (every? number? results))
+                               (apply max results)))
+                           fs)]
+    (or ret {::anomalies/category ::anomalies/forbidden
+             ::anomalies/message  "All functions 'fs' must return numbers."
+             ::anomalies/fn       (var thread-max)})))
 
 (s/fdef thread-max
-        :args (s/cat :fs (s/coll-of fn?))
+        :args (s/cat :fs ::fs)
         :ret (s/or :anomaly ::anomalies/anomaly
-                   :max number?))
+                   :max (s/nilable number?)))
 
 (defn thread-min
   "Calls each of the functions `fs` on a separate thread, and returns the
   minimum value. Each of the `fs` are wrapped such that hangs are prevented by
   catching Exceptions and Errors, and anomalies are ignored."
   [fs]
-  (try (thread-select #(apply min %) fs)
-       (catch Exception _ {::anomalies/category ::anomalies/forbidden
-                           ::anomalies/message  "All functions 'fs' must return numbers."
-                           ::anomalies/fn       (var thread-min)})))
+  (let [ret (thread-select (fn [results]
+                             (when (and results
+                                        (not (empty? results))
+                                        (every? number? results))
+                               (apply min results)))
+                           fs)]
+    (or ret {::anomalies/category ::anomalies/forbidden
+             ::anomalies/message  "All functions 'fs' must return numbers."
+             ::anomalies/fn       (var thread-min)})))
 
 (s/fdef thread-min
-        :args (s/cat :fs (s/coll-of fn?))
+        :args (s/cat :fs ::fs)
         :ret (s/or :anomaly ::anomalies/anomaly
-                   :min number?))
+                   :min (s/nilable number?)))

@@ -1,4 +1,4 @@
-(ns provisdom.utility-belt.t-strings
+(ns provisdom.utility-belt.strings-test
   (:require
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]

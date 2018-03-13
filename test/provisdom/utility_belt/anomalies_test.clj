@@ -1,4 +1,4 @@
-(ns provisdom.utility-belt.t-anomalies
+(ns provisdom.utility-belt.anomalies-test
   (:require
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]
