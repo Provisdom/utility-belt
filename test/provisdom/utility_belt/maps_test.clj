@@ -35,6 +35,10 @@
                              :fspec-iterations 10
                              :recursion-limit  1
                              :test-check       {:num-tests 500}}))
-  (is= {:a 2 :b 4} (maps/fmap #(when (number? %) (inc %)) {:a 1 :b 3})))
+  (is= {:a 2 :b 4}
+       (maps/fmap (fn [x]
+                    (when (number? x)
+                      (inc x)))
+                  {:a 1 :b 3})))
 
 #_(ost/unstrument)

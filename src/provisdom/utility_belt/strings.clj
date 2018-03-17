@@ -35,7 +35,8 @@
 (defn substring
   "Returns substring of string `s` starting at `start-index` and ending at
   optional `end-index`."
-  ([s start-index] (.substring (str s) (int start-index)))
+  ([s start-index]
+   (.substring (str s) (int start-index)))
   ([s start-index end-index]
    (.substring (str s) (int start-index) (inc (int end-index)))))
 

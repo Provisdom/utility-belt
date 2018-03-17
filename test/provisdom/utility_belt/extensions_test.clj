@@ -80,11 +80,12 @@
          [7 8 9])))
 
 (deftest reductions-kv-test
-  (is (spec-check extensions/reductions-kv {:coll-check-limit 10
-                                            :coll-error-limit 10
-                                            :fspec-iterations 10
-                                            :recursion-limit  1
-                                            :test-check       {:num-tests 300}}))
+  (is (spec-check extensions/reductions-kv
+                  {:coll-check-limit 10
+                   :coll-error-limit 10
+                   :fspec-iterations 10
+                   :recursion-limit  1
+                   :test-check       {:num-tests 300}}))
   (is= '(1.0 4.0 9.0)
        (extensions/reductions-kv
          (fn [res i v1]
