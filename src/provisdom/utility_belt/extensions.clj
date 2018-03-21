@@ -29,12 +29,29 @@
   does not exist, `not-found` will be used as the old value. If any levels do
   not exist, hash-maps will be created."
   [m [k & ks] f not-found & args]
-  (if ks
-    (assoc m k (apply update-in-with-not-found (get m k not-found) ks f not-found args))
-    (assoc m k (apply f (get m k not-found) args))))
+  (if (empty? m)
+    m
+    (if ks
+      (let [level1 (get m k not-found)
+            next-k (first ks)]
+        (when (and (or (map? level1) (and (vector? level1)
+                                          (int? next-k)
+                                          (>= next-k 0)
+                                          (< next-k (count level1))))
+                   (or (map? m) (and (vector? m)
+                                     (int? k)
+                                     (>= k 0)
+                                     (< k (count m)))))
+          (assoc m k (apply update-in-with-not-found level1 ks f not-found args))))
+      (when (or (map? m) (and (vector? m)
+                              (int? k)
+                              (>= k 0)
+                              (< k (count m))))
+        (assoc m k (apply f (get m k not-found) args))))))
 
 (s/fdef update-in-with-not-found
-        :args (s/cat :m any?
+        :args (s/cat :m (s/or :map map?
+                              :v vector?)
                      :ks (s/coll-of any?)
                      :f (s/fspec :args (s/cat :v any?
                                               :args (s/* any?))
@@ -100,24 +117,29 @@
                                               :ret any?)
                                   :init any?
                                   :coll ::nilable-seq)
-                    :four (s/cat :f (s/fspec :args (s/cat :result any?
-                                                          :index int?
-                                                          :value1 any?
-                                                          :value2 any?)
-                                             :ret any?)
-                                 :init any?
-                                 :c1 ::nilable-seq
-                                 :c2 ::nilable-seq)
-                    :five (s/cat :f (s/fspec :args (s/cat :result any?
-                                                          :index int?
-                                                          :value1 any?
-                                                          :value2 any?
-                                                          :value3 any?)
-                                             :ret any?)
-                                 :init any?
-                                 :c1 ::nilable-seq
-                                 :c2 ::nilable-seq
-                                 :c3 ::nilable-seq))
+                    :four (s/and (s/cat :f (s/fspec :args (s/cat :result any?
+                                                                 :index int?
+                                                                 :value1 any?
+                                                                 :value2 any?)
+                                                    :ret any?)
+                                        :init any?
+                                        :c1 ::nilable-seq
+                                        :c2 ::nilable-seq)
+                                 (fn [{:keys [c1 c2]}]
+                                   (<= (count c1) (count c2))))
+                    :five (s/and (s/cat :f (s/fspec :args (s/cat :result any?
+                                                                 :index int?
+                                                                 :value1 any?
+                                                                 :value2 any?
+                                                                 :value3 any?)
+                                                    :ret any?)
+                                        :init any?
+                                        :c1 ::nilable-seq
+                                        :c2 ::nilable-seq
+                                        :c3 ::nilable-seq)
+                                 (fn [{:keys [c1 c2 c3]}]
+                                   (and (<= (count c1) (count c2))
+                                        (<= (count c1) (count c3))))))
         :ret any?)
 
 (defn reductions-kv
@@ -185,22 +207,30 @@
   "Reduces a sequence using stopping predicates. Function `f` and predicates
   take the result value, an index, and the item value(s)."
   ([f init coll {::keys [stop-pred1 err-pred1 err-return-fn1]}]
-   (loop [i 0 [h & t] coll res init]
+   (loop [i 0
+          [h & t] coll
+          res init]
      (cond
-       (or (not h) (stop-pred1 res i h)) res
-       (and err-pred1 (err-pred1 res i h)) (err-return-fn1 res i h)
+       (or (not h) (and stop-pred1 (stop-pred1 res i h))) res
+       (and err-pred1 (err-pred1 res i h)) (when err-return-fn1 (err-return-fn1 res i h))
        :else (recur (inc i) t (f res i h)))))
   ([f init c1 c2 {::keys [stop-pred2 err-pred2 err-return-fn2]}]
-   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 res init]
+   (loop [i 0
+          [h1 & t1] c1
+          [h2 & t2] c2
+          res init]
      (cond
-       (or (not h1) (not h2) (stop-pred2 res i h1 h2)) res
-       (and err-pred2 (err-pred2 res i h1 h2)) (err-return-fn2 res i h1 h2)
+       (or (not h1) (not h2) (and stop-pred2 (stop-pred2 res i h1 h2))) res
+       (and err-pred2 (err-pred2 res i h1 h2)) (when err-return-fn2 (err-return-fn2 res i h1 h2))
        :else (recur (inc i) t1 t2 (f res i h1 h2)))))
   ([f init c1 c2 c3 {::keys [stop-pred3 err-pred3 err-return-fn3]}]
-   (loop [i 0 [h1 & t1] c1 [h2 & t2] c2 [h3 & t3] c3 res init]
+   (loop [i 0
+          [h1 & t1] c1
+          [h2 & t2] c2
+          [h3 & t3] c3 res init]
      (cond
-       (or (not h1) (not h2) (not h3) (stop-pred3 res i h1 h2 h3)) res
-       (and err-pred3 (err-pred3 res i h1 h2 h3)) (err-return-fn3 res i h1 h2 h3)
+       (or (not h1) (not h2) (not h3) (and stop-pred3 (stop-pred3 res i h1 h2 h3))) res
+       (and err-pred3 (err-pred3 res i h1 h2 h3)) (when err-return-fn3 (err-return-fn3 res i h1 h2 h3))
        :else (recur (inc i) t1 t2 t3 (f res i h1 h2 h3))))))
 
 (s/def ::pred1
@@ -259,22 +289,22 @@
         :args (s/or :four (s/cat :f ::f1
                                  :init any?
                                  :coll ::nilable-seq
-                                 :args (s/? (s/keys :opt [::stop-pred1
-                                                          ::err-pred1
-                                                          ::err-return-fn1])))
+                                 :args (s/keys :opt [::stop-pred1
+                                                     ::err-pred1
+                                                     ::err-return-fn1]))
                     :five (s/cat :f ::f2
                                  :init any?
                                  :c1 ::nilable-seq
                                  :c2 ::nilable-seq
-                                 :args (s/? (s/keys :opt [::stop-pred2
-                                                          ::err-pred2
-                                                          ::err-return-fn2])))
+                                 :args (s/keys :opt [::stop-pred2
+                                                     ::err-pred2
+                                                     ::err-return-fn2]))
                     :six (s/cat :f ::f3
                                 :init any?
                                 :c1 ::nilable-seq
                                 :c2 ::nilable-seq
                                 :c3 ::nilable-seq
-                                :args (s/? (s/keys :opt [::stop-pred3
-                                                         ::err-pred3
-                                                         ::err-return-fn3]))))
+                                :args (s/keys :opt [::stop-pred3
+                                                    ::err-pred3
+                                                    ::err-return-fn3])))
         :ret any?)
