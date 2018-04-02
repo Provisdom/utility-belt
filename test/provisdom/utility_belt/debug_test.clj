@@ -3,6 +3,7 @@
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]
     [provisdom.utility-belt.debug :as debug]
+    [provisdom.utility-belt.anomalies :as anomalies]
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]))
 
