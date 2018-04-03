@@ -36,21 +36,44 @@
   "Returns substring of string `s` starting at `start-index` and ending at
   optional `end-index`."
   ([s start-index]
-   (.substring (str s) (int start-index)))
+   (let [s (str s)
+         c (count s)
+         start (int start-index)]
+     (if (>= start c)
+       ""
+       (.substring s start))))
   ([s start-index end-index]
-   (.substring (str s) (int start-index) (inc (int end-index)))))
+   (let [s (str s)
+         c (count s)
+         start (int start-index)
+         end (min (inc (int end-index)) c)]
+     (if (or (>= start c) (<= end start))
+       ""
+       (.substring s start end)))))
 
 (s/fdef substring
-        :args (s/cat :s string? :start-index ::index :end-index (s/? ::index))
+        :args (s/cat :s string?
+                     :start-index ::index
+                     :end-index (s/? ::index))
         :ret string?)
 
 (defn trim-end
   "Trims all the `suffix` from the end of string `s`."
   [s suffix]
-  (let [s (str s)]
-    (if-not (str/ends-with? s suffix)
-      s
-      (trim-end (substring s 0 (- (count s) (count suffix) 1)) suffix))))
+  (let [s (str s)
+        count-suffix (count suffix)
+        c (count s)]
+    (cond
+      (= s (str suffix)) ""
+
+      (and (str/ends-with? s suffix)
+           (< count-suffix c)
+           (pos? count-suffix))
+      (trim-end
+        (substring s 0 (- c count-suffix 1))
+        suffix)
+
+      :else s)))
 
 (s/fdef trim-end
         :args (s/cat :s string? :suffix string?)
@@ -59,10 +82,20 @@
 (defn trim-start
   "Trims all the `prefix` from the start of string `s`."
   [s prefix]
-  (let [s (str s)]
-    (if-not (str/starts-with? s prefix)
-      s
-      (trim-start (substring s (count prefix) (dec (count s))) prefix))))
+  (let [s (str s)
+        count-prefix (count prefix)
+        c (count s)]
+    (cond
+      (= s (str prefix)) ""
+
+      (and (str/starts-with? s prefix)
+           (< count-prefix c)
+           (pos? count-prefix))
+      (trim-start
+        (substring s count-prefix (dec c))
+        prefix)
+
+      :else s)))
 
 (s/fdef trim-start
         :args (s/cat :s string? :prefix string?)
@@ -93,7 +126,9 @@
     (str/join (concat st substring e))))
 
 (s/fdef insert
-        :args (s/cat :s string? :index ::index :substring string?)
+        :args (s/cat :s string?
+                     :index ::index
+                     :substring string?)
         :ret string?)
 
 (defn abbreviate
@@ -103,5 +138,6 @@
     (StringUtils/abbreviate (str s) (int max-length))))
 
 (s/fdef abbreviate
-        :args (s/cat :s string? :max-length ::index)
+        :args (s/cat :s string?
+                     :max-length ::index)
         :ret string?)
