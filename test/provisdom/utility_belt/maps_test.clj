@@ -19,10 +19,6 @@
                           (and (number? v) (< v 2)))
                         {:a 1 :b 3})))
 
-(deftest map->sorted-map-test
-  (is (spec-check maps/map->sorted-map))
-  (is= {:a "hello" :b "hi"} (maps/map->sorted-map {:b "hi" :a "hello"})))
-
 (deftest submap?-test
   (is (spec-check maps/submap?))
   (is (maps/submap? {:a 1 :b 3} {:a 1}))

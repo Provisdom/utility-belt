@@ -37,5 +37,11 @@
     results))
 
 (s/fdef arities
-        :args (s/cat :f fn?)
+        :args (s/cat :f (s/with-gen fn?
+                                    #(gen/one-of
+                                       (map
+                                         gen/return
+                                         (list (fn [a] a)
+                                               (fn [& a] (apply + a))
+                                               (fn [a b] (+ a b)))))))
         :ret (s/coll-of ::arities :kind vector? :into []))

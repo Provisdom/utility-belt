@@ -20,15 +20,6 @@
                      :m map?)
         :ret map?)
 
-(defn map->sorted-map
-  "Returns sorted map."
-  [m]
-  (apply sorted-map (flatten (into [] m))))
-
-(s/fdef map->sorted-map
-        :args (s/cat :m map?)
-        :ret map?)
-
 (defn submap?
   "Checks whether m contains all entries in `sub`."
   [m sub]
