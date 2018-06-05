@@ -10,7 +10,7 @@ defaults: &defaults
     BOOT_WATCHERS_DISABLE: "yes"
 
 jobs:
-  build:
+  test:
     <<: *defaults
 
     steps:
@@ -34,17 +34,17 @@ jobs:
       - checkout
       - restore_cache:
           key: project
-      - run: boot build-jar push-release
+      - run: boot circle-deploy
 
 workflows:
   version: 2
   ci-workflow:
     jobs:
-      - build
+      - test
       - deploy:
           context: clojars
           requires:
-            - build
+            - test
           filters:
             branches:
               only:

@@ -9,8 +9,7 @@
                   [adzerk/boot-test "1.2.0" :scope "test"]
                   [criterium "0.4.4" :scope "test"]
                   [provisdom/boot-tasks "1.4" :scope "tests"]
-                  [provisdom/test "0.3.7" :scope "test"]
-                  [adzerk/bootlaces "0.1.13" :scope "test"]
+                  [provisdom/test "1.10" :scope "test"]
 
                   ;;project deps
                   [org.clojure/clojure "1.9.0" :scope "provided"]
@@ -21,8 +20,7 @@
 
 (require
   '[adzerk.boot-test :refer [test]]
-  '[provisdom.boot-tasks.core :refer [build]]
-  '[adzerk.bootlaces :refer [push-release]])
+  '[provisdom.boot-tasks.core :refer [build]])
 
 (task-options!
   pom {:project     project
@@ -39,3 +37,12 @@
                        provisdom.utility-belt.maps-test
                        provisdom.utility-belt.nils-test
                        provisdom.utility-belt.strings-test}})
+
+(deftask circle-deploy
+         []
+         (let [n (System/getenv "CIRCLE_BUILD_NUM")]
+           (assert n "CIRCLE_BUILD_NUM not set.")
+           (comp
+             (pom :version (str version "." n))
+             (jar)
+             (push :repo "deploy-clojars"))))
