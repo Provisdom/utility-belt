@@ -45,4 +45,6 @@
            (comp
              (pom :version (str version "." n))
              (jar)
-             (push :repo "deploy-clojars"))))
+             (push :repo-map {:url      "https://clojars.org/repo"
+                              :username (System/getenv "CLOJARS_USER")
+                              :password (System/getenv "CLOJARS_PASSWORD")}))))
