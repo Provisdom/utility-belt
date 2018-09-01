@@ -39,7 +39,8 @@
 
 (s/def ::anomaly (s/keys :req [::category]
                          :opt [::message
-                               ::fn]))
+                               ::fn
+                               ::data]))
 
 (defn anomaly?
   "Tests whether `x` is an anomaly."
