@@ -35,12 +35,15 @@
                     ::exception
                     ::error})
 
+(s/def ::solver-category #{::bad-supplied-function})
+
 (s/def ::message string?)
 
 (s/def ::anomaly (s/keys :req [::category]
                          :opt [::message
                                ::fn
-                               ::data]))
+                               ::data
+                               ::solver-category]))
 
 (defn anomaly?
   "Tests whether `x` is an anomaly."
