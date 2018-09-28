@@ -56,3 +56,30 @@
   {::category ::unsupported
    ::fn       fn-var
    ::message  "Not Implemented"})
+
+(defmacro ^{:private true} assert-args
+  [& pairs]
+  `(do (when-not ~(first pairs)
+         (throw (IllegalArgumentException.
+                  (str (first ~'&form) " requires " ~(second pairs) " in " ~'*ns* ":" (:line (meta ~'&form))))))
+       ~(let [more (nnext pairs)]
+          (when more
+            (list* `assert-args more)))))
+
+(defn- anomalous-let*
+  [bindings body]
+  (let [[[binding-form binding-expr] & bindings] bindings]
+    `(let [value# ~binding-expr]
+       (if (anomaly? value#)
+         value#
+         (let [~binding-form value#]
+           ~@(if (empty? bindings)
+               body
+               [(anomalous-let* bindings body)]))))))
+
+(defmacro anomalous-let
+  [bindings & body]
+  (assert-args
+    (vector? bindings) "a vector for its binding"
+    (even? (count bindings)) "an even number of forms in binding vector")
+  (anomalous-let* (partition 2 (destructure bindings)) body))
