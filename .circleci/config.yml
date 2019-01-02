@@ -14,7 +14,7 @@ jobs:
     steps:
       - checkout
 
-      - run: clojure -A:test
+      - run: clojure -J-Xmx3584m -A:test
 
 workflows:
   version: 2
