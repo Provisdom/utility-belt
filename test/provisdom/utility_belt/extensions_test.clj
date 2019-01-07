@@ -6,14 +6,14 @@
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]))
 
-;37 seconds
+;1 seconds
 
 (set! *warn-on-reflection* true)
 
 (ost/instrument)
 
 (deftest update-in-with-not-found-test
-  (is (spec-check extensions/update-in-with-not-found
+  #_(is (spec-check extensions/update-in-with-not-found
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
@@ -35,12 +35,12 @@
                                             6)))
 
 (deftest interleave-all-test
-  (is (spec-check extensions/interleave-all
+  #_(is (spec-check extensions/interleave-all
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
                    :recursion-limit  1
-                   :test-check       {:num-tests 100}})
+                   :test-check       {:num-tests 50}})
       (is= '() (extensions/interleave-all)))
   (is= '() (extensions/interleave-all nil))
   (is= '(1) (extensions/interleave-all [1]))
@@ -52,7 +52,7 @@
        (extensions/interleave-all [1 2 3] [4 5 6 7 8] [9])))
 
 (deftest reduce-kv-ext-test
-  (is (spec-check extensions/reduce-kv-ext
+  #_(is (spec-check extensions/reduce-kv-ext
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
@@ -90,7 +90,7 @@
          [7 8 9])))
 
 (deftest reductions-kv-test
-  (is (spec-check extensions/reductions-kv
+  #_(is (spec-check extensions/reductions-kv
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
@@ -128,7 +128,7 @@
          [7 8 9])))
 
 (deftest reduce-kv-with-stop-test
-  (is (spec-check extensions/reduce-kv-with-stop
+  #_(is (spec-check extensions/reduce-kv-with-stop
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
