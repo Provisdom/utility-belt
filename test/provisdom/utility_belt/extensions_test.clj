@@ -6,19 +6,19 @@
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]))
 
-;1 seconds
+;32 seconds
 
 (set! *warn-on-reflection* true)
 
 (ost/instrument)
 
 (deftest update-in-with-not-found-test
-  #_(is (spec-check extensions/update-in-with-not-found
+  (is (spec-check extensions/update-in-with-not-found
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
                    :recursion-limit  1
-                   :test-check       {:num-tests 150}}))
+                   :test-check       {:num-tests 70}}))
   (is= {:a 3 :b 2}
        (extensions/update-in-with-not-found {:a 1 :b 2}
                                             [:a]
@@ -35,7 +35,7 @@
                                             6)))
 
 (deftest interleave-all-test
-  #_(is (spec-check extensions/interleave-all
+  (is (spec-check extensions/interleave-all
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
@@ -52,12 +52,12 @@
        (extensions/interleave-all [1 2 3] [4 5 6 7 8] [9])))
 
 (deftest reduce-kv-ext-test
-  #_(is (spec-check extensions/reduce-kv-ext
+  (is (spec-check extensions/reduce-kv-ext
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
                    :recursion-limit  1
-                   :test-check       {:num-tests 200}}))
+                   :test-check       {:num-tests 70}}))
   (is= 9.0
        (extensions/reduce-kv-ext
          (fn [res i v1]
@@ -90,12 +90,12 @@
          [7 8 9])))
 
 (deftest reductions-kv-test
-  #_(is (spec-check extensions/reductions-kv
+  (is (spec-check extensions/reductions-kv
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
                    :recursion-limit  1
-                   :test-check       {:num-tests 300}}))
+                   :test-check       {:num-tests 90}}))
   (is= '(1.0 4.0 9.0)
        (extensions/reductions-kv
          (fn [res i v1]
@@ -128,12 +128,12 @@
          [7 8 9])))
 
 (deftest reduce-kv-with-stop-test
-  #_(is (spec-check extensions/reduce-kv-with-stop
+  (is (spec-check extensions/reduce-kv-with-stop
                   {:coll-check-limit 10
                    :coll-error-limit 10
                    :fspec-iterations 10
                    :recursion-limit  1
-                   :test-check       {:num-tests 200}}))
+                   :test-check       {:num-tests 90}}))
   (is= 4.0
        (extensions/reduce-kv-with-stop
          (fn [res i v1]
