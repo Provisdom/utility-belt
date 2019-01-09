@@ -8,4 +8,12 @@
                                                            :sha     "622511ac18147d70d427345dee3423616a929b12"}
                                 com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
                                                            :sha     "028a6d41ac9ac5d5c405dfc38e4da6b4cc1255d5"}}
-                  :main-opts   ["-m" "cognitect.test-runner"]}}}
+                  :main-opts   ["-m" "cognitect.test-runner"
+                                "-n" "provisdom.utility-belt.anomalies-test"
+                                "-n" "provisdom.utility-belt.arities-test"
+                                "-n" "provisdom.utility-belt.async-test"
+                                "-n" "provisdom.utility-belt.debug-test"
+                                "-n" "provisdom.utility-belt.extensions-test"
+                                "-n" "provisdom.utility-belt.maps-test"
+                                "-n" "provisdom.utility-belt.nils-test"
+                                "-n" "provisdom.utility-belt.strings-test"]}}}
