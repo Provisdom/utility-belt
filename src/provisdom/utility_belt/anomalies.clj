@@ -38,6 +38,9 @@
 (s/def ::solver-category #{::bad-supplied-function})
 
 (s/def ::message string?)
+(s/def ::fn fn?)
+(s/def ::data any?)
+
 
 (s/def ::anomaly (s/keys :req [::category]
                          :opt [::message
@@ -64,7 +67,8 @@
   [& pairs]
   `(do (when-not ~(first pairs)
          (throw (IllegalArgumentException.
-                  (str (first ~'&form) " requires " ~(second pairs) " in " ~'*ns* ":" (:line (meta ~'&form))))))
+                  (str (first ~'&form) " requires " ~(second pairs)
+                       " in " ~'*ns* ":" (:line (meta ~'&form))))))
        ~(let [more (nnext pairs)]
           (when more
             (list* `assert-args more)))))
