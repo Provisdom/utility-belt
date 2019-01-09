@@ -38,7 +38,7 @@
 (s/def ::solver-category #{::bad-supplied-function})
 
 (s/def ::message string?)
-(s/def ::fn fn?)
+(s/def ::fn var?)
 (s/def ::data any?)
 
 
