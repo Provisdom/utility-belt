@@ -5,7 +5,7 @@
  :aliases {:test {:extra-paths ["test"]
                   :extra-deps  {org.clojure/test.check    {:mvn/version "0.10.0-alpha3"}
                                 provisdom/test            {:git/url "https://github.com/Provisdom/test.git"
-                                                           :sha     "b5500027b6e42691be9a7bfe774db7bea206e124"}
+                                                           :sha     "52b5b0b0f01b4b284ee81dd6673b4c01f1d78f9c"}
                                 com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
                                                            :sha     "028a6d41ac9ac5d5c405dfc38e4da6b4cc1255d5"}}
                   :main-opts   ["-m" "cognitect.test-runner"
