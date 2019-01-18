@@ -36,21 +36,18 @@
                     ::error})
 
 (s/def ::solver-category #{::bad-supplied-function})
-
 (s/def ::message string?)
-
-(s/def ::fn
-  (s/with-gen var?
-              (gen/return (var identity))))
-
+(s/def ::fn var?)
 (s/def ::data any?)
 
-
-(s/def ::anomaly (s/keys :req [::category]
-                         :opt [::message
-                               ::fn
-                               ::data
-                               ::solver-category]))
+(s/def ::anomaly
+  (s/with-gen
+    (s/keys :req [::category]
+            :opt [::message
+                  ::fn
+                  ::data
+                  ::solver-category])
+    #(gen/return {::category ::exception})))
 
 (defn anomaly?
   "Tests whether `x` is an anomaly."
