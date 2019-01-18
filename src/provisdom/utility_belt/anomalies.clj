@@ -38,7 +38,11 @@
 (s/def ::solver-category #{::bad-supplied-function})
 
 (s/def ::message string?)
-(s/def ::fn var?)
+
+(s/def ::fn
+  (s/with-gen var?
+              (gen/return (var identity))))
+
 (s/def ::data any?)
 
 
