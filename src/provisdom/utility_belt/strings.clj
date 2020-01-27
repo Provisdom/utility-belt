@@ -4,9 +4,7 @@
     [clojure.spec.gen.alpha :as gen]
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]
-    [clojure.string :as str])
-  (:import
-    [org.apache.commons.lang3 StringUtils]))
+    [clojure.string :as str]))
 
 ;;;TODO - need for CLJS too
 
@@ -134,8 +132,11 @@
 (defn abbreviate
   "Shortens string `s` to `max-length` using ellipses if needed."
   [s max-length]
-  (let [max-length (max 5 max-length)]
-    (StringUtils/abbreviate (str s) (int max-length))))
+  (let [max-length (max 5 max-length)
+        abbrev-marker "..."]
+    (if (<= (count s) max-length)
+      s
+      (str (substring s 0 (- max-length 4)) abbrev-marker))))
 
 (s/fdef abbreviate
         :args (s/cat :s string?
