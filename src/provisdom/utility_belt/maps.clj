@@ -3,8 +3,19 @@
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
     [clojure.spec.test.alpha :as st]
-    [orchestra.spec.test :as ost])
-  (:import (java.util Map)))
+    [orchestra.spec.test :as ost]
+    [clojure.data.priority-map])
+  (:import (java.util Map)
+           (clojure.lang PersistentTreeMap)
+           (clojure.data.priority_map PersistentPriorityMap)))
+
+(defn priority-map?
+  [m]
+  (instance? PersistentPriorityMap m))
+
+(defn sorted-map?
+  [m]
+  (instance? PersistentTreeMap m))
 
 (defn filter-map
   "Returns map with keys that meet `pred`, which takes a key and value as

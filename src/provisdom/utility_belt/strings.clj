@@ -13,6 +13,13 @@
 ;;;   two places with a leading zero if necessary
 ;;;http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Formatter.html
 
+(defn- not-empty?
+  [x]
+  (not (empty? x)))
+
+(s/def ::not-empty-string
+  (s/and string? not-empty?))
+
 (s/def ::index
   (s/with-gen
     (s/int-in 0 Integer/MAX_VALUE)
@@ -27,8 +34,8 @@
     x))
 
 (s/fdef maybe-keyword-to-string
-        :args (s/cat :x any?)
-        :ret any?)
+  :args (s/cat :x any?)
+  :ret any?)
 
 (defn substring
   "Returns substring of string `s` starting at `start-index` and ending at
@@ -50,10 +57,10 @@
        (.substring s start end)))))
 
 (s/fdef substring
-        :args (s/cat :s string?
-                     :start-index ::index
-                     :end-index (s/? ::index))
-        :ret string?)
+  :args (s/cat :s string?
+               :start-index ::index
+               :end-index (s/? ::index))
+  :ret string?)
 
 (defn trim-end
   "Trims all the `suffix` from the end of string `s`."
@@ -74,8 +81,8 @@
       :else s)))
 
 (s/fdef trim-end
-        :args (s/cat :s string? :suffix string?)
-        :ret string?)
+  :args (s/cat :s string? :suffix string?)
+  :ret string?)
 
 (defn trim-start
   "Trims all the `prefix` from the start of string `s`."
@@ -96,8 +103,8 @@
       :else s)))
 
 (s/fdef trim-start
-        :args (s/cat :s string? :prefix string?)
-        :ret string?)
+  :args (s/cat :s string? :prefix string?)
+  :ret string?)
 
 (defn rest-string
   "Returns a possibly empty string of characters after the first."
@@ -105,8 +112,8 @@
   (str/join (rest s)))
 
 (s/fdef rest-string
-        :args (s/cat :s string?)
-        :ret string?)
+  :args (s/cat :s string?)
+  :ret string?)
 
 (defn butlast-string
   "Returns a possibly empty string of characters except the last."
@@ -114,8 +121,8 @@
   (str/join (butlast s)))
 
 (s/fdef butlast-string
-        :args (s/cat :s string?)
-        :ret string?)
+  :args (s/cat :s string?)
+  :ret string?)
 
 (defn insert
   "Inserts a `substring` into a string `s` at `index`."
@@ -124,10 +131,10 @@
     (str/join (concat st substring e))))
 
 (s/fdef insert
-        :args (s/cat :s string?
-                     :index ::index
-                     :substring string?)
-        :ret string?)
+  :args (s/cat :s string?
+               :index ::index
+               :substring string?)
+  :ret string?)
 
 (defn abbreviate
   "Shortens string `s` to `max-length` using ellipses if needed."
@@ -139,6 +146,6 @@
       (str (substring s 0 (- max-length 4)) abbrev-marker))))
 
 (s/fdef abbreviate
-        :args (s/cat :s string?
-                     :max-length ::index)
-        :ret string?)
+  :args (s/cat :s string?
+               :max-length ::index)
+  :ret string?)
