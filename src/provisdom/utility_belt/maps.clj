@@ -9,16 +9,16 @@
            (clojure.lang PersistentTreeMap)
            (clojure.data.priority_map PersistentPriorityMap)))
 
+;;;PRIORITY MAP
 (defn priority-map?
   [m]
   (instance? PersistentPriorityMap m))
 
 (defmacro priority-map-of
-  "This macro builds the spec for a priority map built with
-  [[clojure.data.priority-map/priority-map-keyfn-by]]. `keyfn` is the function
-  to apply to the VALUE of the map for comparison. `comparator` is how to
-  compare the outputs of the `keyfn`. A common example would be to use
-  'identity' for the `keyfn` and '<' for the `comparator`."
+  "This macro builds the spec for a priority map built with [[priority-map]].
+  `keyfn` is the function to apply to the VALUE of the map for comparison.
+  `comparator` is how to compare the outputs of the `keyfn`. A common example
+  would be to use 'identity' for the `keyfn` and '<' for the `comparator`."
   [kpred vpred keyfn comparator & opts]
   (let [sform `(s/map-of ~kpred ~vpred ~@opts)
         xform `(s/and ~sform priority-map?)]
@@ -27,10 +27,29 @@
        #(gen/fmap (partial into (priority-map-keyfn-by ~keyfn ~comparator))
                   (s/gen ~sform)))))
 
+(defn priority-map
+  "Creates a [[clojure.data.priority-map/priority-map-keyfn-by]]. A common
+  example would be to use 'identity' for the `keyfn` and '<' for the
+  `comparator`."
+  [keyfn comparator & keyvals]
+  (apply priority-map-keyfn-by keyfn comparator keyvals))
+
+;;;SORTED MAP
 (defn sorted-map?
   [m]
   (instance? PersistentTreeMap m))
 
+(defmacro sorted-map-of
+  "This macro builds the spec for a sorted map."
+  [kpred vpred & opts]
+  (let [sform `(s/map-of ~kpred ~vpred ~@opts)
+        xform `(s/and ~sform sorted-map?)]
+    `(s/with-gen
+       ~xform
+       #(gen/fmap (partial into (sorted-map))
+                  (s/gen ~sform)))))
+
+;;MAP MANIPULATION
 (defn filter-map
   "Returns map with keys that meet `pred`, which takes a key and value as
   inputs."
