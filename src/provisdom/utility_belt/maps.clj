@@ -4,7 +4,7 @@
     [clojure.spec.gen.alpha :as gen]
     [clojure.spec.test.alpha :as st]
     [orchestra.spec.test :as ost]
-    [clojure.data.priority-map])
+    [clojure.data.priority-map :refer [priority-map-keyfn-by]])
   (:import (java.util Map)
            (clojure.lang PersistentTreeMap)
            (clojure.data.priority_map PersistentPriorityMap)))
@@ -12,6 +12,20 @@
 (defn priority-map?
   [m]
   (instance? PersistentPriorityMap m))
+
+(defmacro priority-map-of
+  "This macro builds the spec for a priority map built with
+  [[clojure.data.priority-map/priority-map-keyfn-by]]. `keyfn` is the function
+  to apply to the VALUE of the map for comparison. `comparator` is how to
+  compare the outputs of the `keyfn`. A common example would be to use
+  'identity' for the `keyfn` and '<' for the `comparator`."
+  [kpred vpred keyfn comparator & opts]
+  (let [sform `(s/map-of ~kpred ~vpred ~@opts)
+        xform `(s/and ~sform priority-map?)]
+    `(s/with-gen
+       ~xform
+       #(gen/fmap (partial into (priority-map-keyfn-by ~keyfn ~comparator))
+                  (s/gen ~sform)))))
 
 (defn sorted-map?
   [m]
