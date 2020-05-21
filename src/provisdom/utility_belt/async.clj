@@ -7,6 +7,8 @@
     [clojure.core.async :as async]
     [provisdom.utility-belt.anomalies :as anomalies]))
 
+(s/def ::parallel? boolean?)
+
 (defn catch-error-or-exception-or-nil
   "For a fn `f` that takes zero arguments, when nil is returned or an Error or
   Exception is caught, returns anomaly. 'nil' returns don't work well with
@@ -118,19 +120,23 @@
         :ret any?)
 
 (defn thread-select
-  "Call each of the functions `fs` on a separate thread, and select thread
-  result using `selector-fn`. Each of the `fs` are wrapped such that hangs are
-  prevented by catching nil returns and Exceptions and Errors, and anomalies
-  are ignored."
-  [selector-fn fs]
-  (let [result (filter (complement anomalies/anomaly?)
-                       (thread :all fs))]
-    (selector-fn result)))
+  "Call each of the functions `fs` on a separate thread (or optionally -- not),
+  and select thread result using `selector-fn`. Each of the `fs` are wrapped
+  such that hangs are prevented by catching nil returns and Exceptions and
+  Errors, and anomalies are ignored."
+  ([selector-fn fs] (thread-select selector-fn fs true))
+  ([selector-fn fs parallel?]
+   (let [result (filter (complement anomalies/anomaly?)
+                        (if parallel?
+                          (thread :all fs)
+                          (map catch-error-or-exception-or-nil fs)))]
+     (selector-fn result))))
 
 (s/fdef thread-select
         :args (s/cat :selector-fn (s/fspec :args (s/cat :x (s/coll-of any?))
                                            :ret any?)
-                     :fs ::fs)
+                     :fs ::fs
+                     :parallel? (s/? ::parallel?))
         :ret any?)
 
 (defn thread-max
