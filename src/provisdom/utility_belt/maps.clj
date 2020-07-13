@@ -39,14 +39,29 @@
   [m]
   (instance? PersistentTreeMap m))
 
+(defn sorted-map-by?
+  "Tests whether `m` is a sorted map by."
+  [comparator m]
+  (and (sorted-map? m) (= (keys m) (sort-by comparator (keys m)))))
+
 (defmacro sorted-map-of
   "This macro builds the spec for a sorted map."
   [kpred vpred & opts]
   (let [sform `(s/map-of ~kpred ~vpred ~@opts)
-        xform `(s/and ~sform sorted-map?)]
+        xform `(s/and sorted-map? ~sform)]
     `(s/with-gen
        ~xform
        #(gen/fmap (partial into (sorted-map))
+                  (s/gen ~sform)))))
+
+(defmacro sorted-map-by-of
+  "This macro builds the spec for a sorted map by."
+  [kpred vpred comparator & opts]
+  (let [sform `(s/map-of ~kpred ~vpred ~@opts)
+        xform `(s/and (partial sorted-map-by? ~comparator) ~sform)]
+    `(s/with-gen
+       ~xform
+       #(gen/fmap (partial into (sorted-map-by ~comparator))
                   (s/gen ~sform)))))
 
 ;;MAP MANIPULATION
@@ -59,10 +74,10 @@
                  k)))
 
 (s/fdef filter-map
-        :args (s/cat :pred-kv (s/fspec :args (s/cat :k any? :v any?)
-                                       :ret boolean?)
-                     :m map?)
-        :ret map?)
+  :args (s/cat :pred-kv (s/fspec :args (s/cat :k any? :v any?)
+                                 :ret boolean?)
+               :m map?)
+  :ret map?)
 
 (defn submap?
   "Checks whether m contains all entries in `sub`."
@@ -71,8 +86,8 @@
                 (.entrySet ^Map sub)))
 
 (s/fdef submap?
-        :args (s/cat :m map? :sub map?)
-        :ret boolean?)
+  :args (s/cat :m map? :sub map?)
+  :ret boolean?)
 
 (defn fmap
   "Maps a function onto the values of a map."
@@ -82,8 +97,8 @@
           [k (f v)])))
 
 (s/fdef fmap
-        :args (s/cat :f (s/fspec :args (s/cat :x any?)
-                                 :ret any?)
-                     :m map?)
-        :ret map?)
+  :args (s/cat :f (s/fspec :args (s/cat :x any?)
+                           :ret any?)
+               :m map?)
+  :ret map?)
 
