@@ -14,3 +14,7 @@ pom.xml.asc
 *.iml
 project.clj
 .cpcache
+.envrc
+.shadow-cljs
+node_modules
+out/
