@@ -12,7 +12,7 @@
 
 ;1 seconds
 
-(set! *warn-on-reflection* true)
+#?(:clj (set! *warn-on-reflection* true))
 
 #?(:clj (ost/instrument))
 #?(:cljs (ost-spec/instrument))
