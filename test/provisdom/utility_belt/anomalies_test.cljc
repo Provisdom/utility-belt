@@ -8,14 +8,13 @@
     [provisdom.test.core :refer [is-not] :as t]
     [provisdom.utility-belt.anomalies :as anomalies]
     #?(:clj  [orchestra.spec.test :as ost]
-       :cljs [orchestra-cljs.spec.test :as ost-spec])))
+       :cljs [orchestra-cljs.spec.test :as ost])))
 
 ;1 seconds
 
 #?(:clj (set! *warn-on-reflection* true))
 
-#?(:clj (ost/instrument))
-#?(:cljs (ost-spec/instrument))
+(ost/instrument)
 
 (deftest anomaly?-test
   (is (spec-check anomalies/anomaly?))
