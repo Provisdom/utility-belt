@@ -1,10 +1,7 @@
 (ns provisdom.utility-belt.anomalies
   (:require
     [clojure.spec.alpha :as s]
-    [clojure.spec.gen.alpha :as gen]
-    [clojure.spec.test.alpha :as st]
-    #?(:clj  [orchestra.spec.test :as ost]
-       :cljs [orchestra-cljs.spec.test :as ost-spec])))
+    [clojure.spec.gen.alpha :as gen]))
 
 ;;;ANOMALIES
 ;; Copyright (c) Cognitect, Inc.

@@ -2,8 +2,6 @@
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
-    [clojure.spec.test.alpha :as st]
-    [orchestra.spec.test :as ost]
     [clojure.data.priority-map :refer [priority-map-keyfn-by]])
   (:import (java.util Map)
            (clojure.lang PersistentTreeMap)
