@@ -26,11 +26,6 @@
   (is-not (maps/submap? {:a 1 :b 3} {:a 2})))
 
 (deftest fmap-test
-  (is (spec-check maps/fmap {:coll-check-limit 10
-                             :coll-error-limit 10
-                             :fspec-iterations 10
-                             :recursion-limit  1
-                             :test-check       {:num-tests 500}}))
   (is= {:a 2 :b 4}
        (maps/fmap (fn [x]
                     (when (number? x)

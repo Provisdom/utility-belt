@@ -94,9 +94,10 @@
         (for [[k v] m]
           [k (f v)])))
 
-(s/fdef fmap
-  :args (s/cat :f (s/fspec :args (s/cat :x any?)
-                           :ret any?)
-               :m map?)
-  :ret map?)
+(comment "documentation only -- causes instrumentation difficulties for users"
+         (s/fdef fmap
+           :args (s/cat :f (s/fspec :args (s/cat :x any?)
+                                    :ret any?)
+                        :m map?)
+           :ret map?))
 
