@@ -5,10 +5,10 @@
                                            org.clojure/data.priority-map {:mvn/version "1.0.0"}
                                            orchestra                     {:mvn/version "2020.07.12-1"}
                                            provisdom/test                {:git/url "https://github.com/Provisdom/test.git"
-                                                                          :sha     "ce443de2f550f6c69e217591489841e33a5d43d6"}
+                                                                          :sha     "e34b8d22f14401c5dca6e213b981a244865cc9fd"}
                                            com.cognitect/test-runner     {:git/url "https://github.com/cognitect-labs/test-runner.git"
                                                                           :sha     "6ec7f8eef509cd14d831e8cc16e856b31327a862"}}}
-           :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.0.669"}
+           :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.0.672"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "0.0.76"}}
                              :main-opts  ["-m" "cognitect.test-runner"]}
-           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "2.11.0"}}}}}
+           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "2.11.1"}}}}}
