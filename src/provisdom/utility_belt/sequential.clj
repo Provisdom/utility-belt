@@ -3,63 +3,67 @@
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
 
-;;;SORTED LIST
-(defn sorted-list?
-  "Tests whether `l` is a sorted list."
+;;;This namespace has predicates and spec-builders for lists and vectors that
+;;;have been sorted. This sequences will not maintain their sorting once new
+;;;elements have been added. For that, use sorted-sets (see `sets` ns).
+
+;;;LIST -- SORTED
+(defn list-sorted?
+  "Tests whether `l` is a list sorted."
   [l]
   (and (list? l) (= l (sort l))))
 
-(defn sorted-list-by?
-  "Tests whether `l` is a sorted list by."
+(defn list-sorted-by?
+  "Tests whether `l` is a list sorted by."
   [comparator l]
   (and (list? l) (= l (sort comparator l))))
 
-(defmacro sorted-list-of
-  "This macro builds the spec for a sorted list."
+(defmacro list-sorted-of
+  "This macro builds the spec for a list sorted."
   [pred & opts]
   (let [sform `(s/coll-of ~pred ~@opts)
-        xform `(s/and ~sform sorted-list?)]
+        xform `(s/and ~sform list-sorted?)]
     `(s/with-gen
        ~xform
        #(gen/fmap (comp sort list*)
                   (s/gen ~sform)))))
 
-(defmacro sorted-list-by-of
-  "This macro builds the spec for a sorted list by."
+(defmacro list-sorted-by-of
+  "This macro builds the spec for a list sorted by."
   [pred comparator & opts]
   (let [sform `(s/coll-of ~pred ~@opts)
-        xform `(s/and ~sform (partial sorted-list-by? ~comparator))]
+        xform `(s/and ~sform (partial list-sorted-by? ~comparator))]
     `(s/with-gen
        ~xform
        #(gen/fmap (comp (partial sort ~comparator) list*)
                   (s/gen ~sform)))))
 
 ;;SORTED VECTOR
-(defn sorted-vector?
-  "Tests whether `v` is a sorted vector."
+(defn vector-sorted?
+  "Tests whether `v` is a vector sorted."
   [v]
   (and (vector? v) (= v (sort v))))
 
-(defn sorted-vector-by?
-  "Tests whether `v` is a sorted vector by."
+(defn vector-sorted-by?
+  "Tests whether `v` is a vector sorted by."
   [comparator v]
   (and (vector? v) (= v (sort comparator v))))
 
-(defmacro sorted-vector-of
-  "This macro builds the spec for a sorted vector."
+(defmacro vector-sorted-of
+  "This macro builds the spec for a vector sorted."
   [pred & opts]
   (let [sform `(s/coll-of ~pred ~@opts)
-        xform `(s/and ~sform sorted-vector?)]
+        xform `(s/and ~sform vector-sorted?)]
     `(s/with-gen
        ~xform
        #(gen/fmap (comp vec sort)
                   (s/gen ~sform)))))
 
-(defmacro sorted-vector-by-of
-  "This macro builds the spec for a sorted list by."
+(defmacro vector-sorted-by-of
+  "This macro builds the spec for a vector sorted by."
   [pred comparator & opts]
   (let [sform `(s/coll-of ~pred ~@opts)
-        xform `(s/and ~sform (partial sorted-vector-by? ~comparator))]
+        xform `(s/and ~sform (partial vector-sorted-by? ~comparator))]
     `(s/with-gen
        ~xform
        #(gen/fmap (comp vec (partial sort ~comparator))

@@ -2,7 +2,8 @@
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
-    [clojure.data.priority-map :refer [priority-map-keyfn-by]])
+    [clojure.data.priority-map :refer [priority-map-keyfn-by]]
+    [provisdom.utility-belt.gen-helper :as genh])
   (:import (java.util Map)
            (clojure.lang PersistentTreeMap)
            (clojure.data.priority_map PersistentPriorityMap)))
@@ -40,17 +41,18 @@
 (defn sorted-map-by?
   "Tests whether `m` is a sorted map by."
   [comparator m]
-  (and (sorted-map? m) (= (keys m) (sort-by comparator (keys m)))))
+  (and (sorted-map? m)
+       (= (keys m) (sort comparator (keys m)))))
 
 (defmacro sorted-map-of
   "This macro builds the spec for a sorted map."
-  [kpred vpred & opts]
-  (let [sform `(s/map-of ~kpred ~vpred ~@opts)
-        xform `(s/and sorted-map? ~sform)]
-    `(s/with-gen
-       ~xform
-       #(gen/fmap (partial into (sorted-map))
-                  (s/gen ~sform)))))
+  ([kpred vpred & opts]
+   (let [sform `(s/map-of ~kpred ~vpred ~@opts)
+         xform `(s/and sorted-map? ~sform)]
+     `(s/with-gen
+        ~xform
+        #(gen/fmap (partial into (sorted-map))
+                   (s/gen ~sform))))))
 
 (defmacro sorted-map-by-of
   "This macro builds the spec for a sorted map by."
@@ -61,6 +63,83 @@
        ~xform
        #(gen/fmap (partial into (sorted-map-by ~comparator))
                   (s/gen ~sform)))))
+
+;;;MONOTONIC MAP
+(defn map-monotonic?
+  [m]
+  (and (map? m)
+       (or (empty? m)
+           (let [v (vals (sort m))]
+             (= v (sort v))))))
+
+(defn map-strictly-monotonic?
+  [m]
+  (and (map-monotonic? m) (distinct? (vals m))))
+
+(defn map-monotonic-by?
+  "Tests whether `m` is a map monotonic by."
+  [comparator-k comparator-v m]
+  (and (map? m)
+       (let [v (vals (sort-by key comparator-k m))]
+         (= v (sort comparator-v v)))))
+
+(defn map-strictly-monotonic-by?
+  "Tests whether `m` is a map monotonic by."
+  [comparator-k comparator-v m]
+  (and (map-monotonic-by? comparator-k comparator-v m)
+       (distinct? (vals m))))
+
+(defmacro map-monotonic-of
+  "This macro builds the spec for a map monotonic."
+  [kpred vpred min-count gen-max strictly?]
+  (let [sform `(s/map-of ~kpred ~vpred
+                         :min-count ~min-count)
+        xform `(if ~strictly?
+                 (s/and map-strictly-monotonic? ~sform)
+                 (s/and map-monotonic? ~sform))]
+    `(s/with-gen
+       ~xform
+       #(genh/gen-let
+          [i# (s/gen (s/int-in ~min-count (inc ~gen-max)))
+           ks# (s/gen (s/coll-of ~kpred
+                                 :count i#
+                                 :distinct true))
+           vs# (if ~strictly?
+                 (s/gen (s/coll-of ~vpred
+                                   :count i#
+                                   :distinct true))
+                 (s/gen (s/coll-of ~vpred
+                                   :count i#)))]
+          (zipmap (sort ks#) (sort vs#))))))
+
+(defmacro map-monotonic-by-of
+  "This macro builds the spec for a map monotonic by."
+  [kpred vpred comparator-k comparator-v min-count gen-max strictly?]
+  (let [sform `(s/map-of ~kpred ~vpred
+                         :min-count ~min-count)
+        xform `(if ~strictly?
+                 (s/and
+                   (partial map-strictly-monotonic-by?
+                            ~comparator-k
+                            ~comparator-v)
+                   ~sform)
+                 (s/and (partial map-monotonic-by? ~comparator-k ~comparator-v)
+                        ~sform))]
+    `(s/with-gen
+       ~xform
+       #(genh/gen-let
+          [i# (s/gen (s/int-in ~min-count (inc ~gen-max)))
+           ks# (s/gen (s/coll-of ~kpred
+                                 :count i#
+                                 :distinct true))
+           vs# (if ~strictly?
+                 (s/gen (s/coll-of ~vpred
+                                   :count i#
+                                   :distinct true))
+                 (s/gen (s/coll-of ~vpred
+                                   :count i#)))]
+          (zipmap (sort-by ~comparator-k ks#)
+                  (sort-by ~comparator-v vs#))))))
 
 ;;MAP MANIPULATION
 (defn filter-map
