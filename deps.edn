@@ -3,7 +3,7 @@
  :aliases {:test            {:extra-paths ["test"]
                              :extra-deps  {org.clojure/test.check        {:mvn/version "1.1.0"}
                                            org.clojure/data.priority-map {:mvn/version "1.0.0"}
-                                           orchestra                     {:mvn/version "2020.07.12-1"}
+                                           orchestra/orchestra           {:mvn/version "2020.07.12-1"}
                                            provisdom/test                {:git/url "https://github.com/Provisdom/test.git"
                                                                           :sha     "e34b8d22f14401c5dca6e213b981a244865cc9fd"}
                                            com.cognitect/test-runner     {:git/url "https://github.com/cognitect-labs/test-runner.git"
