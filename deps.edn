@@ -7,9 +7,9 @@
                                            orchestra/orchestra                  {:mvn/version "2021.01.01-1"}
                                            org.clojure/data.priority-map        {:mvn/version "1.1.0"}
                                            org.clojure/test.check               {:mvn/version "1.1.1"}
-                                           #_#_provisdom/test {:git/url "https://github.com/Provisdom/test.git"
-                                                               :sha     "e34b8d22f14401c5dca6e213b981a244865cc9fd"}
-                                           provisdom/test                       {:local/root "../test"}}}
+                                           provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
+                                                                                 :sha     "c0d0c6998eddf63c6c6f82f42e02b06ea2dfe3ec"}
+                                           #_#_provisdom/test {:local/root "../test"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
