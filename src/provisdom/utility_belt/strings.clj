@@ -1,8 +1,8 @@
 (ns provisdom.utility-belt.strings
   (:require
-    [clojure.string :as str]
     [clojure.spec.alpha :as s]
-    [clojure.spec.gen.alpha :as gen]))
+    [clojure.spec.gen.alpha :as gen]
+    [clojure.string :as str]))
 
 ;;;TODO - need for CLJS too
 

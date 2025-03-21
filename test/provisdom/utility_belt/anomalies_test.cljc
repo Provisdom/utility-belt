@@ -2,23 +2,19 @@
   #?(:cljs (:require-macros
              [provisdom.test.core]))
   (:require
-    [clojure.test :refer [deftest is are testing]]
-    [clojure.spec.alpha :as s]
     [clojure.spec.test.alpha :as st]
-    [provisdom.test.core :refer [is-not] :as t]
+    [clojure.test :refer [deftest is]]
+    [provisdom.test.core :refer [is-not spec-check with-instrument]]
     [provisdom.utility-belt.anomalies :as anomalies]
-    #?(:clj  [orchestra.spec.test :as ost]
-       :cljs [orchestra-cljs.spec.test :as ost])))
+    #?(:cljs [orchestra-cljs.spec.test :as ost])))
 
 ;1 seconds
 
 #?(:clj (set! *warn-on-reflection* true))
 
-(ost/instrument)
-
 (deftest anomaly?-test
-  (is (spec-check anomalies/anomaly?))
-  (is (anomalies/anomaly? {::anomalies/category ::anomalies/no-solve}))
-  (is-not (anomalies/anomaly? {::anomalies/message "Test"})))
-
-#_(ost/unstrument)
+  (with-instrument `anomalies/anomaly?
+    (is (spec-check anomalies/anomaly?)))
+  (with-instrument (st/instrumentable-syms)
+    (is (anomalies/anomaly? {::anomalies/category ::anomalies/no-solve}))
+    (is-not (anomalies/anomaly? {::anomalies/message "Test"}))))

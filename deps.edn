@@ -1,14 +1,16 @@
 {:paths   ["src"]
- :deps    {org.clojure/core.async {:mvn/version "1.5.648"}}
+ :deps    {org.clojure/core.async {:mvn/version "1.6.681"}}
  :aliases {:test            {:extra-paths ["test"]
-                             :extra-deps  {org.clojure/test.check        {:mvn/version "1.1.1"}
-                                           org.clojure/data.priority-map {:mvn/version "1.1.0"}
-                                           orchestra/orchestra           {:mvn/version "2021.01.01-1"}
-                                           provisdom/test                {:git/url "https://github.com/Provisdom/test.git"
-                                                                          :sha     "c12852d4dbe90ed5a6a8675618cfbf49eed60970"}
-                                           com.cognitect/test-runner     {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                                          :sha     "a85b3b02765fb68684ab9ee4a8598eacf7e471d2"}}}
-           :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.66.1034"}
-                                          lambdaisland/kaocha-junit-xml {:mvn/version "0.0.76"}}
-                             :main-opts  ["-m" "cognitect.test-runner"]}
-           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "2.18.0"}}}}}
+                             :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
+                                           #_#_com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                                          :sha     "7284cda41fb9edc0f3bc6b6185cfb7138fc8a023"}
+                                           orchestra/orchestra                  {:mvn/version "2021.01.01-1"}
+                                           org.clojure/data.priority-map        {:mvn/version "1.1.0"}
+                                           org.clojure/test.check               {:mvn/version "1.1.1"}
+                                           #_#_provisdom/test {:git/url "https://github.com/Provisdom/test.git"
+                                                               :sha     "e34b8d22f14401c5dca6e213b981a244865cc9fd"}
+                                           provisdom/test                       {:local/root "../test"}}}
+           :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
+                                          lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
+                             :main-opts  ["-m" "kaocha.runner"]}
+           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "2.25.10"}}}}}

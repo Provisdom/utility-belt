@@ -14,21 +14,28 @@
   [f]
   (try (let [r (f)]
          (cond (instance? Exception r) (throw (ex-info (.getMessage r) {}))
-               (nil? r) {::anomalies/message  "'nil' return"
-                         ::anomalies/category ::anomalies/exception
-                         ::anomalies/fn       (var catch-error-or-exception-or-nil)}
+
+               (nil? r)
+               {::anomalies/message  "'nil' return"
+                ::anomalies/category ::anomalies/exception
+                ::anomalies/fn       (var catch-error-or-exception-or-nil)}
+
                :else r))
-       (catch Exception e {::anomalies/message  (.getMessage e)
-                           ::anomalies/category ::anomalies/exception
-                           ::anomalies/fn       (var catch-error-or-exception-or-nil)})
-       (catch Error e {::anomalies/message  (.getMessage e)
-                       ::anomalies/category ::anomalies/error
-                       ::anomalies/fn       (var catch-error-or-exception-or-nil)})))
+       (catch Exception
+              e
+         {::anomalies/message  (.getMessage e)
+          ::anomalies/category ::anomalies/exception
+          ::anomalies/fn       (var catch-error-or-exception-or-nil)})
+       (catch Error
+              e
+         {::anomalies/message  (.getMessage e)
+          ::anomalies/category ::anomalies/error
+          ::anomalies/fn       (var catch-error-or-exception-or-nil)})))
 
 (s/fdef catch-error-or-exception-or-nil
-        :args (s/cat :f (s/fspec :args (s/cat)
-                                 :ret any?))
-        :ret any?)
+  :args (s/cat :f (s/fspec :args (s/cat)
+                    :ret any?))
+  :ret any?)
 
 ;;; TODO - has async monad written all over it
 (defn thread
@@ -57,23 +64,27 @@
             value returned."
   [threading-type fs]
   (let [futures (doall
-                  (for [index-and-wrap-f (map (fn [index f]
-                                                [index #(catch-error-or-exception-or-nil f)])
-                                              (range)
-                                              fs)]
+                  (for [i-and-wrap-f (map
+                                       (fn [index f]
+                                         [index
+                                          #(catch-error-or-exception-or-nil f)])
+                                       (range)
+                                       fs)]
                     (let [channel (async/chan)]
-                      [(future (async/>!! channel ((second index-and-wrap-f))))
+                      [(future (async/>!! channel ((second i-and-wrap-f))))
                        channel
-                       (first index-and-wrap-f)])))]
+                       (first i-and-wrap-f)])))]
     (loop [futures futures
            results-and-fns (vec fs)]
       (if (seq futures)
-        (let [[latest-result channel] (async/alts!! (map second futures) :priority true)
+        (let [[latest-result channel] (async/alts!!
+                                        (map second futures)
+                                        :priority true)
               index (peek (first (filter #(= channel (second %)) futures)))
               results-and-fns (assoc results-and-fns index latest-result)
               f-on #(remove (fn [e]
                               (identical? (peek e) index))
-                            futures)
+                      futures)
               f-off #(doseq [fus (map first futures)]
                        (future-cancel fus))]
           (condp = threading-type
@@ -88,8 +99,12 @@
                   (do (f-off) true))
             :any-ordered (let [[first-val i] (reduce-kv
                                                (fn [tot i e]
-                                                 (cond (fn? e) (reduced [nil -1])
-                                                       (anomalies/anomaly? e) tot
+                                                 (cond (fn? e)
+                                                       (reduced [nil -1])
+
+                                                       (anomalies/anomaly? e)
+                                                       tot
+
                                                        :else (reduced [e i])))
                                                [nil -1]
                                                results-and-fns)]
@@ -98,7 +113,7 @@
                              (do (f-off) [first-val i])))
             :all (recur (f-on) results-and-fns)))
         (when (or (= threading-type :all)
-                  (= threading-type :and))
+                (= threading-type :and))
           results-and-fns)))))
 
 (s/def ::threading-type #{:and :first!! :or :any-ordered :all})
@@ -106,16 +121,16 @@
 (s/def ::fs
   (s/with-gen
     (s/coll-of (s/fspec :args (s/cat)
-                        :ret any?))
+                 :ret any?))
     #(gen/vector (s/gen (s/fspec :args (s/cat)
-                                 :ret any?))
-                 0
-                 5)))
+                          :ret any?))
+       0
+       5)))
 
 (s/fdef thread
-        :args (s/cat :threading-type ::threading-type
-                     :fs ::fs)
-        :ret any?)
+  :args (s/cat :threading-type ::threading-type
+          :fs ::fs)
+  :ret any?)
 
 (defn thread-select
   "Call each of the functions `fs` on a separate thread (or optionally -- not),
@@ -125,17 +140,17 @@
   ([selector-fn fs] (thread-select selector-fn fs true))
   ([selector-fn fs parallel?]
    (let [result (filter (complement anomalies/anomaly?)
-                        (if parallel?
-                          (thread :all fs)
-                          (map catch-error-or-exception-or-nil fs)))]
+                  (if parallel?
+                    (thread :all fs)
+                    (map catch-error-or-exception-or-nil fs)))]
      (selector-fn result))))
 
 (s/fdef thread-select
-        :args (s/cat :selector-fn (s/fspec :args (s/cat :x (s/coll-of any?))
-                                           :ret any?)
-                     :fs ::fs
-                     :parallel? (s/? ::parallel?))
-        :ret any?)
+  :args (s/cat :selector-fn (s/fspec :args (s/cat :x (s/coll-of any?))
+                              :ret any?)
+          :fs ::fs
+          :parallel? (s/? ::parallel?))
+  :ret any?)
 
 (defn thread-max
   "Calls each of the functions `fs` on a separate thread, and returns the
@@ -144,18 +159,18 @@
   [fs]
   (let [ret (thread-select (fn [results]
                              (when (and results
-                                        (not (empty? results))
-                                        (every? number? results))
+                                     (not (empty? results))
+                                     (every? number? results))
                                (apply max results)))
-                           fs)]
+              fs)]
     (or ret {::anomalies/category ::anomalies/forbidden
              ::anomalies/message  "All functions 'fs' must return numbers."
              ::anomalies/fn       (var thread-max)})))
 
 (s/fdef thread-max
-        :args (s/cat :fs ::fs)
-        :ret (s/or :anomaly ::anomalies/anomaly
-                   :max (s/nilable number?)))
+  :args (s/cat :fs ::fs)
+  :ret (s/or :anomaly ::anomalies/anomaly
+         :max (s/nilable number?)))
 
 (defn thread-min
   "Calls each of the functions `fs` on a separate thread, and returns the
@@ -164,15 +179,15 @@
   [fs]
   (let [ret (thread-select (fn [results]
                              (when (and results
-                                        (not (empty? results))
-                                        (every? number? results))
+                                     (not (empty? results))
+                                     (every? number? results))
                                (apply min results)))
-                           fs)]
+              fs)]
     (or ret {::anomalies/category ::anomalies/forbidden
              ::anomalies/message  "All functions 'fs' must return numbers."
              ::anomalies/fn       (var thread-min)})))
 
 (s/fdef thread-min
-        :args (s/cat :fs ::fs)
-        :ret (s/or :anomaly ::anomalies/anomaly
-                   :min (s/nilable number?)))
+  :args (s/cat :fs ::fs)
+  :ret (s/or :anomaly ::anomalies/anomaly
+         :min (s/nilable number?)))

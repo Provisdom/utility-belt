@@ -8,10 +8,25 @@
            (clojure.lang PersistentTreeMap)
            (clojure.data.priority_map PersistentPriorityMap)))
 
+(declare priority-map? priority-map)
+
+(s/def ::priority-map
+  (s/with-gen priority-map?
+    #(gen/one-of [(priority-map identity < 1 2 3 4)])))
+
+(s/def ::comparator (s/fspec :args (s/or :two (s/cat :k1 any?
+                                                :k2 any?)
+                                     :one (s/cat :k1 any?))
+                      :ret boolean?))
+
 ;;;PRIORITY MAP
 (defn priority-map?
   [m]
   (instance? PersistentPriorityMap m))
+
+(s/fdef priority-map?
+  :args (s/cat :m any?)
+  :ret boolean?)
 
 (defmacro priority-map-of
   "This macro builds the spec for a priority map built with [[priority-map]].
@@ -33,16 +48,34 @@
   [keyfn comparator & keyvals]
   (apply priority-map-keyfn-by keyfn comparator keyvals))
 
+(comment "documentation only"
+  (s/fdef priority-map
+    :args (s/cat :keyfn (s/fspec :args (s/cat :value any?)
+                          :ret any?)
+            :comparator ::comparator
+            :keyvals (s/* any?))
+    :ret boolean?))
+
 ;;;SORTED MAP
 (defn sorted-map?
   [m]
   (instance? PersistentTreeMap m))
+
+(s/fdef sorted-map?
+  :args (s/cat :m any?)
+  :ret boolean?)
 
 (defn sorted-map-by?
   "Tests whether `m` is a sorted map by."
   [comparator m]
   (and (sorted-map? m)
     (= (keys m) (sort comparator (keys m)))))
+
+(comment "documentation only"
+  (s/fdef sorted-map-by?
+    :args (s/cat :comparator ::comparator
+            :m any?)
+    :ret boolean?))
 
 (defmacro sorted-map-of
   "This macro builds the spec for a sorted map."
@@ -66,15 +99,28 @@
 
 ;;;SORTED MAP MONOTONIC
 (defn sorted-map-monotonic?
+  "Tests whether `m` is a 'sorted map monotonic'. A 'sorted map monotonic' is a
+  sorted map (by keys) that has values that are monotonic."
   [m]
   (and (sorted-map? m)
     (or (empty? m)
       (let [v (vals m)]
         (= v (sort v))))))
 
+(s/fdef sorted-map-monotonic?
+  :args (s/cat :m any?)
+  :ret boolean?)
+
 (defn sorted-map-strictly-monotonic?
+  "Tests whether `m` is a 'sorted map strictly monotonic'. A 'sorted map
+  strictly monotonic' is a sorted map (by keys) that has values that are
+  strictly monotonic."
   [m]
-  (and (sorted-map-monotonic? m) (distinct? (vals m))))
+  (and (sorted-map-monotonic? m) (apply distinct? (vals m))))
+
+(s/fdef sorted-map-strictly-monotonic?
+  :args (s/cat :m any?)
+  :ret boolean?)
 
 (defn sorted-map-monotonic-by?
   "Tests whether `m` is a sorted map monotonic by."
@@ -84,11 +130,25 @@
       (let [v (vals m)]
         (= v (sort comparator-v v))))))
 
+(comment "documentation only"
+  (s/fdef sorted-map-monotonic-by?
+    :args (s/cat :comparator-k ::comparator
+            :comparator-v ::comparator
+            :m any?)
+    :ret boolean?))
+
 (defn sorted-map-strictly-monotonic-by?
   "Tests whether `m` is a map monotonic by."
   [comparator-k comparator-v m]
   (and (sorted-map-monotonic-by? comparator-k comparator-v m)
-    (distinct? (vals m))))
+    (apply distinct? (vals m))))
+
+(comment "documentation only"
+  (s/fdef sorted-map-strictly-monotonic-by?
+    :args (s/cat :comparator-k ::comparator
+            :comparator-v ::comparator
+            :m any?)
+    :ret boolean?))
 
 (defmacro sorted-map-monotonic-of
   "This macro builds the spec for a sorted map monotonic."

@@ -1,6 +1,5 @@
 (ns provisdom.utility-belt.gen-helper
   (:require
-    [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen])
   #?(:cljs (:require-macros [provisdom.utility-belt.gen-helper
                              :refer [lazy-combinator gen-let]])))

@@ -16,18 +16,20 @@
         methods-named-fn (fn [name]
                            (filter (fn [method]
                                      (= (.getName ^Method method) name))
-                                   all-declared-methods))
+                             all-declared-methods))
         methods-named-invoke (methods-named-fn "invoke")
         methods-named-do-invoke (methods-named-fn "doInvoke")
-        invoked-params (sort (map (fn [method]
-                                    (alength (.getParameterTypes ^Method method)))
-                                  methods-named-invoke))
+        invoked-params (sort (map
+                               (fn [method]
+                                 (alength (.getParameterTypes ^Method method)))
+                               methods-named-invoke))
         invoked-params (mapv (fn [params]
                                {::parameters params
                                 ::variadic?  false})
-                             invoked-params)
+                         invoked-params)
         do-invoked-params (when-let [method (first methods-named-do-invoke)]
-                            {::parameters (alength (.getParameterTypes ^Method method))
+                            {::parameters (alength
+                                            (.getParameterTypes ^Method method))
                              ::variadic?  true})
         results (if do-invoked-params
                   (conj invoked-params do-invoked-params)
@@ -35,11 +37,11 @@
     results))
 
 (s/fdef arities
-        :args (s/cat :f (s/with-gen fn?
-                                    #(gen/one-of
-                                       (map
-                                         gen/return
-                                         (list (fn [a] a)
-                                               (fn [& a] (apply + a))
-                                               (fn [a b] (+ a b)))))))
-        :ret (s/coll-of ::arities :kind vector? :into []))
+  :args (s/cat :f (s/with-gen fn?
+                    #(gen/one-of
+                       (map
+                         gen/return
+                         (list (fn [a] a)
+                           (fn [& a] (apply + a))
+                           (fn [a b] (+ a b)))))))
+  :ret (s/coll-of ::arities :kind vector? :into []))

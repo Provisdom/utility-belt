@@ -41,9 +41,9 @@
 (s/def ::anomaly
   (s/with-gen
     (s/keys :req [::category]
-            :opt [::message
+            :opt [::data
                   ::fn
-                  ::data
+                  ::message
                   ::solver-category])
     #(gen/return {::category ::exception})))
 
