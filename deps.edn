@@ -8,9 +8,9 @@
                                            org.clojure/data.priority-map        {:mvn/version "1.1.0"}
                                            org.clojure/test.check               {:mvn/version "1.1.1"}
                                            provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
-                                                                                 :sha     "c0d0c6998eddf63c6c6f82f42e02b06ea2dfe3ec"}
+                                                                                 :sha     "ec0b531bf0e5a8b5897a8dde332bd08d478578f4"}
                                            #_#_provisdom/test {:local/root "../test"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
-           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "2.25.10"}}}}}
+           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "2.28.21"}}}}}
