@@ -18,3 +18,4 @@ project.clj
 .shadow-cljs
 node_modules
 out/
+reports
