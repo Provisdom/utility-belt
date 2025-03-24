@@ -1,15 +1,12 @@
 {:paths   ["src"]
- :deps    {org.clojure/core.async {:mvn/version "1.6.681"}}
+ :deps    {org.clojure/core.async {:mvn/version "1.7.701"}}
  :aliases {:test            {:extra-paths ["test"]
                              :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
-                                           #_#_com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
-                                                                          :sha     "7284cda41fb9edc0f3bc6b6185cfb7138fc8a023"}
                                            orchestra/orchestra                  {:mvn/version "2021.01.01-1"}
-                                           org.clojure/data.priority-map        {:mvn/version "1.1.0"}
+                                           org.clojure/data.priority-map        {:mvn/version "1.2.0"}
                                            org.clojure/test.check               {:mvn/version "1.1.1"}
                                            provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
-                                                                                 :sha     "ec0b531bf0e5a8b5897a8dde332bd08d478578f4"}
-                                           #_#_provisdom/test {:local/root "../test"}}}
+                                                                                 :sha     "ec0b531bf0e5a8b5897a8dde332bd08d478578f4"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
