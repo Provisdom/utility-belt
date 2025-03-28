@@ -1,8 +1,7 @@
 {:paths   ["src"]
  :deps    {org.clojure/core.async {:mvn/version "1.7.701"}}
  :aliases {:test            {:extra-paths ["test"]
-                             :extra-deps  {io.github.cognitect-labs/test-runner {:git/tag "v0.5.1" :git/sha "dfb30dd"}
-                                           orchestra/orchestra                  {:mvn/version "2021.01.01-1"}
+                             :extra-deps  {orchestra/orchestra                  {:mvn/version "2021.01.01-1"}
                                            org.clojure/data.priority-map        {:mvn/version "1.2.0"}
                                            org.clojure/test.check               {:mvn/version "1.1.1"}
                                            provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
