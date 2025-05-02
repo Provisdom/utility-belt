@@ -9,4 +9,4 @@
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
-           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "3.0.2"}}}}}
+           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "3.0.4"}}}}}
