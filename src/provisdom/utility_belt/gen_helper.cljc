@@ -50,9 +50,9 @@
      {:added "0.9.0"}
      [bindings & body]
      (assert (vector? bindings)
-             "First arg to gen/let must be a vector of bindings.")
+       "First arg to gen/let must be a vector of bindings.")
      (assert (even? (count bindings))
-             "gen/let requires an even number of forms in binding vector")
+       "gen/let requires an even number of forms in binding vector")
      (if (empty? bindings)
        `(let [val# (do ~@body)]
           (if (generator? val#)

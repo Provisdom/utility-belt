@@ -41,10 +41,10 @@
 (s/def ::anomaly
   (s/with-gen
     (s/keys :req [::category]
-            :opt [::data
-                  ::fn
-                  ::message
-                  ::solver-category])
+      :opt [::data
+            ::fn
+            ::message
+            ::solver-category])
     #(gen/return {::category ::exception})))
 
 (defn anomaly?
@@ -67,10 +67,10 @@
           `(do (when-not ~(first pairs)
                  (throw (IllegalArgumentException.
                           (str (first ~'&form) " requires " ~(second pairs)
-                               " in " ~'*ns* ":" (:line (meta ~'&form))))))
-               ~(let [more (nnext pairs)]
-                  (when more
-                    (list* `assert-args more))))))
+                            " in " ~'*ns* ":" (:line (meta ~'&form))))))
+             ~(let [more (nnext pairs)]
+                (when more
+                  (list* `assert-args more))))))
 
 #?(:clj (defn- anomalous-let*
           [bindings body]

@@ -1,12 +1,12 @@
 (ns provisdom.utility-belt.maps
   (:require
+    [clojure.data.priority-map :refer [priority-map-keyfn-by]]
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
-    [clojure.data.priority-map :refer [priority-map-keyfn-by]]
     [provisdom.utility-belt.gen-helper :as genh])
-  (:import (java.util Map)
+  (:import (clojure.data.priority_map PersistentPriorityMap)
            (clojure.lang PersistentTreeMap)
-           (clojure.data.priority_map PersistentPriorityMap)))
+           (java.util Map)))
 
 (declare priority-map? priority-map)
 

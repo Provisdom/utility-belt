@@ -36,10 +36,10 @@
                                        ::anomalies/exception})]))
     (is= [2 1] (async/thread :and [(constantly 2) (constantly 1)]))
     #_(is= 2
-      (async/thread :first!! [(constantly 2)
-                              (constantly 1)
-                              (constantly {::anomalies/category
-                                           ::anomalies/exception})]))
+        (async/thread :first!! [(constantly 2)
+                                (constantly 1)
+                                (constantly {::anomalies/category
+                                             ::anomalies/exception})]))
     (is= nil
       (async/thread :first!! [(constantly {::anomalies/category
                                            ::anomalies/exception})]))

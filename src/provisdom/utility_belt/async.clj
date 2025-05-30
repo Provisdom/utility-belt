@@ -1,8 +1,8 @@
 (ns provisdom.utility-belt.async
   (:require
+    [clojure.core.async :as async]
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
-    [clojure.core.async :as async]
     [provisdom.utility-belt.anomalies :as anomalies]))
 
 (s/def ::parallel? boolean?)
@@ -15,22 +15,22 @@
   (try (let [r (f)]
          (cond (instance? Exception r) (throw (ex-info (.getMessage r) {}))
 
-               (nil? r)
-               {::anomalies/message  "'nil' return"
-                ::anomalies/category ::anomalies/exception
-                ::anomalies/fn       (var catch-error-or-exception-or-nil)}
+           (nil? r)
+           {::anomalies/message  "'nil' return"
+            ::anomalies/category ::anomalies/exception
+            ::anomalies/fn       (var catch-error-or-exception-or-nil)}
 
-               :else r))
-       (catch Exception
-              e
-         {::anomalies/message  (.getMessage e)
-          ::anomalies/category ::anomalies/exception
-          ::anomalies/fn       (var catch-error-or-exception-or-nil)})
-       (catch Error
-              e
-         {::anomalies/message  (.getMessage e)
-          ::anomalies/category ::anomalies/error
-          ::anomalies/fn       (var catch-error-or-exception-or-nil)})))
+           :else r))
+    (catch Exception
+      e
+      {::anomalies/message  (.getMessage e)
+       ::anomalies/category ::anomalies/exception
+       ::anomalies/fn       (var catch-error-or-exception-or-nil)})
+    (catch Error
+      e
+      {::anomalies/message  (.getMessage e)
+       ::anomalies/category ::anomalies/error
+       ::anomalies/fn       (var catch-error-or-exception-or-nil)})))
 
 (s/fdef catch-error-or-exception-or-nil
   :args (s/cat :f (s/fspec :args (s/cat)
@@ -100,12 +100,12 @@
             :any-ordered (let [[first-val i] (reduce-kv
                                                (fn [tot i e]
                                                  (cond (fn? e)
-                                                       (reduced [nil -1])
+                                                   (reduced [nil -1])
 
-                                                       (anomalies/anomaly? e)
-                                                       tot
+                                                   (anomalies/anomaly? e)
+                                                   tot
 
-                                                       :else (reduced [e i])))
+                                                   :else (reduced [e i])))
                                                [nil -1]
                                                results-and-fns)]
                            (if (= i -1)

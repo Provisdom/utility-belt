@@ -33,7 +33,7 @@
   (with-instrument `ext/interleave-all
     (is (spec-check ext/interleave-all
           {:fspec-iterations 1
-           :num-tests 150})))
+           :num-tests        150})))
   (with-instrument (st/instrumentable-syms)
     (is= '() (ext/interleave-all)))
   (is= '() (ext/interleave-all nil))

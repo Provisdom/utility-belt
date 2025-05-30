@@ -56,8 +56,8 @@
 
 (s/fdef substring
   :args (s/cat :s string?
-               :start-index ::index
-               :end-index (s/? ::index))
+          :start-index ::index
+          :end-index (s/? ::index))
   :ret string?)
 
 (defn trim-end
@@ -70,8 +70,8 @@
       (= s (str suffix)) ""
 
       (and (str/ends-with? s suffix)
-           (< count-suffix c)
-           (pos? count-suffix))
+        (< count-suffix c)
+        (pos? count-suffix))
       (trim-end
         (substring s 0 (- c count-suffix 1))
         suffix)
@@ -92,8 +92,8 @@
       (= s (str prefix)) ""
 
       (and (str/starts-with? s prefix)
-           (< count-prefix c)
-           (pos? count-prefix))
+        (< count-prefix c)
+        (pos? count-prefix))
       (trim-start
         (substring s count-prefix (dec c))
         prefix)
@@ -130,8 +130,8 @@
 
 (s/fdef insert
   :args (s/cat :s string?
-               :index ::index
-               :substring string?)
+          :index ::index
+          :substring string?)
   :ret string?)
 
 (defn abbreviate
@@ -145,5 +145,5 @@
 
 (s/fdef abbreviate
   :args (s/cat :s string?
-               :max-length ::index)
+          :max-length ::index)
   :ret string?)

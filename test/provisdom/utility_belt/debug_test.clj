@@ -3,8 +3,8 @@
     [clojure.spec.test.alpha :as st]
     [clojure.test :refer :all]
     [provisdom.test.core :refer :all]
-    [provisdom.utility-belt.debug :as debug]
-    [provisdom.utility-belt.anomalies :as anomalies]))
+    [provisdom.utility-belt.anomalies :as anomalies]
+    [provisdom.utility-belt.debug :as debug]))
 
 ;1 seconds
 
