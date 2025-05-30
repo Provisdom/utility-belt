@@ -50,7 +50,7 @@
 (defn anomaly?
   "Tests whether `x` is an anomaly."
   [x]
-  (some? (get ::category x)))
+  (some? (get x ::category)))
 
 (s/fdef anomaly?
   :args (s/cat :x any?)
