@@ -34,7 +34,6 @@
      functionality of both `bind` and `fmap`.
 
      Examples:
-
        (gen/let [strs (gen/not-empty (gen/list gen/string))
                  s (gen/elements strs)]
          {:some-strings strs
