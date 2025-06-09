@@ -1,4 +1,7 @@
 (ns provisdom.utility-belt.arities
+  "Function introspection utilities for determining function arities.
+   Provides tools to inspect and analyze function signatures at runtime
+   using Java reflection."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen])
@@ -9,8 +12,32 @@
 (s/def ::arities (s/keys :req [::parameters ::variadic?]))
 
 (defn arities
-  "Uses reflection to return the arity numbers of the function `f`. Returns a
-  vector with each element being a map of ::parameters and ::variadic?."
+  "Uses reflection to analyze and return the arities of a function.
+   
+   Examines the Java class of the function to determine its fixed and variadic
+   arities by analyzing the invoke and doInvoke methods.
+   
+   Parameters:
+   - f: A Clojure function to analyze
+   
+   Returns:
+   - A vector of maps, where each map contains:
+     - ::parameters: The number of parameters (arity)
+     - ::variadic?: Whether this arity is variadic (can take variable arguments)
+   
+   Example:
+   ```clojure
+   (arities +)
+   ;; => [{::parameters 0, ::variadic? false}
+   ;;     {::parameters 1, ::variadic? false}
+   ;;     {::parameters 2, ::variadic? false}
+   ;;     {::parameters 2, ::variadic? true}]
+   
+   (arities (fn [a b] (+ a b)))
+   ;; => [{::parameters 2, ::variadic? false}]
+   ```
+   
+   Note: Uses Java reflection, so works only in Clojure (JVM), not ClojureScript."
   [f]
   (let [all-declared-methods (.getDeclaredMethods (class f))
         methods-named-fn (fn [name]

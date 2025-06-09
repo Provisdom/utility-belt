@@ -1,4 +1,7 @@
 (ns provisdom.utility-belt.extensions
+  "Extended functionality for Clojure's core data operations.
+   Provides macros for conditional binding and functions for working with
+   collections, including nested updates, interleaving, and reducing with indices."
   (:require
     [clojure.spec.alpha :as s]))
 
@@ -6,6 +9,24 @@
 
 ;;;MACROS
 (defmacro if-all-let
+  "A variant of if-let that tests multiple bindings, requiring all to be truthy.
+  
+   Similar to if-let but requires all bindings to be non-nil/non-false.
+   If any binding evaluates to nil or false, the else expression is evaluated.
+   
+   Parameters:
+   - bindings: A vector of binding forms (as in let)
+   - then: Expression to evaluate if all bindings are truthy
+   - else: Expression to evaluate if any binding is falsey (optional, defaults to nil)
+   
+   Example:
+   ```clojure
+   (if-all-let [a (get-a)
+                b (get-b)
+                c (calculate-c a b)]
+     (do-something-with a b c)
+     (handle-missing-values))
+   ```"
   ([bindings then else]
    (reduce (fn [subform binding]
              `(if-let [~@binding] ~subform ~else))
@@ -15,16 +36,57 @@
    `(if-all-let ~bindings ~then nil)))
 
 (defmacro when-all-let
+  "A variant of when-let that tests multiple bindings, requiring all to be truthy.
+  
+   Similar to when-let but requires all bindings to be non-nil/non-false.
+   If any binding evaluates to nil or false, returns nil.
+   A simplified version of if-all-let without the else clause.
+   
+   Parameters:
+   - bindings: A vector of binding forms (as in let)
+   - then: Expression to evaluate if all bindings are truthy
+   
+   Example:
+   ```clojure
+   (when-all-let [a (get-a)
+                  b (get-b)
+                  c (calculate-c a b)]
+     (do-something-with a b c))
+   ```"
   [bindings then]
   `(if-all-let ~bindings ~then nil))
 
 ;;;FUNCTIONS
 (defn update-in-with-not-found
-  "Updates a value in a nested associative structure, where `ks` is a sequence
-  of keys and `f` is a function that will take the old value and any supplied
-  args and return the new value, and returns a new nested structure. If any key
-  does not exist, `not-found` will be used as the old value. If any levels do
-  not exist, hash-maps will be created."
+  "Enhanced version of update-in that allows a default value for missing keys.
+   
+   Like Clojure's update-in, but takes a not-found value that will be passed to
+   the function when the key path doesn't exist, instead of nil. Works with
+   both maps and vectors.
+   
+   Parameters:
+   - m: The nested associative structure to update
+   - [k & ks]: A sequence of keys representing a path into the nested structure
+   - f: A function to apply to the value at the specified key path
+   - not-found: The value to use if the key path doesn't exist
+   - args: Additional arguments to pass to f
+   
+   Returns:
+   - A new nested structure with the value at the key path updated
+   - Returns m unchanged if the key path can't be created (e.g., parent path doesn't exist)
+   
+   Example:
+   ```clojure
+   (update-in-with-not-found {:a {:b 1}} [:a :c] + 0 10)
+   ;; => {:a {:b 1, :c 10}}
+   
+   (update-in-with-not-found {:a {:b 1}} [:a :b] + 0 10)
+   ;; => {:a {:b 11}}
+   
+   ;; Safely handles non-existent paths in nested structures
+   (update-in-with-not-found {} [:a :b :c] conj 0 :x)
+   ;; => {}
+   ```"
   [m [k & ks] f not-found & args]
   (if (empty? m)
     m
@@ -60,8 +122,30 @@
   :ret any?)
 
 (defn interleave-all
-  "Returns a lazy seq of the first item in each coll, then the second etc.
-  Difference from interleave is that all elements are consumed."
+  "Enhanced version of interleave that consumes all elements from all collections.
+   
+   Unlike clojure.core/interleave, which stops at the end of the shortest collection,
+   this function continues interleaving by consuming all remaining elements from
+   any non-empty collections.
+   
+   Parameters:
+   - colls: Collections to interleave
+   
+   Returns:
+   - A lazy sequence containing all elements from all collections, interleaved
+   
+   Examples:
+   ```clojure
+   ;; Basic usage
+   (interleave-all [1 2 3] [:a :b])
+   ;; => (1 :a 2 :b 3)
+   
+   ;; With core/interleave, result would be (1 :a 2 :b)
+   
+   ;; Multiple collections
+   (interleave-all [1 2] [:a :b :c] [:A :B])
+   ;; => (1 :a :A 2 :b :B :c)
+   ```"
   ([] '())
   ([c1]
    (lazy-seq (if (sequential? c1)
@@ -96,8 +180,34 @@
   :ret (s/every any?))
 
 (defn reduce-kv-ext
-  "Extension of clojure's 'reduce-kv'. First collection must be the shortest.
-  Function `f` takes the result value, an index, and the item value(s)."
+  "Extended version of reduce-kv that works with multiple collections simultaneously.
+   
+   Like reduce-kv but can process multiple collections in parallel, passing
+   corresponding elements from each collection to the reducing function.
+   Uses arrays internally for performance.
+   
+   Parameters:
+   - f: A reducing function that takes:
+       - For one collection: (result, index, item)
+       - For two collections: (result, index, item1, item2)
+       - For three collections: (result, index, item1, item2, item3)
+   - init: The initial value for the reduction
+   - collections: One to three collections to process
+   
+   Important: The first collection must be the shortest of all provided collections.
+   
+   Examples:
+   ```clojure
+   ;; Single collection works like reduce-kv
+   (reduce-kv-ext (fn [result idx val] (assoc result idx (* val 2)))
+                 {} [1 2 3])
+   ;; => {0 2, 1 4, 2 6}
+   
+   ;; Multiple collections
+   (reduce-kv-ext (fn [result idx v1 v2] (conj result [v1 v2]))
+                 [] [:a :b] [1 2 3])
+   ;; => [[:a 1] [:b 2]]
+   ```"
   ([f init coll] (reduce-kv f init coll))
   ([f init c1 c2]
    (let [a1 (to-array c1)

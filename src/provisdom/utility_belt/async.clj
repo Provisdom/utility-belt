@@ -1,4 +1,7 @@
 (ns provisdom.utility-belt.async
+  "Advanced parallel processing utilities built on core.async.
+   Provides high-level functions for executing tasks in parallel with
+   various coordination patterns and error handling strategies."
   (:require
     [clojure.core.async :as async]
     [clojure.spec.alpha :as s]
@@ -8,9 +11,23 @@
 (s/def ::parallel? boolean?)
 
 (defn catch-error-or-exception-or-nil
-  "For a fn `f` that takes zero arguments, when nil is returned or an Error or
-  Exception is caught, returns anomaly. 'nil' returns don't work well with
-  `clojure.core.async`."
+  "Safely executes a function, converting errors and nil results to anomalies.
+   
+   Takes a zero-arity function and returns either its result or an appropriate anomaly.
+   This is particularly useful for async operations where exceptions can get lost
+   and nil values can cause blocked channels.
+   
+   The function handles three cases:
+   1. If `f` returns nil, returns an ::exception anomaly
+   2. If `f` throws an Exception, returns an ::exception anomaly
+   3. If `f` throws an Error, returns an ::error anomaly
+   
+   Parameters:
+   - f: A function taking no arguments
+   
+   Returns:
+   - The result of calling `f` if successful and non-nil
+   - An anomaly map otherwise"
   [f]
   (try (let [r (f)]
          (cond (instance? Exception r) (throw (ex-info (.getMessage r) {}))
@@ -133,10 +150,28 @@
   :ret any?)
 
 (defn thread-select
-  "Call each of the functions `fs` on a separate thread (or optionally -- not),
-  and select thread result using `selector-fn`. Each of the `fs` are wrapped
-  such that hangs are prevented by catching nil returns and Exceptions and
-  Errors, and anomalies are ignored."
+  "Executes functions and selects from their results using a custom selector function.
+   
+   Runs multiple functions (in parallel by default) and applies a selector function
+   to the successful (non-anomaly) results. This provides a flexible way to choose
+   from multiple computation results.
+   
+   Parameters:
+   - selector-fn: A function that takes a collection of results and returns a single value
+   - fs: A collection of zero-arity functions to execute
+   - parallel?: (Optional) Boolean indicating whether to run in parallel (default: true)
+   
+   Returns:
+   - The result of applying selector-fn to the collection of successful results
+   
+   Example:
+   ```clojure
+   ;; Find the maximum result from multiple calculations
+   (thread-select #(apply max %) [#(calculation1) #(calculation2) #(calculation3)])
+   
+   ;; Run sequentially instead of in parallel
+   (thread-select first [#(slow-operation) #(fallback)] false)
+   ```"
   ([selector-fn fs] (thread-select selector-fn fs true))
   ([selector-fn fs parallel?]
    (let [result (filter (complement anomalies/anomaly?)

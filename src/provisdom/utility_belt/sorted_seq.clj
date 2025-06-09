@@ -1,11 +1,11 @@
 (ns provisdom.utility-belt.sorted-seq
+  "Provides predicates and spec generators for sorted sequences (lists and vectors).
+   Unlike sorted collections that maintain their order (like sorted-set, sorted-map),
+   these sequences are point-in-time sorted and won't re-sort when elements are added.
+   For self-sorting collections, use sorted-sets namespace instead."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
-
-;;;This namespace has predicates and spec-builders for lists and vectors that
-;;;have been sorted. These sequences will not maintain their sorting once new
-;;;elements have been added. For that, use sorted-sets (see `sets` ns).
 
 (s/def ::comparator (s/fspec :args (s/or :two (s/cat :k1 any?
                                                 :k2 any?)
