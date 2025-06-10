@@ -1,4 +1,7 @@
 (ns provisdom.utility-belt.strings
+  "Extended string manipulation utilities that complement clojure.string.
+   Provides functions for substring operations, trimming, insertion, and abbreviation
+   with full spec definitions for validation and testing."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
@@ -61,7 +64,23 @@
   :ret string?)
 
 (defn trim-end
-  "Trims all the `suffix` from the end of string `s`."
+  "Recursively trims all occurrences of `suffix` from the end of string `s`.
+   
+   Unlike clojure.string/trim-suffix which only removes a single occurrence,
+   this function removes all occurrences from the end.
+   
+   Parameters:
+   - s: The string to trim
+   - suffix: The suffix to remove
+   
+   Examples:
+   ```clojure
+   (trim-end \"hello!!!\" \"!\")  
+   ;; => \"hello\"
+   
+   (trim-end \"test.txt.txt\" \".txt\")
+   ;; => \"test\"
+   ```"
   [s suffix]
   (let [s (str s)
         count-suffix (count suffix)
@@ -83,7 +102,23 @@
   :ret string?)
 
 (defn trim-start
-  "Trims all the `prefix` from the start of string `s`."
+  "Recursively trims all occurrences of `prefix` from the start of string `s`.
+   
+   Unlike clojure.string/trim-newline which only removes a single occurrence,
+   this function removes all occurrences from the beginning.
+   
+   Parameters:
+   - s: The string to trim
+   - prefix: The prefix to remove
+   
+   Examples:
+   ```clojure
+   (trim-start \"###title\" \"#\")  
+   ;; => \"title\"
+   
+   (trim-start \"http://http://example.com\" \"http://\")
+   ;; => \"example.com\"
+   ```"
   [s prefix]
   (let [s (str s)
         count-prefix (count prefix)
@@ -135,7 +170,24 @@
   :ret string?)
 
 (defn abbreviate
-  "Shortens string `s` to `max-length` using ellipses if needed."
+  "Shortens a string to the specified maximum length, adding ellipses if truncated.
+   
+   Ensures the resulting string doesn't exceed `max-length` by replacing the end
+   with an ellipsis marker (\"...\") if necessary. Will always leave at least two 
+   characters from the original string plus the marker.
+   
+   Parameters:
+   - s: The string to abbreviate
+   - max-length: The maximum length for the resulting string (minimum value is 5)
+   
+   Examples:
+   ```clojure
+   (abbreviate \"This is a long string\" 10)
+   ;; => \"This i...\"
+   
+   (abbreviate \"Short\" 10)
+   ;; => \"Short\" ; No change needed
+   ```"
   [s max-length]
   (let [max-length (max 5 max-length)
         abbrev-marker "..."]

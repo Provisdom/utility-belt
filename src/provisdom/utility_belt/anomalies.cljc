@@ -1,4 +1,6 @@
 (ns provisdom.utility-belt.anomalies
+  "Implements a standard anomaly (error) handling system based on Cognitect's approach.
+   Provides functions and macros for working with anomalies as data rather than exceptions."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
@@ -57,6 +59,8 @@
   :ret boolean?)
 
 (defn not-implemented-anomaly
+  "Creates an anomaly to indicate that a function is not implemented.
+   Returns a map with category ::unsupported and the function var that was called."
   [fn-var]
   {::category ::unsupported
    ::fn       fn-var
@@ -85,6 +89,19 @@
 
 #?(:clj
    (defmacro anomalous-let
+     "A let-like binding form that short-circuits on anomalies.
+     Similar to Clojure's core `let`, but if any binding expression 
+     returns an anomaly, the entire expression immediately returns that anomaly
+     without evaluating subsequent bindings or the body.
+     
+     Example:
+     ```clojure
+     (anomalous-let [a (possibly-anomalous-fn)
+                    b (another-fn a)]
+       (do-something a b))
+     ```
+     If `possibly-anomalous-fn` returns an anomaly, it's immediately returned
+     without evaluating `another-fn` or `do-something`."
      [bindings & body]
      (assert-args
        (vector? bindings) "a vector for its binding"

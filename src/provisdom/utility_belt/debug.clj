@@ -1,4 +1,5 @@
-(ns provisdom.utility-belt.debug)
+(ns provisdom.utility-belt.debug
+  "Simple debugging utilities for printing intermediate values during development.")
 
 (defmacro dbg
   "Wrap an expression with (dbg expression) to see it print out during

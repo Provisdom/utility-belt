@@ -1,4 +1,6 @@
 (ns provisdom.utility-belt.sorted-sets
+  "Utilities for working with sorted sets and generating specs for them.
+   Provides predicates and spec generators for sorted sets with custom comparators."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
@@ -30,7 +32,20 @@
     :ret boolean?))
 
 (defmacro sorted-set-of
-  "This macro builds the spec for a sorted set."
+  "Creates a spec for a sorted set with natural ordering.
+   
+   Generates and validates sorted sets whose elements conform to the given predicate.
+   The generated sets will maintain their natural sort order.
+   
+   Parameters:
+   - pred: The spec/predicate that each element must satisfy
+   - min-count: The minimum number of elements in the set
+   - gen-max: The maximum number of elements to generate in test data
+   
+   Example:
+   ```clojure
+   (s/def ::sorted-integers (sorted-set-of int? 1 10))
+   ```"
   [pred min-count gen-max]
   (let [sform `(s/coll-of ~pred
                  :into #{}
@@ -44,7 +59,23 @@
           (s/gen ~sform)))))
 
 (defmacro sorted-set-by-of
-  "This macro builds the spec for a sorted set by."
+  "Creates a spec for a sorted set with a custom comparator function.
+   
+   Generates and validates sorted sets whose elements conform to the given predicate
+   and are ordered according to the provided comparator function.
+   
+   Parameters:
+   - pred: The spec/predicate that each element must satisfy
+   - comparator: The comparison function to use for ordering elements
+   - min-count: The minimum number of elements in the set
+   - gen-max: The maximum number of elements to generate in test data
+   
+   Example:
+   ```clojure
+   ;; A set of strings sorted by length
+   (s/def ::strings-by-length 
+     (sorted-set-by-of string? #(compare (count %1) (count %2)) 1 10))
+   ```"
   [pred comparator min-count gen-max]
   (let [sform `(s/coll-of ~pred
                  :into #{}

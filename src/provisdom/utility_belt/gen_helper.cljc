@@ -1,4 +1,6 @@
 (ns provisdom.utility-belt.gen-helper
+  "Helper functions and macros for working with clojure.spec generators.
+   Provides utilities for lazy loading of generators and composing generators with bindings."
   (:require
     [clojure.spec.gen.alpha :as gen])
   #?(:cljs (:require-macros [provisdom.utility-belt.gen-helper

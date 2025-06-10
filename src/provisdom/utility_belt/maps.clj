@@ -1,4 +1,7 @@
 (ns provisdom.utility-belt.maps
+  "Extended map utilities for working with priority maps, sorted maps, and map manipulation.
+   Provides predicates, spec generators, and functions for creating and working with
+   specialized map types with ordering guarantees."
   (:require
     [clojure.data.priority-map :refer [priority-map-keyfn-by]]
     [clojure.spec.alpha :as s]
@@ -207,8 +210,20 @@
 
 ;;MAP MANIPULATION
 (defn filter-map
-  "Returns map with keys that meet `pred`, which takes a key and value as
-  inputs."
+  "Returns a filtered map containing only the key-value pairs that satisfy the predicate.
+   
+   Unlike clojure.core/filter (which returns a sequence), this maintains the map type
+   and works with any map implementation (sorted maps, priority maps, etc.).
+   
+   Parameters:
+   - pred-kv: A function taking key and value as arguments, returning boolean
+   - m: The map to filter
+   
+   Example:
+   ```clojure
+   (filter-map (fn [k v] (> v 10)) {:a 5 :b 15 :c 20})
+   ;; => {:b 15, :c 20}
+   ```"
   [pred-kv m]
   (select-keys m
     (for [[k v] m :when (pred-kv k v)]
@@ -221,7 +236,16 @@
   :ret map?)
 
 (defn submap?
-  "Checks whether m contains all entries in `sub`."
+  "Checks whether map `m` contains all entries in map `sub`.
+   
+   Tests if `sub` is a subset of `m` by key-value pairs (not just keys).
+   Uses Java's Map.containsAll for performance.
+   
+   Parameters:
+   - m: The container map to check against
+   - sub: The potential submap
+   
+   Returns true if every key-value pair in `sub` exists in `m`."
   [m sub]
   (.containsAll (.entrySet ^Map m)
     (.entrySet ^Map sub)))
@@ -231,7 +255,24 @@
   :ret boolean?)
 
 (defn fmap
-  "Maps a function onto the values of a map."
+  "Maps a function onto the values of a map, preserving the map type.
+   
+   Similar to clojure.core/map, but works specifically on map values and
+   returns the same type of map as the input (sorted map, hash map, etc.).
+   
+   Parameters:
+   - f: A function taking a single value argument and returning a new value
+   - m: The map whose values will be transformed
+   
+   Example:
+   ```clojure
+   (fmap inc {:a 1 :b 2})
+   ;; => {:a 2 :b 3}
+   
+   ;; Works with sorted maps too
+   (fmap inc (sorted-map :a 1 :b 2))
+   ;; => {:a 2 :b 3} ; still a sorted map
+   ```"
   [f m]
   (into (empty m)
     (for [[k v] m]
