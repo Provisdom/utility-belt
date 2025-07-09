@@ -58,6 +58,47 @@
   :args (s/cat :x any?)
   :ret boolean?)
 
+(defn anomaly-ex?
+  "Tests whether `x` is an anomaly exception. An anomaly exception is an exception
+  with an anomaly in the ex-data."
+  [x]
+  (anomaly? (ex-data x)))
+
+(s/fdef anomaly-ex?
+  :args (s/cat :x any?)
+  :ret boolean?)
+
+(defn ex
+  "Creates an exception from an anomaly.
+   Takes an anomaly map and returns an ex-info exception with the anomaly as ex-data.
+   The exception message will be the anomaly's ::message if present, otherwise a default message."
+  [anomaly]
+  (ex-info (::message anomaly
+                      (format "Anomaly '%s' category" (name (::category anomaly)))) anomaly))
+
+(s/fdef ex
+  :args (s/cat :anomaly ::anomaly)
+  :ret #(instance? #?(:clj clojure.lang.ExceptionInfo :cljs js/Error) %))
+
+(defn ex!
+  "Creates and throws an exception from an anomaly."
+  [anomaly]
+  (throw (ex anomaly)))
+
+(s/fdef ex!
+  :args (s/cat :anomaly ::anomaly))
+
+(defn ex?!
+  "Throws an exception if the input is an anomaly, otherwise returns the input unchanged."
+  [maybe-anomaly]
+  (if (anomaly? maybe-anomaly)
+    (ex! maybe-anomaly)
+    maybe-anomaly))
+
+(s/fdef ex?!
+  :args (s/cat :maybe-anomaly (s/or :anomaly ::anomaly :any any?))
+  :ret any?)
+
 (defn not-implemented-anomaly
   "Creates an anomaly to indicate that a function is not implemented.
    Returns a map with category ::unsupported and the function var that was called."
