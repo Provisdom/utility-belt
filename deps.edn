@@ -5,7 +5,7 @@
                                            org.clojure/data.priority-map        {:mvn/version "1.2.0"}
                                            org.clojure/test.check               {:mvn/version "1.1.1"}
                                            provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
-                                                                                 :sha     "8d4fb1a50a23168f2f63f19cb571bdf9ba5ba9c6"}}}
+                                                                                 :sha     "c66f08bfbf31d15e97b98c7b8fec0bd890761c8a"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
