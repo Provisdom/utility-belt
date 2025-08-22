@@ -1,5 +1,6 @@
 (ns provisdom.utility-belt.spec-ext
   "Extensions to clojure.spec."
+  (:refer-clojure :exclude [def])
   (:require
     [clojure.spec.alpha :as s]))
 
@@ -10,7 +11,38 @@
                ;; e.g., anomalies/anomaly-ex?
                :pred symbol?)))
 
-(def _*fdef-throws (atom {}))
+(defonce ^:private __*spec->meta (atom {}))
+
+(defn get-meta
+  [s]
+  (get @__*spec->meta s))
+
+(s/def ::def-args
+  (s/cat
+    :docstring (s/? string?)
+    :metamap (s/? some?)
+    :spec some?))
+
+(defn- def-form
+  [k argm]
+  (when (s/invalid? argm)
+    (throw (ex-info "Invalid call to def." {:explain (s/explain-data ::def-args argm)})))
+  (let [{:keys [metamap docstring spec]} argm
+        metamap (cond-> metamap
+                  docstring (assoc :doc docstring))
+        mm-sym (gensym "metamap")]
+    `(let [~mm-sym ~metamap]
+       (s/def ~k ~spec)
+       ~(when metamap
+          `(swap! __*spec->meta assoc ~k ~mm-sym))
+       nil)))
+
+(defmacro def
+  "Like s/def but supports setting a map of metadata."
+  {:arglists '([name doc-string? metamap? spec])}
+  [k & sdef-decl]
+  (def-form k (s/conform ::def-args sdef-decl)))
+
 
 (defmacro fdef
   "Takes a symbol naming a function, and one or more of the following:
@@ -50,5 +82,5 @@
   (let [{:keys [throws]} specs
         _ (s/assert (s/nilable ::throws) throws)]
     `(let [~'fn-sym-qual (s/def ~fn-sym (s/fspec ~@specs))]
-       ~@(when throws [`(swap! _*fdef-throws assoc ~'fn-sym-qual ~throws)])
+       ~@(when throws [`(swap! __*spec->meta assoc-in [~'fn-sym-qual :throws] ~throws)])
        ~'fn-sym-qual)))
