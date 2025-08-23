@@ -73,8 +73,12 @@
    Takes an anomaly map and returns an ex-info exception with the anomaly as ex-data.
    The exception message will be the anomaly's ::message if present, otherwise a default message."
   [anomaly]
-  (ex-info (::message anomaly
-                      (format "Anomaly '%s' category" (name (::category anomaly)))) anomaly))
+  (let [message (::message anomaly
+                  (str "Anomaly '" (name (::category anomaly)) "' category"))
+        data (dissoc anomaly ::message ::ex-cause)]
+    (if-let [ex-cause (::ex-cause anomaly)]
+      (ex-info message data ex-cause)
+      (ex-info message data))))
 
 (s/fdef ex
   :args (s/cat :anomaly ::anomaly)
