@@ -11,7 +11,7 @@
                ;; e.g., anomalies/anomaly-ex?
                :pred symbol?)))
 
-(defonce ^:private __*spec->meta (atom {}))
+(defonce __*spec->meta (atom {}))
 
 (defn get-meta
   [s]
