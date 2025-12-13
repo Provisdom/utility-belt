@@ -3,10 +3,10 @@
  :aliases {:test            {:extra-paths ["test"]
                              :extra-deps  {orchestra/orchestra                  {:mvn/version "2021.01.01-1"}
                                            org.clojure/data.priority-map        {:mvn/version "1.2.0"}
-                                           org.clojure/test.check               {:mvn/version "1.1.1"}
+                                           org.clojure/test.check               {:mvn/version "1.1.2"}
                                            provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
-                                                                                 :sha     "c3247f2f593492edd037547bed626549cc190963"}}}
+                                                                                 :sha     "07d4970b5cd952559145d415c7d608a87b9115c8"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
-           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "3.2.1"}}}}}
+           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "3.3.3"}}}}}
