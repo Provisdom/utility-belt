@@ -2,7 +2,7 @@
   (:require
     [clojure.spec.test.alpha :as st]
     [clojure.test :refer :all]
-    [provisdom.test.core :refer :all]
+    [provisdom.test.core :as t]
     [provisdom.utility-belt.arities :as arities]))
 
 ;1 seconds
@@ -16,10 +16,10 @@
   ([x y & z] ""))
 
 (deftest arities-test
-  (with-instrument `arities/arities
-    (is (spec-check arities/arities)))
-  (with-instrument (st/instrumentable-syms)
-    (is= [{::arities/parameters 0
+  (t/with-instrument `arities/arities
+    (is (t/spec-check arities/arities)))
+  (t/with-instrument (st/instrumentable-syms)
+    (t/is= [{::arities/parameters 0
            ::arities/variadic?  false}
           {::arities/parameters 1
            ::arities/variadic?  false}
