@@ -11,7 +11,7 @@
 
 (deftest update-in-with-not-found-test
   (t/with-instrument `ext/update-in-with-not-found
-    (is (t/spec-check ext/update-in-with-not-found
+    (t/is-spec-check ext/update-in-with-not-found
           {:fspec-iterations 3})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= {:a 3 :b 2}
@@ -31,7 +31,7 @@
 
 (deftest interleave-all-test
   (t/with-instrument `ext/interleave-all
-    (is (t/spec-check ext/interleave-all
+    (t/is-spec-check ext/interleave-all
           {:fspec-iterations 1
            :num-tests        150})))
   (t/with-instrument (st/instrumentable-syms)
@@ -47,7 +47,7 @@
 
 (deftest reduce-kv-ext-test
   (t/with-instrument `ext/reduce-kv-ext
-    (is (t/spec-check ext/reduce-kv-ext
+    (t/is-spec-check ext/reduce-kv-ext
           {:fspec-iterations 5})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= 9.0
@@ -83,7 +83,7 @@
 
 (deftest reductions-kv-test
   (t/with-instrument `ext/reductions-kv
-    (is (t/spec-check ext/reductions-kv
+    (t/is-spec-check ext/reductions-kv
           {:fspec-iterations 5})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= '(1.0 4.0 9.0)
@@ -119,7 +119,7 @@
 
 (deftest reduce-kv-with-stop-test
   (t/with-instrument `ext/reduce-kv-with-stop
-    (is (t/spec-check ext/reduce-kv-with-stop
+    (t/is-spec-check ext/reduce-kv-with-stop
           {:fspec-iterations 5})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= 4.0

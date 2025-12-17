@@ -13,7 +13,7 @@
 
 (deftest priority-map?-test
   (t/with-instrument `maps/priority-map?
-    (is (t/spec-check maps/priority-map?)))
+    (t/is-spec-check maps/priority-map?))
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not (maps/priority-map? {:a 1 :b 3}))
     (is (maps/priority-map? prio-map))))
@@ -23,7 +23,7 @@
 
 (deftest sorted-map?-test
   (t/with-instrument `maps/sorted-map?
-    (is (t/spec-check maps/sorted-map?)))
+    (t/is-spec-check maps/sorted-map?))
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not (maps/sorted-map? {:b 2 :a 1}))
     (is (maps/sorted-map? (apply sorted-map [:b 2 :a 1])))))
@@ -34,7 +34,7 @@
 
 (deftest sorted-map-monotonic?-test
   (t/with-instrument `maps/sorted-map-monotonic?
-    (is (t/spec-check maps/sorted-map-monotonic?)))
+    (t/is-spec-check maps/sorted-map-monotonic?))
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not (maps/sorted-map-monotonic? (apply sorted-map [:b 1 :a 2])))
     (is (maps/sorted-map-monotonic? (apply sorted-map [:b 1 :a 1])))
@@ -42,7 +42,7 @@
 
 (deftest sorted-map-strictly-monotonic?-test
   (t/with-instrument `maps/sorted-map-strictly-monotonic?
-    (is (t/spec-check maps/sorted-map-strictly-monotonic?)))
+    (t/is-spec-check maps/sorted-map-strictly-monotonic?))
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not
       (maps/sorted-map-strictly-monotonic? (apply sorted-map [:b 1 :a 2])))
@@ -72,7 +72,7 @@
 
 (deftest filter-map-test
   (t/with-instrument `maps/filter-map
-    (is (t/spec-check maps/filter-map)))
+    (t/is-spec-check maps/filter-map))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= {:a 1}
       (maps/filter-map (fn [k v]
@@ -81,7 +81,7 @@
 
 (deftest submap?-test
   (t/with-instrument `maps/filter-map
-    (is (t/spec-check maps/filter-map)))
+    (t/is-spec-check maps/filter-map))
   (t/with-instrument (st/instrumentable-syms)
     (is (maps/submap? {:a 1 :b 3} {:a 1}))
     (t/is-not (maps/submap? {:a 1 :b 3} {:a 1 :b 2}))

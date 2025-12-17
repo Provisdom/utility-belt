@@ -12,7 +12,7 @@
 
 (deftest catch-error-or-exception-or-nil-test
   (t/with-instrument `async/catch-error-or-exception-or-nil
-    (is (t/spec-check async/catch-error-or-exception-or-nil)))
+    (t/is-spec-check async/catch-error-or-exception-or-nil))
   (t/with-instrument (st/instrumentable-syms)
     (is (async/catch-error-or-exception-or-nil (constantly true)))
     (t/is= {::anomalies/message  "HI"
@@ -26,7 +26,7 @@
 
 (deftest thread-test
   (t/with-instrument `async/thread
-    (is (t/spec-check async/thread)))
+    (t/is-spec-check async/thread))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= [] (async/thread :and []))
     (t/is= nil
@@ -76,7 +76,7 @@
 
 (deftest thread-select-test
   (t/with-instrument `async/thread-select
-    (is (t/spec-check async/thread-select)))
+    (t/is-spec-check async/thread-select))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= [4 2]
       (async/thread-select (fn [results]
@@ -98,7 +98,7 @@
 
 (deftest thread-max-test
   (t/with-instrument `async/thread-max
-    (is (t/spec-check async/thread-max)))
+    (t/is-spec-check async/thread-max))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= 2
       (async/thread-max [(constantly 2)
@@ -113,7 +113,7 @@
 
 (deftest thread-min-test
   (t/with-instrument `async/thread-min
-    (is (t/spec-check async/thread-min)))
+    (t/is-spec-check async/thread-min))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= 1
       (async/thread-min [(constantly 2)

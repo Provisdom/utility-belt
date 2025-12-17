@@ -12,7 +12,7 @@
 
 (deftest ignore-nils-test
   (t/with-instrument `nils/ignore-nils
-    (is (t/spec-check nils/ignore-nils
+    (t/is-spec-check nils/ignore-nils
           {:fspec-iterations 3})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not (nils/ignore-nils (fn [& args]
@@ -37,7 +37,7 @@
 
 (deftest anomaly-nils-test
   (t/with-instrument `nils/anomaly-nils
-    (is (t/spec-check nils/anomaly-nils
+    (t/is-spec-check nils/anomaly-nils
           {:fspec-iterations 3})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= {::anomalies/category ::anomalies/forbidden
@@ -66,7 +66,7 @@
 
 (deftest nil-nils-test
   (t/with-instrument `nils/nil-nils
-    (is (t/spec-check nils/nil-nils
+    (t/is-spec-check nils/nil-nils
           {:fspec-iterations 3})))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= nil
@@ -84,7 +84,7 @@
 
 (deftest replace-nils-test
   (t/with-instrument `nils/replace-nils
-    (is (t/spec-check nils/replace-nils)))
+    (t/is-spec-check nils/replace-nils))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= [1 2 3 4 5] (nils/replace-nils [1 2 3 nil 5] [4 nil 5]))
     (t/is= [1 2 4 nil 5] (nils/replace-nils [1 2 nil nil nil] [4 nil 5]))

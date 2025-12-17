@@ -11,7 +11,7 @@
 
 (deftest sorted-set?-test
   (t/with-instrument `sorted-sets/sorted-set?
-    (is (t/spec-check sorted-sets/sorted-set?)))
+    (t/is-spec-check sorted-sets/sorted-set?))
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not (sorted-sets/sorted-set? [:a :b]))
     (t/is-not (sorted-sets/sorted-set? #{:a :b}))

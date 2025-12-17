@@ -12,7 +12,7 @@
 
 (deftest dbg-test
   (t/with-instrument `debug/dbg
-    (is (t/spec-check debug/dbg)))
+    (t/is-spec-check debug/dbg))
   (t/with-instrument (st/instrumentable-syms)
     (t/is= {::anomalies/message "Test"} (debug/dbg {::anomalies/message "Test"}))))
 
