@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.nils-test
   (:require
     [clojure.spec.test.alpha :as st]
-    [clojure.test :refer :all]
+    [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.anomalies :as anomalies]
     [provisdom.utility-belt.nils :as nils]))
@@ -10,7 +10,7 @@
 
 (set! *warn-on-reflection* true)
 
-(deftest ignore-nils-test
+(ct/deftest ignore-nils-test
   (t/with-instrument `nils/ignore-nils
     (t/is-spec-check nils/ignore-nils
           {:fspec-iterations 3})))
@@ -35,7 +35,7 @@
                               (< (first args) 2)))
           1))))
 
-(deftest anomaly-nils-test
+(ct/deftest anomaly-nils-test
   (t/with-instrument `nils/anomaly-nils
     (t/is-spec-check nils/anomaly-nils
           {:fspec-iterations 3})))
@@ -64,7 +64,7 @@
                                (< (first args) 2)))
           1))))
 
-(deftest nil-nils-test
+(ct/deftest nil-nils-test
   (t/with-instrument `nils/nil-nils
     (t/is-spec-check nils/nil-nils
           {:fspec-iterations 3})))
@@ -82,7 +82,7 @@
                                (< (first args) 2)))
               4))))
 
-(deftest replace-nils-test
+(ct/deftest replace-nils-test
   (t/with-instrument `nils/replace-nils
     (t/is-spec-check nils/replace-nils))
   (t/with-instrument (st/instrumentable-syms)

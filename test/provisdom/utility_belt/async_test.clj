@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.async-test
   (:require
     [clojure.spec.test.alpha :as st]
-    [clojure.test :refer :all]
+    [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.anomalies :as anomalies]
     [provisdom.utility-belt.async :as async]))
@@ -10,7 +10,7 @@
 
 (set! *warn-on-reflection* true)
 
-(deftest catch-error-or-exception-or-nil-test
+(ct/deftest catch-error-or-exception-or-nil-test
   (t/with-instrument `async/catch-error-or-exception-or-nil
     (t/is-spec-check async/catch-error-or-exception-or-nil))
   (t/with-instrument (st/instrumentable-syms)
@@ -24,7 +24,7 @@
           ::anomalies/fn       (var async/catch-error-or-exception-or-nil)}
       (async/catch-error-or-exception-or-nil (constantly nil)))))
 
-(deftest thread-test
+(ct/deftest thread-test
   (t/with-instrument `async/thread
     (t/is-spec-check async/thread))
   (t/with-instrument (st/instrumentable-syms)
@@ -74,7 +74,7 @@
                                        ::anomalies/exception})]))
     (t/is= [] (async/thread :all []))))
 
-(deftest thread-select-test
+(ct/deftest thread-select-test
   (t/with-instrument `async/thread-select
     (t/is-spec-check async/thread-select))
   (t/with-instrument (st/instrumentable-syms)
@@ -96,7 +96,7 @@
         [(constantly {::anomalies/category
                       ::anomalies/exception})]))))
 
-(deftest thread-max-test
+(ct/deftest thread-max-test
   (t/with-instrument `async/thread-max
     (t/is-spec-check async/thread-max))
   (t/with-instrument (st/instrumentable-syms)
@@ -111,7 +111,7 @@
           ::anomalies/fn       (var async/thread-max)}
       (async/thread-max [(constantly 2) (constantly 1) (constantly "A")]))))
 
-(deftest thread-min-test
+(ct/deftest thread-min-test
   (t/with-instrument `async/thread-min
     (t/is-spec-check async/thread-min))
   (t/with-instrument (st/instrumentable-syms)

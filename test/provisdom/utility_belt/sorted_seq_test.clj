@@ -1,6 +1,6 @@
 (ns provisdom.utility-belt.sorted-seq-test
   (:require
-    [clojure.test :refer :all]
+    [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.sorted-seq :as sorted-seq]))
 
@@ -8,22 +8,22 @@
 
 (set! *warn-on-reflection* true)
 
-(deftest list-sorted?-test
+(ct/deftest list-sorted?-test
   (t/is-not (sorted-seq/list-sorted? [:a :b]))
   (is (sorted-seq/list-sorted? '(:a :b)))
   (t/is-not (sorted-seq/list-sorted? '(:b :a))))
 
-(deftest list-sorted-by?-test
+(ct/deftest list-sorted-by?-test
   (t/is-not (sorted-seq/list-sorted-by? > [1 2]))
   (t/is-not (sorted-seq/list-sorted-by? > '(1 2)))
   (is (sorted-seq/list-sorted-by? < '(1 2))))
 
-(deftest vector-sorted?-test
+(ct/deftest vector-sorted?-test
   (is (sorted-seq/vector-sorted? [:a :b]))
   (t/is-not (sorted-seq/vector-sorted? '(:a :b)))
   (t/is-not (sorted-seq/vector-sorted? [:b :a])))
 
-(deftest vector-sorted-by?-test
+(ct/deftest vector-sorted-by?-test
   (t/is-not (sorted-seq/vector-sorted-by? > [1 2]))
   (t/is-not (sorted-seq/vector-sorted-by? > '(1 2)))
   (is (sorted-seq/vector-sorted-by? < [1 2])))

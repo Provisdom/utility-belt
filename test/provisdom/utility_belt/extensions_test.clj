@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.extensions-test
   (:require
     [clojure.spec.test.alpha :as st]
-    [clojure.test :refer :all]
+    [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.extensions :as ext]))
 
@@ -9,7 +9,7 @@
 
 (set! *warn-on-reflection* true)
 
-(deftest update-in-with-not-found-test
+(ct/deftest update-in-with-not-found-test
   (t/with-instrument `ext/update-in-with-not-found
     (t/is-spec-check ext/update-in-with-not-found
           {:fspec-iterations 3})))
@@ -29,7 +29,7 @@
             (+ v 2)))
         6))))
 
-(deftest interleave-all-test
+(ct/deftest interleave-all-test
   (t/with-instrument `ext/interleave-all
     (t/is-spec-check ext/interleave-all
           {:fspec-iterations 1
@@ -45,7 +45,7 @@
   (t/is= '(1 4 9 2 5 3 6 7 8)
     (ext/interleave-all [1 2 3] [4 5 6 7 8] [9])))
 
-(deftest reduce-kv-ext-test
+(ct/deftest reduce-kv-ext-test
   (t/with-instrument `ext/reduce-kv-ext
     (t/is-spec-check ext/reduce-kv-ext
           {:fspec-iterations 5})))
@@ -81,7 +81,7 @@
         [4 5 6]
         [7 8 9]))))
 
-(deftest reductions-kv-test
+(ct/deftest reductions-kv-test
   (t/with-instrument `ext/reductions-kv
     (t/is-spec-check ext/reductions-kv
           {:fspec-iterations 5})))
@@ -117,7 +117,7 @@
         [4 5 6]
         [7 8 9]))))
 
-(deftest reduce-kv-with-stop-test
+(ct/deftest reduce-kv-with-stop-test
   (t/with-instrument `ext/reduce-kv-with-stop
     (t/is-spec-check ext/reduce-kv-with-stop
           {:fspec-iterations 5})))

@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.arities-test
   (:require
     [clojure.spec.test.alpha :as st]
-    [clojure.test :refer :all]
+    [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.arities :as arities]))
 
@@ -15,7 +15,7 @@
   ([x y] "")
   ([x y & z] ""))
 
-(deftest arities-test
+(ct/deftest arities-test
   (t/with-instrument `arities/arities
     (t/is-spec-check arities/arities))
   (t/with-instrument (st/instrumentable-syms)

@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.debug-test
   (:require
     [clojure.spec.test.alpha :as st]
-    [clojure.test :refer :all]
+    [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.anomalies :as anomalies]
     [provisdom.utility-belt.debug :as debug]))
@@ -10,7 +10,7 @@
 
 (set! *warn-on-reflection* true)
 
-(deftest dbg-test
+(ct/deftest dbg-test
   (t/with-instrument `debug/dbg
     (t/is-spec-check debug/dbg))
   (t/with-instrument (st/instrumentable-syms)
