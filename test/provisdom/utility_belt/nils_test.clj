@@ -22,14 +22,14 @@
               nil
               4
               nil))
-    (is (nils/ignore-nils (fn [& args]
+    (t/is (nils/ignore-nils (fn [& args]
                             (when (and (= 1 (count args))
                                     (number? (first args)))
                               (< (first args) 2)))
           nil
           1
           nil))
-    (is (nils/ignore-nils (fn [& args]
+    (t/is (nils/ignore-nils (fn [& args]
                             (when (and (= 1 (count args))
                                     (number? (first args)))
                               (< (first args) 2)))
@@ -58,7 +58,7 @@
                                    (number? (first args)))
                              (< (first args) 2)))
         4))
-    (is (nils/anomaly-nils (fn [& args]
+    (t/is (nils/anomaly-nils (fn [& args]
                              (when (and (= 1 (count args))
                                      (number? (first args)))
                                (< (first args) 2)))

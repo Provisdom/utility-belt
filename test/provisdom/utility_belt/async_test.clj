@@ -14,7 +14,7 @@
   (t/with-instrument `async/catch-error-or-exception-or-nil
     (t/is-spec-check async/catch-error-or-exception-or-nil))
   (t/with-instrument (st/instrumentable-syms)
-    (is (async/catch-error-or-exception-or-nil (constantly true)))
+    (t/is (async/catch-error-or-exception-or-nil (constantly true)))
     (t/is= {::anomalies/message  "HI"
           ::anomalies/category ::anomalies/exception
           ::anomalies/fn       (var async/catch-error-or-exception-or-nil)}
@@ -44,7 +44,7 @@
       (async/thread :first!! [(constantly {::anomalies/category
                                            ::anomalies/exception})]))
     (t/is= nil (async/thread :first!! []))
-    (is (async/thread :or [(constantly 2)
+    (t/is (async/thread :or [(constantly 2)
                            (constantly 1)
                            (constantly {::anomalies/category
                                         ::anomalies/exception})]))

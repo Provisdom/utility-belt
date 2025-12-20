@@ -15,9 +15,9 @@
   (t/with-instrument (st/instrumentable-syms)
     (t/is-not (sorted-sets/sorted-set? [:a :b]))
     (t/is-not (sorted-sets/sorted-set? #{:a :b}))
-    (is (sorted-sets/sorted-set? (sorted-set :a :b)))))
+    (t/is (sorted-sets/sorted-set? (sorted-set :a :b)))))
 
 (ct/deftest sorted-set-by?-test
-  (is (sorted-sets/sorted-set-by? > (sorted-set-by > 1 2)))
+  (t/is (sorted-sets/sorted-set-by? > (sorted-set-by > 1 2)))
   (t/is-not (sorted-sets/sorted-set-by? > #{1 2}))
-  (is (sorted-sets/sorted-set-by? < (sorted-set 1 2))))
+  (t/is (sorted-sets/sorted-set-by? < (sorted-set 1 2))))

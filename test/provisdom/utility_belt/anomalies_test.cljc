@@ -3,7 +3,7 @@
              [provisdom.test.core]))
   (:require
     [clojure.spec.test.alpha :as st]
-    [clojure.test :refer [deftest is]]
+    [clojure.test :as ct]
     [provisdom.test.core :refer [is-not spec-check with-instrument]]
     [provisdom.utility-belt.anomalies :as anomalies]
     #?(:cljs [orchestra-cljs.spec.test :as ost])))
@@ -12,9 +12,9 @@
 
 #?(:clj (set! *warn-on-reflection* true))
 
-(deftest anomaly?-test
+(ct/deftest anomaly?-test
   (with-instrument `anomalies/anomaly?
-    (is (spec-check anomalies/anomaly?)))
+    (ct/is (spec-check anomalies/anomaly?)))
   (with-instrument (st/instrumentable-syms)
-    (is (anomalies/anomaly? {::anomalies/category ::anomalies/no-solve}))
+    (ct/is (anomalies/anomaly? {::anomalies/category ::anomalies/no-solve}))
     (is-not (anomalies/anomaly? {::anomalies/message "Test"}))))
