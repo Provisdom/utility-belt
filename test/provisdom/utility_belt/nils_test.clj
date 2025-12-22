@@ -1,6 +1,5 @@
 (ns provisdom.utility-belt.nils-test
   (:require
-    [clojure.spec.test.alpha :as st]
     [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.anomalies :as anomalies]
@@ -14,7 +13,7 @@
   (t/with-instrument `nils/ignore-nils
     (t/is-spec-check nils/ignore-nils
           {:fspec-iterations 3})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is-not (nils/ignore-nils (fn [& args]
                                 (when (and (= 1 (count args))
                                         (number? (first args)))
@@ -39,7 +38,7 @@
   (t/with-instrument `nils/anomaly-nils
     (t/is-spec-check nils/anomaly-nils
           {:fspec-iterations 3})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= {::anomalies/category ::anomalies/forbidden
           ::anomalies/message  "nil not allowed"
           ::anomalies/fn       (var nils/anomaly-nils)}
@@ -68,7 +67,7 @@
   (t/with-instrument `nils/nil-nils
     (t/is-spec-check nils/nil-nils
           {:fspec-iterations 3})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= nil
       (nils/nil-nils (fn [& args]
                        (when (and (= 1 (count args))
@@ -85,7 +84,7 @@
 (ct/deftest replace-nils-test
   (t/with-instrument `nils/replace-nils
     (t/is-spec-check nils/replace-nils))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= [1 2 3 4 5] (nils/replace-nils [1 2 3 nil 5] [4 nil 5]))
     (t/is= [1 2 4 nil 5] (nils/replace-nils [1 2 nil nil nil] [4 nil 5]))
     (t/is= [1 2 4 5 nil] (nils/replace-nils [1 2 nil nil nil] [4 5]))))

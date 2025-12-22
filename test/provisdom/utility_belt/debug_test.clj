@@ -1,6 +1,5 @@
 (ns provisdom.utility-belt.debug-test
   (:require
-    [clojure.spec.test.alpha :as st]
     [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.anomalies :as anomalies]
@@ -13,6 +12,6 @@
 (ct/deftest dbg-test
   (t/with-instrument `debug/dbg
     (t/is-spec-check debug/dbg))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= {::anomalies/message "Test"} (debug/dbg {::anomalies/message "Test"}))))
 

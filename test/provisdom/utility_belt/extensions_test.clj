@@ -1,6 +1,5 @@
 (ns provisdom.utility-belt.extensions-test
   (:require
-    [clojure.spec.test.alpha :as st]
     [clojure.test :as ct]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.extensions :as ext]))
@@ -13,7 +12,7 @@
   (t/with-instrument `ext/update-in-with-not-found
     (t/is-spec-check ext/update-in-with-not-found
           {:fspec-iterations 3})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= {:a 3 :b 2}
       (ext/update-in-with-not-found {:a 1 :b 2}
         [:a]
@@ -34,7 +33,7 @@
     (t/is-spec-check ext/interleave-all
           {:fspec-iterations 1
            :num-tests        150})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= '() (ext/interleave-all)))
   (t/is= '() (ext/interleave-all nil))
   (t/is= '(1) (ext/interleave-all [1]))
@@ -49,7 +48,7 @@
   (t/with-instrument `ext/reduce-kv-ext
     (t/is-spec-check ext/reduce-kv-ext
           {:fspec-iterations 5})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= 9.0
       (ext/reduce-kv-ext
         (fn [res i v1]
@@ -85,7 +84,7 @@
   (t/with-instrument `ext/reductions-kv
     (t/is-spec-check ext/reductions-kv
           {:fspec-iterations 5})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= '(1.0 4.0 9.0)
       (ext/reductions-kv
         (fn [res i v1]
@@ -121,7 +120,7 @@
   (t/with-instrument `ext/reduce-kv-with-stop
     (t/is-spec-check ext/reduce-kv-with-stop
           {:fspec-iterations 5})))
-  (t/with-instrument (st/instrumentable-syms)
+  (t/with-instrument :all
     (t/is= 4.0
       (ext/reduce-kv-with-stop
         (fn [res i v1]
