@@ -6,8 +6,8 @@
                                            org.clojure/data.priority-map        {:mvn/version "1.2.0"}
                                            org.clojure/test.check               {:mvn/version "1.1.2"}
                                            provisdom/test                       {:git/url "https://github.com/Provisdom/test.git"
-                                                                                 :sha     "07d4970b5cd952559145d415c7d608a87b9115c8"}}}
+                                                                                 :git/sha "4196a90c13403324602bfabad9bb3006c8f32ebb"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
-           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "3.3.3"}}}}}
+           :test-cljs       {:extra-deps {thheller/shadow-cljs {:mvn/version "3.3.4"}}}}}
