@@ -2,33 +2,177 @@
   "Provides predicates and spec generators for sorted sequences (lists and vectors).
    Unlike sorted collections that maintain their order (like sorted-set, sorted-map),
    these sequences are point-in-time sorted and won't re-sort when elements are added.
-   For self-sorting collections, use sorted-sets namespace instead."
+   For self-sorting collections, use sorted-sets namespace instead.
+
+   Note: This namespace defines `sorted?` which shadows `clojure.core/sorted?`.
+   The core function tests if something is a sorted collection type (sorted-set, sorted-map).
+   This namespace's `sorted?` tests if elements are in ascending order.
+
+   Includes:
+   - Predicates: sorted?, strictly-sorted?, sorted-desc?, strictly-sorted-desc?
+   - Type-specific: list-sorted?, vector-sorted?, seq-sorted? (and variants)
+   - Binary search: binary-search, binary-search-by
+   - Utilities: insert-sorted, merge-sorted"
+  (:refer-clojure :exclude [sorted?])
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
 
-(s/def ::comparator (s/fspec :args (s/or :two (s/cat :k1 any?
-                                                :k2 any?)
-                                     :one (s/cat :k1 any?))
-                      :ret boolean?))
+(s/def ::comparator (s/fspec :args (s/cat :a any? :b any?)
+                             :ret int?))
+
+;;;HELPER FUNCTIONS
+(defn- pairs-compare-satisfy?
+  "Returns true if all adjacent pairs satisfy (sign-pred (compare a b)).
+   Uses compare for general Comparable support. O(n) time complexity."
+  [sign-pred coll]
+  (or (empty? coll)
+      (let [s (seq coll)]
+        (loop [prev (first s)
+               remaining (rest s)]
+          (if (empty? remaining)
+            true
+            (let [curr (first remaining)]
+              (if (sign-pred (compare prev curr))
+                (recur curr (rest remaining))
+                false)))))))
+
+(defn- pairs-satisfy-by?
+  "Returns true if all adjacent pairs satisfy (comparator a b) with given sign check.
+   O(n) time complexity."
+  [comparator sign-pred coll]
+  (or (empty? coll)
+      (let [s (seq coll)]
+        (loop [prev (first s)
+               remaining (rest s)]
+          (if (empty? remaining)
+            true
+            (let [curr (first remaining)]
+              (if (sign-pred (comparator prev curr))
+                (recur curr (rest remaining))
+                false)))))))
+
+;;;GENERIC SORTED PREDICATES
+(defn sorted?
+  "Tests whether `coll` is sorted in ascending order (allows duplicates).
+   Works on any Comparable elements. O(n) time complexity."
+  [coll]
+  (pairs-compare-satisfy? #(<= % 0) coll))
+
+(s/fdef sorted?
+  :args (s/cat :coll seqable?)
+  :ret boolean?)
+
+(defn sorted-by?
+  "Tests whether `coll` is sorted by the given comparator (allows duplicates).
+   Comparator should return negative, zero, or positive int."
+  [comparator coll]
+  (pairs-satisfy-by? comparator #(<= % 0) coll))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef sorted-by?
+    :args (s/cat :comparator ::comparator :coll seqable?)
+    :ret boolean?))
+
+(defn strictly-sorted?
+  "Tests whether `coll` is strictly sorted in ascending order (no duplicates).
+   Works on any Comparable elements. O(n) time complexity."
+  [coll]
+  (pairs-compare-satisfy? #(< % 0) coll))
+
+(s/fdef strictly-sorted?
+  :args (s/cat :coll seqable?)
+  :ret boolean?)
+
+(defn strictly-sorted-by?
+  "Tests whether `coll` is strictly sorted by the given comparator (no duplicates).
+   Comparator should return negative, zero, or positive int."
+  [comparator coll]
+  (pairs-satisfy-by? comparator #(< % 0) coll))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef strictly-sorted-by?
+    :args (s/cat :comparator ::comparator :coll seqable?)
+    :ret boolean?))
+
+(defn sorted-desc?
+  "Tests whether `coll` is sorted in descending order (allows duplicates).
+   Works on any Comparable elements. O(n) time complexity."
+  [coll]
+  (pairs-compare-satisfy? #(>= % 0) coll))
+
+(s/fdef sorted-desc?
+  :args (s/cat :coll seqable?)
+  :ret boolean?)
+
+(defn sorted-desc-by?
+  "Tests whether `coll` is sorted in descending order by the given comparator.
+   Comparator should return negative, zero, or positive int."
+  [comparator coll]
+  (pairs-satisfy-by? comparator #(>= % 0) coll))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef sorted-desc-by?
+    :args (s/cat :comparator ::comparator :coll seqable?)
+    :ret boolean?))
+
+(defn strictly-sorted-desc?
+  "Tests whether `coll` is strictly sorted in descending order (no duplicates).
+   Works on any Comparable elements. O(n) time complexity."
+  [coll]
+  (pairs-compare-satisfy? #(> % 0) coll))
+
+(s/fdef strictly-sorted-desc?
+  :args (s/cat :coll seqable?)
+  :ret boolean?)
+
+(defn strictly-sorted-desc-by?
+  "Tests whether `coll` is strictly sorted in descending order by comparator.
+   Comparator should return negative, zero, or positive int."
+  [comparator coll]
+  (pairs-satisfy-by? comparator #(> % 0) coll))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef strictly-sorted-desc-by?
+    :args (s/cat :comparator ::comparator :coll seqable?)
+    :ret boolean?))
+
+;;;SEQ -- SORTED
+(defn seq-sorted?
+  "Tests whether `coll` is a sequential and sorted in ascending order."
+  [coll]
+  (and (sequential? coll) (sorted? coll)))
+
+(s/fdef seq-sorted?
+  :args (s/cat :coll any?)
+  :ret boolean?)
+
+(defn seq-sorted-by?
+  "Tests whether `coll` is a sequential sorted by the given comparator."
+  [comparator coll]
+  (and (sequential? coll) (sorted-by? comparator coll)))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef seq-sorted-by?
+    :args (s/cat :comparator ::comparator :coll any?)
+    :ret boolean?))
 
 ;;;LIST -- SORTED
 (defn list-sorted?
-  "Tests whether `l` is a list sorted."
+  "Tests whether `l` is a sorted list. O(n) time complexity."
   [l]
-  (and (list? l) (= l (sort l))))
+  (and (list? l) (sorted? l)))
 
-(comment "documentation only"
-  (s/fdef list-sorted?
-    :args (s/cat :l any?)
-    :ret boolean?))
+(s/fdef list-sorted?
+  :args (s/cat :l any?)
+  :ret boolean?)
 
 (defn list-sorted-by?
-  "Tests whether `l` is a list sorted by."
+  "Tests whether `l` is a list sorted by the given comparator. O(n) time complexity."
   [comparator l]
-  (and (list? l) (= l (sort comparator l))))
+  (and (list? l) (sorted-by? comparator l)))
 
-(comment "documentation only"
+(comment "documentation only -- causes instrumentation difficulties"
   (s/fdef list-sorted-by?
     :args (s/cat :comparator ::comparator
             :l any?)
@@ -54,23 +198,22 @@
        #(gen/fmap (comp (partial sort ~comparator) list*)
           (s/gen ~sform)))))
 
-;;SORTED VECTOR
+;;;VECTOR -- SORTED
 (defn vector-sorted?
-  "Tests whether `v` is a vector sorted."
+  "Tests whether `v` is a sorted vector. O(n) time complexity."
   [v]
-  (and (vector? v) (= v (sort v))))
+  (and (vector? v) (sorted? v)))
 
-(comment "documentation only"
-  (s/fdef vector-sorted?
-    :args (s/cat :v any?)
-    :ret boolean?))
+(s/fdef vector-sorted?
+  :args (s/cat :v any?)
+  :ret boolean?)
 
 (defn vector-sorted-by?
-  "Tests whether `v` is a vector sorted by."
+  "Tests whether `v` is a vector sorted by the given comparator. O(n) time complexity."
   [comparator v]
-  (and (vector? v) (= v (sort comparator v))))
+  (and (vector? v) (sorted-by? comparator v)))
 
-(comment "documentation only"
+(comment "documentation only -- causes instrumentation difficulties"
   (s/fdef vector-sorted-by?
     :args (s/cat :comparator ::comparator
             :v any?)
@@ -95,3 +238,163 @@
        ~xform
        #(gen/fmap (comp vec (partial sort ~comparator))
           (s/gen ~sform)))))
+
+;;;BINARY SEARCH
+(defn binary-search
+  "Binary search for `target` in a sorted indexed collection `coll`.
+   Returns the index if found, or nil if not found.
+   O(log n) time complexity. Requires coll to support nth and count."
+  [coll target]
+  (when (seq coll)
+    (loop [low 0
+           high (dec (count coll))]
+      (when (<= low high)
+        (let [mid (quot (+ low high) 2)
+              mid-val (nth coll mid)]
+          (cond
+            (= mid-val target) mid
+            (< (compare mid-val target) 0) (recur (inc mid) high)
+            :else (recur low (dec mid))))))))
+
+(s/fdef binary-search
+  :args (s/cat :coll (s/and indexed? sorted?) :target any?)
+  :ret (s/nilable nat-int?))
+
+(defn binary-search-by
+  "Binary search using a custom comparator.
+   Returns the index if found, or nil if not found.
+   O(log n) time complexity."
+  [comparator coll target]
+  (when (seq coll)
+    (loop [low 0
+           high (dec (count coll))]
+      (when (<= low high)
+        (let [mid (quot (+ low high) 2)
+              mid-val (nth coll mid)
+              cmp (comparator mid-val target)]
+          (cond
+            (zero? cmp) mid
+            (neg? cmp) (recur (inc mid) high)
+            :else (recur low (dec mid))))))))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef binary-search-by
+    :args (s/cat :comparator ::comparator
+                 :coll (s/and indexed? sorted?)
+                 :target any?)
+    :ret (s/nilable nat-int?)))
+
+(defn binary-search-insertion-point
+  "Find the insertion point for `target` in a sorted indexed collection.
+   Returns the index where target should be inserted to maintain sorted order.
+   If target exists, returns the index of the first occurrence.
+   O(log n) time complexity."
+  [coll target]
+  (if (empty? coll)
+    0
+    (loop [low 0
+           high (count coll)]
+      (if (< low high)
+        (let [mid (quot (+ low high) 2)
+              mid-val (nth coll mid)]
+          (if (< (compare mid-val target) 0)
+            (recur (inc mid) high)
+            (recur low mid)))
+        low))))
+
+(s/fdef binary-search-insertion-point
+  :args (s/cat :coll (s/and indexed? sorted?) :target any?)
+  :ret nat-int?)
+
+(defn binary-search-insertion-point-by
+  "Find the insertion point using a custom comparator.
+   O(log n) time complexity."
+  [comparator coll target]
+  (if (empty? coll)
+    0
+    (loop [low 0
+           high (count coll)]
+      (if (< low high)
+        (let [mid (quot (+ low high) 2)
+              mid-val (nth coll mid)]
+          (if (neg? (comparator mid-val target))
+            (recur (inc mid) high)
+            (recur low mid)))
+        low))))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef binary-search-insertion-point-by
+    :args (s/cat :comparator ::comparator
+                 :coll (s/and indexed? sorted?)
+                 :target any?)
+    :ret nat-int?))
+
+;;;SORTED UTILITIES
+(defn insert-sorted
+  "Insert `x` into sorted vector `v` maintaining sorted order.
+   O(n) time complexity due to vector construction."
+  [v x]
+  (let [idx (binary-search-insertion-point v x)]
+    (into (conj (subvec v 0 idx) x) (subvec v idx))))
+
+(s/fdef insert-sorted
+  :args (s/cat :v (s/and vector? sorted?) :x any?)
+  :ret (s/and vector? sorted?))
+
+(defn insert-sorted-by
+  "Insert `x` into sorted vector `v` using comparator, maintaining sorted order.
+   O(n) time complexity due to vector construction."
+  [comparator v x]
+  (let [idx (binary-search-insertion-point-by comparator v x)]
+    (into (conj (subvec v 0 idx) x) (subvec v idx))))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef insert-sorted-by
+    :args (s/cat :comparator ::comparator
+                 :v (s/and vector? sorted?)
+                 :x any?)
+    :ret vector?))
+
+(defn merge-sorted
+  "Merge two sorted sequences into a single sorted vector.
+   O(n + m) time complexity where n and m are the sizes of the inputs."
+  [coll1 coll2]
+  (loop [result []
+         s1 (seq coll1)
+         s2 (seq coll2)]
+    (cond
+      (nil? s1) (into result s2)
+      (nil? s2) (into result s1)
+      :else (let [v1 (first s1)
+                  v2 (first s2)]
+              (if (<= (compare v1 v2) 0)
+                (recur (conj result v1) (next s1) s2)
+                (recur (conj result v2) s1 (next s2)))))))
+
+(s/fdef merge-sorted
+  :args (s/cat :coll1 (s/and seqable? sorted?)
+               :coll2 (s/and seqable? sorted?))
+  :ret (s/and vector? sorted?))
+
+(defn merge-sorted-by
+  "Merge two sorted sequences using a comparator into a single sorted vector.
+   O(n + m) time complexity."
+  [comparator coll1 coll2]
+  (loop [result []
+         s1 (seq coll1)
+         s2 (seq coll2)]
+    (cond
+      (nil? s1) (into result s2)
+      (nil? s2) (into result s1)
+      :else (let [v1 (first s1)
+                  v2 (first s2)]
+              (if (<= (comparator v1 v2) 0)
+                (recur (conj result v1) (next s1) s2)
+                (recur (conj result v2) s1 (next s2)))))))
+
+(comment "documentation only -- causes instrumentation difficulties"
+  (s/fdef merge-sorted-by
+    :args (s/cat :comparator ::comparator
+                 :coll1 seqable?
+                 :coll2 seqable?)
+    :ret vector?))

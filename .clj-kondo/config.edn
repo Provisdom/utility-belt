@@ -1,0 +1,6 @@
+{:config-paths ["imports/provisdom/test"]
+ :lint-as {provisdom.utility-belt.extensions/if-all-let clojure.core/let
+           provisdom.utility-belt.extensions/if-some-let clojure.core/let
+           provisdom.utility-belt.extensions/when-all-let clojure.core/let
+           provisdom.utility-belt.extensions/when-some-let clojure.core/let}
+ :linters {:unresolved-var {:exclude [provisdom.test.core/deftest]}}}
