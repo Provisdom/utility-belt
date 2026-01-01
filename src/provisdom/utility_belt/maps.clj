@@ -14,7 +14,7 @@
            (clojure.lang PersistentTreeMap)
            (java.util Map)))
 
-(declare priority-map? priority-map)
+(declare priority-map priority-map?)
 
 (s/def ::priority-map
   (s/with-gen priority-map?

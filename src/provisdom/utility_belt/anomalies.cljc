@@ -1,4 +1,4 @@
-(ns provisdom.utility-belt.anomalies
+/(ns provisdom.utility-belt.anomalies
   "Implements a standard anomaly (error) handling system based on Cognitect's approach.
    Provides functions and macros for working with anomalies as data rather than exceptions."
   (:require
@@ -6,19 +6,15 @@
     [clojure.spec.gen.alpha :as gen])
   (:import (clojure.lang ExceptionInfo)))
 
-(s/def ::category #{::unavailable
-                    ::interrupted
-                    ::incorrect
-                    ::forbidden
-                    ::unsupported
-                    ::not-found
-                    ::conflict
-                    ::fault
-                    ::busy
-                    ::third-party
-                    ::no-solve
+(s/def ::category #{::error
                     ::exception
-                    ::error})
+                    ::forbidden
+                    ::incorrect
+                    ::no-solve
+                    ::not-found
+                    ::third-party
+                    ::unavailable
+                    ::unsupported})
 
 (s/def ::data any?)
 (s/def ::ex-cause #?(:clj #(instance? Throwable %) :cljs #(instance? js/Error %)))

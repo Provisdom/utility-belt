@@ -211,6 +211,6 @@ The `:throws` clause integrates with `provisdom.test.core/is-spec-check` - durin
 
 ## License
 
-Copyright 2016 Provisdom
+Copyright © 2016-2026 Provisdom Corp.
 
 Distributed under the GNU Lesser General Public License version 3.0.
