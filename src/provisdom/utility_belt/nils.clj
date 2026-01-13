@@ -13,6 +13,7 @@
    - `replace-nils` - Replace nils in sequence with values from another"
   (:require
     [clojure.spec.alpha :as s]
+    [clojure.spec.gen.alpha :as gen]
     [provisdom.utility-belt.anomalies :as anomalies]))
 
 (defn ignore-nils
@@ -129,8 +130,8 @@
 (defn ignore-nils-fn
   "Returns a function that ignores nil args when calling `f`.
 
-   This is the higher-order version of `ignore-nils`, useful for
-   composition and passing to higher-order functions.
+   This is the higher-order version of `ignore-nils`, useful for composition and passing to
+   higher-order functions.
 
    Examples:
    ```clojure
@@ -142,14 +143,15 @@
     (apply f (remove nil? args))))
 
 (s/fdef ignore-nils-fn
-  :args (s/cat :f fn?)
+  :args (s/cat :f (s/with-gen fn?
+                    #(gen/one-of (map gen/return (list + - * max min)))))
   :ret fn?)
 
 (defn nil-nils-fn
   "Returns a function that returns nil if any arg is nil.
 
-   This is the higher-order version of `nil-nils`, useful for
-   composition and passing to higher-order functions.
+   This is the higher-order version of `nil-nils`, useful for composition and passing to
+   higher-order functions.
 
    Examples:
    ```clojure
@@ -163,14 +165,15 @@
       (apply f args))))
 
 (s/fdef nil-nils-fn
-  :args (s/cat :f fn?)
+  :args (s/cat :f (s/with-gen fn?
+                    #(gen/one-of (map gen/return (list + - * max min)))))
   :ret fn?)
 
 (defn anomaly-nils-fn
   "Returns a function that returns an anomaly if any arg is nil or if the result is nil.
 
-   This is the higher-order version of `anomaly-nils`, useful for
-   composition and passing to higher-order functions.
+   This is the higher-order version of `anomaly-nils`, useful for composition and passing to
+   higher-order functions.
 
    Examples:
    ```clojure
@@ -187,7 +190,8 @@
         (or (apply f args) anomaly)))))
 
 (s/fdef anomaly-nils-fn
-  :args (s/cat :f fn?)
+  :args (s/cat :f (s/with-gen fn?
+                    #(gen/one-of (map gen/return (list + - * max min)))))
   :ret fn?)
 
 ;;;; Nil coalescing and defaults

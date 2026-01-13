@@ -4,7 +4,7 @@
     [provisdom.utility-belt.anomalies :as anomalies]
     [provisdom.utility-belt.nils :as nils]))
 
-;21 seconds
+;22 seconds
 
 (set! *warn-on-reflection* true)
 
@@ -79,7 +79,8 @@
     (t/is= [1 2 4 5 nil] (nils/replace-nils [1 2 nil nil nil] [4 5]))))
 
 (t/deftest ignore-nils-fn-test
-  ;; skip spec-check: fn? has no default generator
+  (t/with-instrument `nils/ignore-nils-fn
+    (t/is-spec-check nils/ignore-nils-fn))
   (t/with-instrument :all
     (t/is= 6 ((nils/ignore-nils-fn +) 1 nil 2 nil 3))
     (t/is= 6 ((nils/ignore-nils-fn +) 1 2 3))
@@ -89,7 +90,8 @@
     (t/is= 5 ((nils/ignore-nils-fn max) 1 nil 5 nil 3))))
 
 (t/deftest nil-nils-fn-test
-  ;; skip spec-check: fn? has no default generator
+  (t/with-instrument `nils/nil-nils-fn
+    (t/is-spec-check nils/nil-nils-fn))
   (t/with-instrument :all
     (t/is= 6 ((nils/nil-nils-fn +) 1 2 3))
     (t/is= nil ((nils/nil-nils-fn +) 1 nil 3))
@@ -98,7 +100,8 @@
     (t/is= 0 ((nils/nil-nils-fn +)))))
 
 (t/deftest anomaly-nils-fn-test
-  ;; skip spec-check: fn? has no default generator
+  (t/with-instrument `nils/anomaly-nils-fn
+    (t/is-spec-check nils/anomaly-nils-fn))
   (t/with-instrument :all
     (t/is= 6 ((nils/anomaly-nils-fn +) 1 2 3))
     (t/is= {::anomalies/category ::anomalies/forbidden
