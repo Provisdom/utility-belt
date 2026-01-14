@@ -1,6 +1,6 @@
 (ns provisdom.utility-belt.arities
-  "Function introspection utilities for determining function arities.
-   Provides tools to inspect and analyze function signatures at runtime using Java reflection."
+  "Function introspection utilities for determining function arities. Provides tools to inspect
+   and analyze function signatures at runtime using Java reflection."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen])
@@ -11,19 +11,17 @@
 (s/def ::arities (s/keys :req [::parameters ::variadic?]))
 
 (defn arities
-  "Uses reflection to analyze and return the arities of a function.
-   
-   Examines the Java class of the function to determine its fixed and variadic
-   arities by analyzing the invoke and doInvoke methods.
-   
+  "Uses reflection to analyze and return the arities of a function. Examines the Java class of the
+   function to determine its fixed and variadic arities by analyzing the `invoke` and `doInvoke`
+   methods.
+
    Parameters:
-   - f: A Clojure function to analyze
-   
-   Returns:
-   - A vector of maps, where each map contains:
-     - ::parameters: The number of parameters (arity)
-     - ::variadic?: Whether this arity is variadic (can take variable arguments)
-   
+   - `f`: A Clojure function to analyze
+
+   Returns a vector of maps, where each map contains:
+   - `::parameters`: The number of parameters (arity)
+   - `::variadic?`: Whether this arity is variadic (can take variable arguments)
+
    Example:
    ```clojure
    (arities +)
@@ -31,11 +29,11 @@
    ;;     {::parameters 1, ::variadic? false}
    ;;     {::parameters 2, ::variadic? false}
    ;;     {::parameters 2, ::variadic? true}]
-   
+
    (arities (fn [a b] (+ a b)))
    ;; => [{::parameters 2, ::variadic? false}]
    ```
-   
+
    Note: Uses Java reflection, so works only in Clojure (JVM), not ClojureScript."
   [f]
   (let [all-declared-methods (.getDeclaredMethods (class f))
@@ -92,8 +90,8 @@
   :ret ::parameters)
 
 (defn max-fixed-arity
-  "Returns the maximum fixed (non-variadic) arity of the function.
-   Returns nil if the function has no fixed arities (only variadic).
+  "Returns the maximum fixed (non-variadic) arity of the function. Returns `nil` if the function
+   has no fixed arities (only variadic).
 
    Example:
    ```clojure
@@ -115,7 +113,7 @@
   :ret (s/nilable ::parameters))
 
 (defn variadic?
-  "Returns true if the function accepts variable arguments.
+  "Returns `true` if the function accepts variable arguments.
 
    Example:
    ```clojure
@@ -134,7 +132,7 @@
   :ret boolean?)
 
 (defn accepts-arity?
-  "Returns true if the function can be called with n arguments.
+  "Returns `true` if the function can be called with `n` arguments.
 
    Example:
    ```clojure

@@ -1,7 +1,6 @@
 (ns provisdom.utility-belt.async
-  "Advanced parallel processing utilities built on core.async.
-   Provides high-level functions for executing tasks in parallel with
-   various coordination patterns and error handling strategies."
+  "Advanced parallel processing utilities built on core.async. Provides high-level functions for
+   executing tasks in parallel with various coordination patterns and error handling strategies."
   (:require
     [clojure.core.async :as async]
     [clojure.spec.alpha :as s]
@@ -13,17 +12,16 @@
 (s/def ::timeout-ms pos-int?)
 
 (defn catch-error-or-exception
-  "Safely executes a function, converting errors and exceptions to anomalies.
-
-   Takes a zero-arity function and returns either its result or an appropriate anomaly.
-   This is particularly useful for async operations where exceptions can get lost.
+  "Safely executes a function, converting errors and exceptions to anomalies. Takes a zero-arity
+   function and returns either its result or an appropriate anomaly. This is particularly useful
+   for async operations where exceptions can get lost.
 
    The function handles two cases:
-   1. If `f` throws an Exception, returns an ::exception anomaly
-   2. If `f` throws an Error, returns an ::error anomaly
+   1. If `f` throws an Exception, returns an `::anomalies/exception` anomaly
+   2. If `f` throws an Error, returns an `::anomalies/error` anomaly
 
    Parameters:
-   - f: A function taking no arguments
+   - `f`: A function taking no arguments
 
    Returns:
    - The result of calling `f` if successful
@@ -48,25 +46,24 @@
   :ret any?)
 
 (defn catch-error-or-exception-or-nil
-  "Safely executes a function, converting errors, exceptions, and nil results to anomalies.
-
-   Takes a zero-arity function and returns either its result or an appropriate anomaly.
-   This is particularly useful for async operations where exceptions can get lost
-   and nil values can cause blocked channels.
+  "Safely executes a function, converting errors, exceptions, and `nil` results to anomalies.
+   Takes a zero-arity function and returns either its result or an appropriate anomaly. This is
+   particularly useful for async operations where exceptions can get lost and `nil` values can
+   cause blocked channels.
 
    The function handles three cases:
-   1. If `f` returns nil, returns an ::exception anomaly
-   2. If `f` throws an Exception, returns an ::exception anomaly
-   3. If `f` throws an Error, returns an ::error anomaly
+   1. If `f` returns `nil`, returns an `::anomalies/exception` anomaly
+   2. If `f` throws an Exception, returns an `::anomalies/exception` anomaly
+   3. If `f` throws an Error, returns an `::anomalies/error` anomaly
 
    Parameters:
-   - f: A function taking no arguments
+   - `f`: A function taking no arguments
 
    Returns:
    - The result of calling `f` if successful and non-nil
    - An anomaly map otherwise
 
-   See also: `catch-error-or-exception` if nil is a valid return value."
+   See also: [[catch-error-or-exception]] if `nil` is a valid return value."
   [f]
   (let [r (catch-error-or-exception f)]
     (if (nil? r)
@@ -94,43 +91,38 @@
 (defn- unwrap-value [w] (:value w))
 
 (defn thread
-  "Call each of the functions `fs` on a separate thread. Each of the `fs` are
-  wrapped to catch Exceptions and Errors, returning an anomaly instead.
+  "Call each of the functions `fs` on a separate thread. Each of the `fs` are wrapped to catch
+   Exceptions and Errors, returning an anomaly instead.
 
-  Options for `threading-type`:
-   `:all` -- Returns a vector with all the results in order corresponding to
-             their `fs`. This is the recommended mode for most use cases.
-   `:and` -- Returns nil if any anomalies are returned, otherwise returns a
-             vector with all the results in order corresponding to their `fs`.
-          -- Short-circuits (and cancels the calls to remaining `fs`) on first
-             returned anomaly.
-   `:or` -- Returns false if all are anomalies, otherwise returns true.
-         -- Short-circuits (and cancels the calls to remaining `fs`) on first
-            value returned.
-   `:first-success!!` -- Returns nil if all are anomalies, otherwise returns
-                         value of first successful result.
-                      -- Short-circuits (and cancels the calls to remaining `fs`)
-                         on first returned value.
-                      -- WARNING: Induces race conditions between threads.
-   `:race!!` -- Returns the first result regardless of success or anomaly.
-             -- Short-circuits (and cancels the calls to remaining `fs`) on
-                first returned result.
-             -- WARNING: Induces race conditions between threads.
-   `:any-ordered` -- Returns a tuple containing the [value index] as soon as any
-                     function returns with the previous `fs` all having
-                     returned an anomaly. Otherwise, returns nil.
+   Options for `threading-type`:
+   - `:all` -- Returns a vector with all the results in order corresponding to their `fs`. This is
+     the recommended mode for most use cases.
+   - `:and` -- Returns `nil` if any anomalies are returned, otherwise returns a vector with all
+     the results in order corresponding to their `fs`. Short-circuits (and cancels the calls to
+     remaining `fs`) on first returned anomaly.
+   - `:or` -- Returns `false` if all are anomalies, otherwise returns `true`. Short-circuits (and
+     cancels the calls to remaining `fs`) on first value returned.
+   - `:first-success!!` -- Returns `nil` if all are anomalies, otherwise returns value of first
+     successful result. Short-circuits (and cancels the calls to remaining `fs`) on first returned
+     value. WARNING: Induces race conditions between threads.
+   - `:race!!` -- Returns the first result regardless of success or anomaly. Short-circuits (and
+     cancels the calls to remaining `fs`) on first returned result. WARNING: Induces race
+     conditions between threads.
+   - `:any-ordered` -- Returns a tuple containing the `[value index]` as soon as any function
+     returns with the previous `fs` all having returned an anomaly. Otherwise, returns `nil`.
 
-  Optional `opts` map:
-   :timeout-ms -- Maximum time in milliseconds to wait for all results.
-                  If exceeded, remaining functions are cancelled and a timeout
-                  anomaly is returned for those slots.
-   :allow-nil? -- If true, nil returns are allowed. If false (default), nil
-                  returns are converted to anomalies.
+   Optional `opts` map:
+   - `:timeout-ms` -- Maximum time in milliseconds to wait for all results. If exceeded, remaining
+     functions are cancelled and a timeout anomaly is returned for those slots.
+   - `:allow-nil?` -- If `true`, `nil` returns are allowed. If `false` (default), `nil` returns
+     are converted to anomalies.
 
-  Examples:
-    (thread :all [#(compute-a) #(compute-b)])
-    (thread :all [#(compute-a) #(compute-b)] {:timeout-ms 5000})
-    (thread :first-success!! [#(try-method-a) #(try-method-b)])"
+   Examples:
+   ```clojure
+   (thread :all [#(compute-a) #(compute-b)])
+   (thread :all [#(compute-a) #(compute-b)] {:timeout-ms 5000})
+   (thread :first-success!! [#(try-method-a) #(try-method-b)])
+   ```"
   ([threading-type fs] (thread threading-type fs {}))
   ([threading-type fs {:keys [allow-nil? timeout-ms] :or {allow-nil? false}}]
    (let [wrap-fn (if allow-nil?
@@ -238,42 +230,42 @@
                    ::timeout-ms]))
 
 (defn thread-select
-  "Executes functions and selects from their results using a custom selector function.
-
-   Runs multiple functions (in parallel by default) and applies a selector function
-   to the successful (non-anomaly) results. This provides a flexible way to choose
-   from multiple computation results.
+  "Executes functions and selects from their results using a custom selector function. Runs
+   multiple functions (in parallel by default) and applies a selector function to the successful
+   (non-anomaly) results. This provides a flexible way to choose from multiple computation
+   results.
 
    Parameters:
-   - selector-fn: A function that takes a collection of results and returns a single value
-   - fs: A collection of zero-arity functions to execute
-   - opts: (Optional) Map of options:
-     :parallel?     - Run in parallel (default: true)
-     :timeout-ms    - Maximum time to wait for results
-     :min-successes - Minimum successful results required before calling selector
-                      (short-circuits once reached)
-     :progress-fn   - Called after each result: (fn [completed total successes] ...)
-     :allow-nil?    - If true, nil returns are allowed (default: false)
+   - `selector-fn`: A function that takes a collection of results and returns a single value
+   - `fs`: A collection of zero-arity functions to execute
+   - `opts`: (Optional) Map of options:
+     - `:parallel?` - Run in parallel (default: `true`)
+     - `:timeout-ms` - Maximum time to wait for results
+     - `:min-successes` - Minimum successful results required before calling selector
+       (short-circuits once reached)
+     - `:progress-fn` - Called after each result: `(fn [completed total successes] ...)`
+     - `:allow-nil?` - If `true`, `nil` returns are allowed (default: `false`)
 
-   Returns:
-   - The result of applying selector-fn to the collection of successful results
+   Returns the result of applying `selector-fn` to the collection of successful results.
 
    Examples:
-     ;; Find the maximum result from multiple calculations
-     (thread-select #(apply max %) [#(calc1) #(calc2) #(calc3)])
+   ```clojure
+   ;; Find the maximum result from multiple calculations
+   (thread-select #(apply max %) [#(calc1) #(calc2) #(calc3)])
 
-     ;; Run sequentially instead of in parallel
-     (thread-select first [#(slow-op) #(fallback)] {:parallel? false})
+   ;; Run sequentially instead of in parallel
+   (thread-select first [#(slow-op) #(fallback)] {:parallel? false})
 
-     ;; With timeout and minimum successes
-     (thread-select #(apply max %)
-                    [#(solver-a) #(solver-b) #(solver-c)]
-                    {:timeout-ms 5000 :min-successes 2})
+   ;; With timeout and minimum successes
+   (thread-select #(apply max %)
+                  [#(solver-a) #(solver-b) #(solver-c)]
+                  {:timeout-ms 5000 :min-successes 2})
 
-     ;; With progress tracking
-     (thread-select best-result solvers
-                    {:progress-fn (fn [done total ok]
-                                    (println done \"/\" total \"complete,\" ok \"succeeded\"))})"
+   ;; With progress tracking
+   (thread-select best-result solvers
+                  {:progress-fn (fn [done total ok]
+                                  (println done \"/\" total \"complete,\" ok \"succeeded\"))})
+   ```"
   ([selector-fn fs] (thread-select selector-fn fs {}))
   ([selector-fn fs opts]
    (let [{:keys [allow-nil? min-successes parallel? progress-fn timeout-ms]

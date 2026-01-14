@@ -1,13 +1,13 @@
 (ns provisdom.utility-belt.spec-ext
-  "Extensions to clojure.spec.
+  "Extensions to `clojure.spec`.
 
-  Provides:
-  - `def` - Like `s/def` but supports metadata maps
-  - `fdef` - Enhanced `s/fdef` with `:throws` clause support
-  - `get-meta` - Retrieve stored metadata for a spec
-  - `specs-with-meta` - List all specs that have metadata
-  - `clear-meta!` - Remove metadata for a spec
-  - `throwing-fdefs` - Find all fdefs that declare `:throws`"
+   Provides:
+   - [[def]] - Like `s/def` but supports metadata maps
+   - [[fdef]] - Enhanced `s/fdef` with `:throws` clause support
+   - [[get-meta]] - Retrieve stored metadata for a spec
+   - [[specs-with-meta]] - List all specs that have metadata
+   - [[clear-meta!]] - Remove metadata for a spec
+   - [[throwing-fdefs]] - Find all fdefs that declare `:throws`"
   (:refer-clojure :exclude [def])
   (:require
     [clojure.spec.alpha :as s]))
@@ -26,8 +26,8 @@
         :symbol qualified-symbol?))
 
 (defn get-meta
-  "Returns the metadata map associated with spec `s`, or nil if none exists.
-  Metadata is set via the `def` macro's metamap parameter or the `fdef` macro's `:throws` clause."
+  "Returns the metadata map associated with spec `s`, or `nil` if none exists. Metadata is set
+   via the [[def]] macro's metamap parameter or the [[fdef]] macro's `:throws` clause."
   [s]
   (get @*spec->meta s))
 
@@ -45,7 +45,7 @@
   :ret (s/coll-of ::spec-name))
 
 (defn clear-meta!
-  "Removes the metadata for spec `s`. Returns the previous metadata, or nil."
+  "Removes the metadata for spec `s`. Returns the previous metadata, or `nil`."
   [s]
   (let [prev (get @*spec->meta s)]
     (swap! *spec->meta dissoc s)
@@ -56,8 +56,7 @@
   :ret (s/nilable map?))
 
 (defn throwing-fdefs
-  "Returns a map of spec keys to their `:throws` values for all fdefs
-  that declare throws."
+  "Returns a map of spec keys to their `:throws` values for all fdefs that declare throws."
   []
   (into {}
     (keep (fn [[k v]]
@@ -91,7 +90,7 @@
        ~k)))
 
 (defmacro def
-  "Like s/def but supports setting a map of metadata."
+  "Like `s/def` but supports setting a map of metadata."
   {:arglists '([name doc-string? metamap? spec])}
   [k & s-def-declarative]
   (def-form k (s/conform ::def-args s-def-declarative)))
@@ -99,32 +98,35 @@
 (defmacro fdef
   "Takes a symbol naming a function, and one or more of the following:
 
-  :args A regex spec for the function arguments as they were a list to be passed to apply - in this
-    way, a single spec can handle functions with multiple arities
-  :ret A spec for the function's return value
-  :fn A spec of the relationship between args and ret - the value passed is {:args conformed-args
-    :ret conformed-ret} and is expected to contain predicates that relate those values
-  :throws A collection of exception classes or predicates that the function may throw
+   - `:args` A regex spec for the function arguments as they were a list to be passed to apply -
+     in this way, a single spec can handle functions with multiple arities
+   - `:ret` A spec for the function's return value
+   - `:fn` A spec of the relationship between args and ret - the value passed is
+     `{:args conformed-args :ret conformed-ret}` and is expected to contain predicates that relate
+     those values
+   - `:throws` A collection of exception classes or predicates that the function may throw
 
-  Qualifies fn-sym with resolve, or using *ns* if no resolution found.
-  Registers an fspec in the global registry, where it can be retrieved
-  by calling get-spec with the var or fully-qualified symbol.
+   Qualifies `fn-sym` with resolve, or using `*ns*` if no resolution found. Registers an fspec in
+   the global registry, where it can be retrieved by calling `get-spec` with the var or
+   fully-qualified symbol.
 
-  Once registered, function specs are included in doc, checked by instrument, tested by the runner
-  clojure.spec.test.alpha/check, and (if a macro) used to explain errors during macro-expansion.
+   Once registered, function specs are included in doc, checked by instrument, tested by the
+   runner `clojure.spec.test.alpha/check`, and (if a macro) used to explain errors during
+   macro-expansion.
 
-  Note that :fn specs require the presence of :args and :ret specs to conform values, and so :fn
-  specs will be ignored if :args or :ret are missing.
+   Note that `:fn` specs require the presence of `:args` and `:ret` specs to conform values, and
+   so `:fn` specs will be ignored if `:args` or `:ret` are missing.
 
-  Returns the qualified fn-sym.
+   Returns the qualified `fn-sym`.
 
-  For example, to register function specs for the symbol function:
-
-  (s/fdef clojure.core/symbol
-    :args (s/alt :separate (s/cat :ns string? :n string?)
-                 :str string?
-                 :sym symbol?)
-    :ret symbol?)"
+   For example, to register function specs for the symbol function:
+   ```clojure
+   (s/fdef clojure.core/symbol
+     :args (s/alt :separate (s/cat :ns string? :n string?)
+                  :str string?
+                  :sym symbol?)
+     :ret symbol?)
+   ```"
   [fn-sym & specs]
   (let [{:keys [args ret fn throws]} (apply hash-map specs)
         _ (s/assert (s/nilable ::throws) throws)

@@ -1,23 +1,23 @@
 (ns provisdom.utility-belt.debug
   "Simple debugging utilities for printing intermediate values during development.
 
-   All print-based debugging macros respect the `*debug-enabled*` dynamic var,
-   allowing you to globally disable debug output with `(binding [*debug-enabled* false] ...)`.
+   All print-based debugging macros respect the `*debug-enabled*` dynamic var, allowing you to
+   globally disable debug output with `(binding [*debug-enabled* false] ...)`.
 
-   Tap-based macros (`tap-dbg`, `tap-spy`, `tap-timed`) always send to tap> regardless
-   of `*debug-enabled*` since tap> listeners can filter as needed."
+   Tap-based macros ([[tap-dbg]], [[tap-spy]], [[tap-timed]]) always send to `tap>` regardless of
+   `*debug-enabled*` since `tap>` listeners can filter as needed."
   (:require
     [clojure.pprint :as pprint]))
 
 (def ^:dynamic *debug-enabled*
-  "Dynamic var to globally enable/disable print-based debug output.
-   Bind to false to suppress all dbg, spy, timed, etc. output.
-   Tap-based macros are not affected by this setting."
+  "Dynamic var to globally enable/disable print-based debug output. Bind to `false` to suppress
+   all [[dbg]], [[spy]], [[timed]], etc. output. Tap-based macros are not affected by this
+   setting."
   true)
 
 (defmacro dbg
-  "Wrap an expression with (dbg expression) to see it print out during debugging.
-  Respects `*debug-enabled*`."
+  "Wrap an expression with `(dbg expression)` to see it print out during debugging. Respects
+   `*debug-enabled*`."
   [x]
   `(let [x# ~x]
      (when *debug-enabled*
@@ -25,8 +25,7 @@
      x#))
 
 (defmacro dbg-pp
-  "Like `dbg` but uses pprint for complex nested data structures.
-   Respects `*debug-enabled*`.
+  "Like [[dbg]] but uses pprint for complex nested data structures. Respects `*debug-enabled*`.
 
    Examples:
    ```clojure
@@ -43,12 +42,12 @@
      x#))
 
 (defmacro dbg-when
-  "Only print debug output when predicate returns true on the value.
-   Always returns the value unchanged. Respects `*debug-enabled*`.
+  "Only print debug output when predicate returns `true` on the value. Always returns the value
+   unchanged. Respects `*debug-enabled*`.
 
    Parameters:
-   - pred: Predicate function to test the value
-   - x: The expression to evaluate
+   - `pred`: Predicate function to test the value
+   - `x`: The expression to evaluate
 
    Examples:
    ```clojure
@@ -65,12 +64,11 @@
      x#))
 
 (defmacro spy
-  "Print a labeled value and return it. Useful for debugging pipelines.
-   Respects `*debug-enabled*`.
+  "Print a labeled value and return it. Useful for debugging pipelines. Respects `*debug-enabled*`.
 
    Parameters:
-   - label: A label to identify the value (typically a keyword)
-   - x: The expression to evaluate and print
+   - `label`: A label to identify the value (typically a keyword)
+   - `x`: The expression to evaluate and print
 
    Examples:
    ```clojure
@@ -88,12 +86,12 @@
      x#))
 
 (defmacro timed
-  "Measure and print execution time of an expression. Returns the value.
-   Respects `*debug-enabled*`.
+  "Measure and print execution time of an expression. Returns the value. Respects
+   `*debug-enabled*`.
 
    Parameters:
-   - label: A label to identify the timed operation
-   - x: The expression to time
+   - `label`: A label to identify the timed operation
+   - `x`: The expression to time
 
    Examples:
    ```clojure
@@ -110,12 +108,11 @@
      result#))
 
 (defmacro tap-dbg
-  "Send value to `tap>` and return it unchanged.
-   Integrates with tap-based debugging tools like Portal, REBL, or Reveal.
-   Not affected by `*debug-enabled*`.
+  "Send value to `tap>` and return it unchanged. Integrates with tap-based debugging tools like
+   Portal, REBL, or Reveal. Not affected by `*debug-enabled*`.
 
    Parameters:
-   - x: The expression to evaluate and tap
+   - `x`: The expression to evaluate and tap
 
    Examples:
    ```clojure
@@ -130,13 +127,12 @@
      x#))
 
 (defmacro tap-spy
-  "Send a labeled value to `tap>` and return the value unchanged.
-   Combines tap-dbg with a label for easier identification.
-   Not affected by `*debug-enabled*`.
+  "Send a labeled value to `tap>` and return the value unchanged. Combines [[tap-dbg]] with a
+   label for easier identification. Not affected by `*debug-enabled*`.
 
    Parameters:
-   - label: A label to identify the value
-   - x: The expression to evaluate and tap
+   - `label`: A label to identify the value
+   - `x`: The expression to evaluate and tap
 
    Examples:
    ```clojure
@@ -152,12 +148,12 @@
      x#))
 
 (defmacro tap-timed
-  "Measure execution time and send timing info to `tap>`. Returns the value.
-   Not affected by `*debug-enabled*`.
+  "Measure execution time and send timing info to `tap>`. Returns the value. Not affected by
+   `*debug-enabled*`.
 
    Parameters:
-   - label: A label to identify the timed operation
-   - x: The expression to time
+   - `label`: A label to identify the timed operation
+   - `x`: The expression to time
 
    Examples:
    ```clojure
@@ -172,12 +168,12 @@
      result#))
 
 (defn dbg-fn
-  "Wrap a function to print its arguments and return value on each call.
-   Useful for tracing function calls. Respects `*debug-enabled*`.
+  "Wrap a function to print its arguments and return value on each call. Useful for tracing
+   function calls. Respects `*debug-enabled*`.
 
    Parameters:
-   - label: A label to identify the function
-   - f: The function to wrap
+   - `label`: A label to identify the function
+   - `f`: The function to wrap
 
    Examples:
    ```clojure
@@ -200,8 +196,7 @@
       result)))
 
 (defmacro spy->
-  "Debug version of `->` that prints each intermediate value.
-   Respects `*debug-enabled*`.
+  "Debug version of `->` that prints each intermediate value. Respects `*debug-enabled*`.
 
    Examples:
    ```clojure
@@ -241,8 +236,7 @@
            ~(last step-syms))))))
 
 (defmacro spy->>
-  "Debug version of `->>` that prints each intermediate value.
-   Respects `*debug-enabled*`.
+  "Debug version of `->>` that prints each intermediate value. Respects `*debug-enabled*`.
 
    Examples:
    ```clojure

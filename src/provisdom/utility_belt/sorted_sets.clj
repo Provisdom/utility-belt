@@ -1,6 +1,6 @@
 (ns provisdom.utility-belt.sorted-sets
-  "Utilities for working with sorted sets and generating specs for them.
-   Provides predicates and spec generators for sorted sets with custom comparators."
+  "Utilities for working with sorted sets and generating specs for them. Provides predicates and
+   spec generators for sorted sets with custom comparators."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
@@ -35,14 +35,13 @@
     :ret boolean?))
 
 (defmacro sorted-set-of
-  "Creates a spec for a sorted set with natural ordering.
-
-   Generates and validates sorted sets whose elements conform to the given predicate.
-   The generated sets will maintain their natural sort order.
+  "Creates a spec for a sorted set with natural ordering. Generates and validates sorted sets
+   whose elements conform to the given predicate. The generated sets will maintain their natural
+   sort order.
 
    Parameters:
-   - pred: The spec/predicate that each element must satisfy
-   - opts: Options passed to s/coll-of (:min-count, :max-count, :gen-max, etc.)
+   - `pred`: The spec/predicate that each element must satisfy
+   - `opts`: Options passed to `s/coll-of` (`:min-count`, `:max-count`, `:gen-max`, etc.)
 
    Example:
    ```clojure
@@ -57,15 +56,14 @@
           (s/gen ~sform)))))
 
 (defmacro sorted-set-by-of
-  "Creates a spec for a sorted set with a custom comparator function.
-
-   Generates and validates sorted sets whose elements conform to the given predicate
-   and are ordered according to the provided comparator function.
+  "Creates a spec for a sorted set with a custom comparator function. Generates and validates
+   sorted sets whose elements conform to the given predicate and are ordered according to the
+   provided comparator function.
 
    Parameters:
-   - pred: The spec/predicate that each element must satisfy
-   - comparator: The comparison function to use for ordering elements
-   - opts: Options passed to s/coll-of (:min-count, :max-count, :gen-max, etc.)
+   - `pred`: The spec/predicate that each element must satisfy
+   - `comparator`: The comparison function to use for ordering elements
+   - `opts`: Options passed to `s/coll-of` (`:min-count`, `:max-count`, `:gen-max`, etc.)
 
    Example:
    ```clojure
@@ -83,8 +81,8 @@
 
 ;;;NAVIGABLE SET OPERATIONS
 (defn floor
-  "Returns the greatest element in `sorted-set` that is <= `val`, or nil if none exists.
-   Like Java's NavigableSet.floor()."
+  "Returns the greatest element in `sorted-set` that is <= `val`, or `nil` if none exists. Like
+   Java's `NavigableSet.floor()`."
   [sorted-set val]
   (first (rsubseq sorted-set <= val)))
 
@@ -93,8 +91,8 @@
   :ret any?)
 
 (defn ceiling
-  "Returns the least element in `sorted-set` that is >= `val`, or nil if none exists.
-   Like Java's NavigableSet.ceiling()."
+  "Returns the least element in `sorted-set` that is >= `val`, or `nil` if none exists. Like
+   Java's `NavigableSet.ceiling()`."
   [sorted-set val]
   (first (subseq sorted-set >= val)))
 
@@ -103,8 +101,8 @@
   :ret any?)
 
 (defn lower
-  "Returns the greatest element in `sorted-set` that is < `val`, or nil if none exists.
-   Like Java's NavigableSet.lower()."
+  "Returns the greatest element in `sorted-set` that is < `val`, or `nil` if none exists. Like
+   Java's `NavigableSet.lower()`."
   [sorted-set val]
   (first (rsubseq sorted-set < val)))
 
@@ -113,8 +111,8 @@
   :ret any?)
 
 (defn higher
-  "Returns the least element in `sorted-set` that is > `val`, or nil if none exists.
-   Like Java's NavigableSet.higher()."
+  "Returns the least element in `sorted-set` that is > `val`, or `nil` if none exists. Like
+   Java's `NavigableSet.higher()`."
   [sorted-set val]
   (first (subseq sorted-set > val)))
 
@@ -123,8 +121,8 @@
   :ret any?)
 
 (defn subset
-  "Returns elements in `sorted-set` in the range [from, to).
-   Like Java's NavigableSet.subSet(). Returns a lazy seq."
+  "Returns elements in `sorted-set` in the range `[from, to)`. Like Java's `NavigableSet.subSet()`.
+   Returns a lazy seq."
   [sorted-set from to]
   (subseq sorted-set >= from < to))
 
@@ -133,8 +131,8 @@
   :ret seqable?)
 
 (defn subset-inclusive
-  "Returns elements in `sorted-set` in the range [from, to].
-   Like Java's NavigableSet.subSet(from, true, to, true). Returns a lazy seq."
+  "Returns elements in `sorted-set` in the range `[from, to]`. Like Java's
+   `NavigableSet.subSet(from, true, to, true)`. Returns a lazy seq."
   [sorted-set from to]
   (subseq sorted-set >= from <= to))
 

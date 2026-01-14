@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.maps
   "Extended map utilities for working with priority maps, sorted maps, and map manipulation.
-   Provides predicates, spec generators, and functions for creating and working with
-   specialized map types with ordering guarantees.
+   Provides predicates, spec generators, and functions for creating and working with specialized
+   map types with ordering guarantees.
 
    Note: For basic map-over-keys/values operations, use Clojure 1.11+ core functions:
    - `update-vals` - map function over values
@@ -33,10 +33,10 @@
   :ret boolean?)
 
 (defmacro priority-map-of
-  "This macro builds the spec for a priority map built with [[priority-map]].
-  `keyfn` is the function to apply to the VALUE of the map for comparison.
-  `comparator` is how to compare the outputs of the `keyfn`. A common example
-  would be to use 'identity' for the `keyfn` and '<' for the `comparator`."
+  "This macro builds the spec for a priority map built with [[priority-map]]. `keyfn` is the
+   function to apply to the VALUE of the map for comparison. `comparator` is how to compare the
+   outputs of the `keyfn`. A common example would be to use `identity` for the `keyfn` and `<`
+   for the `comparator`."
   [kpred vpred keyfn comparator & opts]
   (let [sform `(s/map-of ~kpred ~vpred ~@opts)
         xform `(s/and ~sform priority-map?)]
@@ -46,9 +46,8 @@
           (s/gen ~sform)))))
 
 (defn priority-map
-  "Creates a [[clojure.data.priority-map/priority-map-keyfn-by]]. A common
-  example would be to use 'identity' for the `keyfn` and '<' for the
-  `comparator`."
+  "Creates a [[clojure.data.priority-map/priority-map-keyfn-by]]. A common example would be to use
+   `identity` for the `keyfn` and `<` for the `comparator`."
   [keyfn comparator & keyvals]
   (apply priority-map-keyfn-by keyfn comparator keyvals))
 
@@ -103,8 +102,8 @@
 
 ;;;SORTED MAP MONOTONIC
 (defn sorted-map-monotonic?
-  "Tests whether `m` is a 'sorted map monotonic'. A 'sorted map monotonic' is a
-  sorted map (by keys) that has values that are monotonic."
+  "Tests whether `m` is a 'sorted map monotonic'. A 'sorted map monotonic' is a sorted map (by
+   keys) that has values that are monotonic."
   [m]
   (and (sorted-map? m)
     (or (empty? m)
@@ -116,9 +115,8 @@
   :ret boolean?)
 
 (defn sorted-map-strictly-monotonic?
-  "Tests whether `m` is a 'sorted map strictly monotonic'. A 'sorted map
-  strictly monotonic' is a sorted map (by keys) that has values that are
-  strictly monotonic."
+  "Tests whether `m` is a 'sorted map strictly monotonic'. A 'sorted map strictly monotonic' is a
+   sorted map (by keys) that has values that are strictly monotonic."
   [m]
   (and (sorted-map-monotonic? m)
     (or (empty? m)
@@ -213,15 +211,14 @@
 
 ;;MAP MANIPULATION
 (defn filter-map
-  "Returns a filtered map containing only the key-value pairs that satisfy the predicate.
-   
-   Unlike clojure.core/filter (which returns a sequence), this maintains the map type
-   and works with any map implementation (sorted maps, priority maps, etc.).
-   
+  "Returns a filtered map containing only the key-value pairs that satisfy the predicate. Unlike
+   `clojure.core/filter` (which returns a sequence), this maintains the map type and works with
+   any map implementation (sorted maps, priority maps, etc.).
+
    Parameters:
-   - pred-kv: A function taking key and value as arguments, returning boolean
-   - m: The map to filter
-   
+   - `pred-kv`: A function taking key and value as arguments, returning boolean
+   - `m`: The map to filter
+
    Example:
    ```clojure
    (filter-map (fn [k v] (> v 10)) {:a 5 :b 15 :c 20})
@@ -239,16 +236,14 @@
   :ret map?)
 
 (defn submap?
-  "Checks whether map `m` contains all entries in map `sub`.
-   
-   Tests if `sub` is a subset of `m` by key-value pairs (not just keys).
-   Uses Java's Map.containsAll for performance.
-   
+  "Checks whether map `m` contains all entries in map `sub`. Tests if `sub` is a subset of `m` by
+   key-value pairs (not just keys). Uses Java's `Map.containsAll` for performance.
+
    Parameters:
-   - m: The container map to check against
-   - sub: The potential submap
-   
-   Returns true if every key-value pair in `sub` exists in `m`."
+   - `m`: The container map to check against
+   - `sub`: The potential submap
+
+   Returns `true` if every key-value pair in `sub` exists in `m`."
   [m sub]
   (.containsAll (.entrySet ^Map m) (.entrySet ^Map sub)))
 
@@ -257,12 +252,12 @@
   :ret boolean?)
 
 (defn select-keys-by
-  "Returns a map containing only entries whose keys satisfy the predicate.
-   Preserves the map type (sorted map, hash map, etc.).
+  "Returns a map containing only entries whose keys satisfy the predicate. Preserves the map type
+   (sorted map, hash map, etc.).
 
    Parameters:
-   - pred: A predicate function that takes a key
-   - m: The map to filter
+   - `pred`: A predicate function that takes a key
+   - `m`: The map to filter
 
    Examples:
    ```clojure
@@ -284,12 +279,12 @@
   :ret map?)
 
 (defn remove-keys-by
-  "Returns a map with entries removed whose keys satisfy the predicate.
-   Preserves the map type. Complement of [[select-keys-by]].
+  "Returns a map with entries removed whose keys satisfy the predicate. Preserves the map type.
+   Complement of [[select-keys-by]].
 
    Parameters:
-   - pred: A predicate function that takes a key
-   - m: The map to filter
+   - `pred`: A predicate function that takes a key
+   - `m`: The map to filter
 
    Examples:
    ```clojure
@@ -309,12 +304,12 @@
   :ret map?)
 
 (defn remove-map
-  "Returns a filtered map excluding key-value pairs that satisfy the predicate.
-   Complement of [[filter-map]]. Preserves the map type.
+  "Returns a filtered map excluding key-value pairs that satisfy the predicate. Complement of
+   [[filter-map]]. Preserves the map type.
 
    Parameters:
-   - pred-kv: A function taking key and value as arguments, returning boolean
-   - m: The map to filter
+   - `pred-kv`: A function taking key and value as arguments, returning boolean
+   - `m`: The map to filter
 
    Example:
    ```clojure
@@ -331,13 +326,11 @@
   :ret map?)
 
 (defn invert-map
-  "Returns a map with keys and values swapped.
-
-   Note: If the original map has duplicate values, only one will be preserved
-   in the result (which one is undefined for hash maps).
+  "Returns a map with keys and values swapped. Note: If the original map has duplicate values,
+   only one will be preserved in the result (which one is undefined for hash maps).
 
    Parameters:
-   - m: The map to invert
+   - `m`: The map to invert
 
    Examples:
    ```clojure
@@ -355,12 +348,12 @@
   :ret map?)
 
 (defn map-kv
-  "Transforms both keys and values of a map simultaneously.
-   The function receives key and value, and must return a [new-key new-value] pair.
+  "Transforms both keys and values of a map simultaneously. The function receives key and value,
+   and must return a `[new-key new-value]` pair.
 
    Parameters:
-   - f: A function taking (key, value) and returning [new-key new-value]
-   - m: The map to transform
+   - `f`: A function taking `(key, value)` and returning `[new-key new-value]`
+   - `m`: The map to transform
 
    Examples:
    ```clojure
@@ -381,14 +374,14 @@
     :ret map?))
 
 (defn update-some
-  "Like `update` but only applies `f` if the key exists in the map.
-   Avoids creating entries with nil values for missing keys.
+  "Like `update` but only applies `f` if the key exists in the map. Avoids creating entries with
+   `nil` values for missing keys.
 
    Parameters:
-   - m: The map to update
-   - k: The key to update
-   - f: The function to apply to the existing value
-   - args: Additional arguments to pass to f
+   - `m`: The map to update
+   - `k`: The key to update
+   - `f`: The function to apply to the existing value
+   - `args`: Additional arguments to pass to `f`
 
    Examples:
    ```clojure

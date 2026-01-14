@@ -1,8 +1,8 @@
 (ns provisdom.utility-belt.extensions
-  "Extended functionality for Clojure's core data operations.
-   Provides macros for conditional binding and functions for working with
-   collections, including nested updates, interleaving, reducing with indices,
-   and common collection utilities like distinct-by, index-of, and safe-nth."
+  "Extended functionality for Clojure's core data operations. Provides macros for conditional
+   binding and functions for working with collections, including nested updates, interleaving,
+   reducing with indices, and common collection utilities like [[distinct-by]], [[index-of]], and
+   [[safe-nth]]."
   (:require
     [clojure.spec.alpha :as s]))
 
@@ -62,16 +62,15 @@
 
 ;;;MACROS
 (defmacro if-all-let
-  "A variant of if-let that tests multiple bindings, requiring all to be truthy.
-  
-   Similar to if-let but requires all bindings to be non-nil/non-false.
-   If any binding evaluates to nil or false, the else expression is evaluated.
-   
+  "A variant of `if-let` that tests multiple bindings, requiring all to be truthy. Similar to
+   `if-let` but requires all bindings to be non-nil/non-false. If any binding evaluates to `nil`
+   or `false`, the else expression is evaluated.
+
    Parameters:
-   - bindings: A vector of binding forms (as in let)
-   - then: Expression to evaluate if all bindings are truthy
-   - else: Expression to evaluate if any binding is falsey (optional, defaults to nil)
-   
+   - `bindings`: A vector of binding forms (as in `let`)
+   - `then`: Expression to evaluate if all bindings are truthy
+   - `else`: Expression to evaluate if any binding is falsey (optional, defaults to `nil`)
+
    Example:
    ```clojure
    (if-all-let [a (get-a)
@@ -89,15 +88,13 @@
    `(if-all-let ~bindings ~then nil)))
 
 (defmacro when-all-let
-  "A variant of when-let that tests multiple bindings, requiring all to be truthy.
-
-   Similar to when-let but requires all bindings to be non-nil/non-false.
-   If any binding evaluates to nil or false, returns nil.
-   A simplified version of if-all-let without the else clause.
+  "A variant of `when-let` that tests multiple bindings, requiring all to be truthy. Similar to
+   `when-let` but requires all bindings to be non-nil/non-false. If any binding evaluates to `nil`
+   or `false`, returns `nil`. A simplified version of [[if-all-let]] without the else clause.
 
    Parameters:
-   - bindings: A vector of binding forms (as in let)
-   - then: Expression to evaluate if all bindings are truthy
+   - `bindings`: A vector of binding forms (as in `let`)
+   - `then`: Expression to evaluate if all bindings are truthy
 
    Example:
    ```clojure
@@ -110,16 +107,14 @@
   `(if-all-let ~bindings ~then nil))
 
 (defmacro if-some-let
-  "A variant of if-let that tests multiple bindings, requiring all to be non-nil.
-
-   Unlike if-all-let which checks for truthiness, this only checks for nil.
-   This allows false values to pass through, which is useful when false is a
-   valid value in your domain.
+  "A variant of `if-let` that tests multiple bindings, requiring all to be non-nil. Unlike
+   [[if-all-let]] which checks for truthiness, this only checks for `nil`. This allows `false`
+   values to pass through, which is useful when `false` is a valid value in your domain.
 
    Parameters:
-   - bindings: A vector of binding forms (as in let)
-   - then: Expression to evaluate if all bindings are non-nil
-   - else: Expression to evaluate if any binding is nil (optional, defaults to nil)
+   - `bindings`: A vector of binding forms (as in `let`)
+   - `then`: Expression to evaluate if all bindings are non-nil
+   - `else`: Expression to evaluate if any binding is `nil` (optional, defaults to `nil`)
 
    Example:
    ```clojure
@@ -137,15 +132,13 @@
    `(if-some-let ~bindings ~then nil)))
 
 (defmacro when-some-let
-  "A variant of when-let that tests multiple bindings, requiring all to be non-nil.
-
-   Unlike when-all-let which checks for truthiness, this only checks for nil.
-   This allows false values to pass through.
-   A simplified version of if-some-let without the else clause.
+  "A variant of `when-let` that tests multiple bindings, requiring all to be non-nil. Unlike
+   [[when-all-let]] which checks for truthiness, this only checks for `nil`. This allows `false`
+   values to pass through. A simplified version of [[if-some-let]] without the else clause.
 
    Parameters:
-   - bindings: A vector of binding forms (as in let)
-   - then: Expression to evaluate if all bindings are non-nil
+   - `bindings`: A vector of binding forms (as in `let`)
+   - `then`: Expression to evaluate if all bindings are non-nil
 
    Example:
    ```clojure
@@ -158,31 +151,29 @@
 
 ;;;FUNCTIONS
 (defn update-in-with-not-found
-  "Enhanced version of update-in that allows a default value for missing keys.
-   
-   Like Clojure's update-in, but takes a not-found value that will be passed to
-   the function when the key path doesn't exist, instead of nil. Works with
-   both maps and vectors.
-   
+  "Enhanced version of `update-in` that allows a default value for missing keys. Like Clojure's
+   `update-in`, but takes a `not-found` value that will be passed to the function when the key
+   path doesn't exist, instead of `nil`. Works with both maps and vectors.
+
    Parameters:
-   - m: The nested associative structure to update
-   - [k & ks]: A sequence of keys representing a path into the nested structure
-   - f: A function to apply to the value at the specified key path
-   - not-found: The value to use if the key path doesn't exist
-   - args: Additional arguments to pass to f
-   
+   - `m`: The nested associative structure to update
+   - `[k & ks]`: A sequence of keys representing a path into the nested structure
+   - `f`: A function to apply to the value at the specified key path
+   - `not-found`: The value to use if the key path doesn't exist
+   - `args`: Additional arguments to pass to `f`
+
    Returns:
    - A new nested structure with the value at the key path updated
-   - Returns m unchanged if the key path can't be created (e.g., parent path doesn't exist)
-   
+   - Returns `m` unchanged if the key path can't be created (e.g., parent path doesn't exist)
+
    Example:
    ```clojure
    (update-in-with-not-found {:a {:b 1}} [:a :c] + 0 10)
    ;; => {:a {:b 1, :c 10}}
-   
+
    (update-in-with-not-found {:a {:b 1}} [:a :b] + 0 10)
    ;; => {:a {:b 11}}
-   
+
    ;; Safely handles non-existent paths in nested structures
    (update-in-with-not-found {} [:a :b :c] conj 0 :x)
    ;; => {}
@@ -222,26 +213,23 @@
   :ret any?)
 
 (defn interleave-all
-  "Enhanced version of interleave that consumes all elements from all collections.
-   
-   Unlike clojure.core/interleave, which stops at the end of the shortest collection,
-   this function continues interleaving by consuming all remaining elements from
-   any non-empty collections.
-   
+  "Enhanced version of `interleave` that consumes all elements from all collections. Unlike
+   `clojure.core/interleave`, which stops at the end of the shortest collection, this function
+   continues interleaving by consuming all remaining elements from any non-empty collections.
+
    Parameters:
-   - colls: Collections to interleave
-   
-   Returns:
-   - A lazy sequence containing all elements from all collections, interleaved
-   
+   - `colls`: Collections to interleave
+
+   Returns a lazy sequence containing all elements from all collections, interleaved.
+
    Examples:
    ```clojure
    ;; Basic usage
    (interleave-all [1 2 3] [:a :b])
    ;; => (1 :a 2 :b 3)
-   
+
    ;; With core/interleave, result would be (1 :a 2 :b)
-   
+
    ;; Multiple collections
    (interleave-all [1 2] [:a :b :c] [:A :B])
    ;; => (1 :a :A 2 :b :B :c)
@@ -280,29 +268,27 @@
   :ret (s/every any?))
 
 (defn reduce-kv-ext
-  "Extended version of reduce-kv that works with multiple collections simultaneously.
-   
-   Like reduce-kv but can process multiple collections in parallel, passing
-   corresponding elements from each collection to the reducing function.
-   Uses arrays internally for performance.
-   
+  "Extended version of `reduce-kv` that works with multiple collections simultaneously. Like
+   `reduce-kv` but can process multiple collections in parallel, passing corresponding elements
+   from each collection to the reducing function. Uses arrays internally for performance.
+
    Parameters:
-   - f: A reducing function that takes:
-       - For one collection: (result, index, item)
-       - For two collections: (result, index, item1, item2)
-       - For three collections: (result, index, item1, item2, item3)
-   - init: The initial value for the reduction
-   - collections: One to three collections to process
-   
+   - `f`: A reducing function that takes:
+     - For one collection: `(result, index, item)`
+     - For two collections: `(result, index, item1, item2)`
+     - For three collections: `(result, index, item1, item2, item3)`
+   - `init`: The initial value for the reduction
+   - `collections`: One to three collections to process
+
    Important: The first collection must be the shortest of all provided collections.
-   
+
    Examples:
    ```clojure
    ;; Single collection works like reduce-kv
    (reduce-kv-ext (fn [result idx val] (assoc result idx (* val 2)))
                  {} [1 2 3])
    ;; => {0 2, 1 4, 2 6}
-   
+
    ;; Multiple collections
    (reduce-kv-ext (fn [result idx v1 v2] (conj result [v1 v2]))
                  [] [:a :b] [1 2 3])
@@ -352,8 +338,8 @@
   :ret any?)
 
 (defn reductions-kv
-  "Returns a lazy seq of a reduction with indices. Function `f` takes the
-  result value, an index, and the item value(s)."
+  "Returns a lazy seq of a reduction with indices. Function `f` takes the result value, an index,
+   and the item value(s)."
   ([f init coll]
    (when-all-let [[init-h & init-t] (seq coll)]
      (letfn [(g [i res coll]
@@ -413,8 +399,8 @@
   :ret any?)
 
 (defn reduce-kv-with-stop
-  "Reduces a sequence using stopping predicates. Function `f` and predicates
-  take the result value, an index, and the item value(s)."
+  "Reduces a sequence using stopping predicates. Function `f` and predicates take the result
+   value, an index, and the item value(s)."
   ([f init coll {::keys [stop-pred1 err-pred1 err-return-fn1]}]
    (loop [i 0
           [h & t] coll
@@ -479,11 +465,11 @@
 
 ;;;ADDITIONAL COLLECTION UTILITIES
 (defn deep-merge
-  "Recursively merges maps. If values at the same key are both maps, they are
-   merged recursively. Otherwise, the value from the last map wins.
+  "Recursively merges maps. If values at the same key are both maps, they are merged recursively.
+   Otherwise, the value from the last map wins.
 
    Parameters:
-   - maps: Variable number of maps to merge
+   - `maps`: Variable number of maps to merge
 
    Examples:
    ```clojure
@@ -511,12 +497,12 @@
     :ret map?))
 
 (defn index-by
-  "Returns a map of the elements of `coll` keyed by the result of `f` on each
-   element. Similar to `group-by` but assumes unique keys.
+  "Returns a map of the elements of `coll` keyed by the result of `f` on each element. Similar to
+   `group-by` but assumes unique keys.
 
    Parameters:
-   - f: A function to apply to each element to get its key
-   - coll: The collection to index
+   - `f`: A function to apply to each element to get its key
+   - `coll`: The collection to index
 
    Examples:
    ```clojure
@@ -536,12 +522,12 @@
   :ret map?)
 
 (defn frequencies-by
-  "Returns a map from the result of applying `f` to each element of `coll` to the count of elements
-  that produced that result. Like `frequencies` but applies `f` first.
+  "Returns a map from the result of applying `f` to each element of `coll` to the count of
+   elements that produced that result. Like `frequencies` but applies `f` first.
 
    Parameters:
-   - f: A function to apply to each element
-   - coll: The collection to count
+   - `f`: A function to apply to each element
+   - `coll`: The collection to count
 
    Examples:
    ```clojure
@@ -565,15 +551,13 @@
   :ret (s/map-of any? pos-int?))
 
 (defn partition-map
-  "Partitions `coll` into two vectors based on a predicate.
-   Returns `[matches non-matches]` where `matches` contains elements for which
-   `pred` returns truthy and `non-matches` contains the rest.
-
-   More efficient than calling `filter` and `remove` separately.
+  "Partitions `coll` into two vectors based on a predicate. Returns `[matches non-matches]` where
+   `matches` contains elements for which `pred` returns truthy and `non-matches` contains the
+   rest. More efficient than calling `filter` and `remove` separately.
 
    Parameters:
-   - pred: A predicate function
-   - coll: The collection to partition
+   - `pred`: A predicate function
+   - `coll`: The collection to partition
 
    Examples:
    ```clojure
@@ -597,12 +581,13 @@
   :ret (s/tuple vector? vector?))
 
 (defn find-first
-  "Returns the first element in `coll` for which `pred` returns truthy, or nil if no such element
-  exists. Unlike `(first (filter pred coll))`, this is eager and stops as soon as a match is found.
+  "Returns the first element in `coll` for which `pred` returns truthy, or `nil` if no such
+   element exists. Unlike `(first (filter pred coll))`, this is eager and stops as soon as a
+   match is found.
 
    Parameters:
-   - pred: A predicate function
-   - coll: The collection to search
+   - `pred`: A predicate function
+   - `coll`: The collection to search
 
    Examples:
    ```clojure
@@ -625,15 +610,13 @@
   :ret any?)
 
 (defn dissoc-in
-  "Dissociates a key at a nested path in an associative structure.
-
-   Removes the key at the end of the path. If removing a key results in an
-   empty map at a parent level, that empty map is also removed, recursively
-   up the path.
+  "Dissociates a key at a nested path in an associative structure. Removes the key at the end of
+   the path. If removing a key results in an empty map at a parent level, that empty map is also
+   removed, recursively up the path.
 
    Parameters:
-   - m: The nested associative structure
-   - ks: A sequence of keys representing the path to the key to remove
+   - `m`: The nested associative structure
+   - `ks`: A sequence of keys representing the path to the key to remove
 
    Examples:
    ```clojure
@@ -663,13 +646,12 @@
   :ret map?)
 
 (defn assoc-some
-  "Like assoc but skips key-value pairs where the value is nil.
-
-   Useful for conditionally adding keys to a map without cluttering the code with when/if checks.
+  "Like `assoc` but skips key-value pairs where the value is `nil`. Useful for conditionally
+   adding keys to a map without cluttering the code with `when`/`if` checks.
 
    Parameters:
-   - m: The map to assoc into
-   - kvs: Key-value pairs to potentially add
+   - `m`: The map to assoc into
+   - `kvs`: Key-value pairs to potentially add
 
    Examples:
    ```clojure
@@ -693,15 +675,13 @@
   :ret map?)
 
 (defn distinct-by
-  "Returns a lazy sequence of elements with duplicates removed, where duplicates
-   are determined by the result of applying key-fn to each element.
-
-   Like `distinct` but uses a key function to determine uniqueness.
-   Preserves the first element seen for each key.
+  "Returns a lazy sequence of elements with duplicates removed, where duplicates are determined by
+   the result of applying `key-fn` to each element. Like `distinct` but uses a key function to
+   determine uniqueness. Preserves the first element seen for each key.
 
    Parameters:
-   - key-fn: A function to apply to each element to get its uniqueness key
-   - coll: The collection to process
+   - `key-fn`: A function to apply to each element to get its uniqueness key
+   - `coll`: The collection to process
 
    Examples:
    ```clojure
@@ -729,12 +709,12 @@
   :ret (s/every any?))
 
 (defn index-of
-  "Returns the index of the first element in coll for which pred returns truthy,
-   or nil if no such element exists.
+  "Returns the index of the first element in `coll` for which `pred` returns truthy, or `nil` if
+   no such element exists.
 
    Parameters:
-   - pred: A predicate function
-   - coll: The collection to search
+   - `pred`: A predicate function
+   - `coll`: The collection to search
 
    Examples:
    ```clojure
@@ -761,15 +741,13 @@
   :ret (s/nilable nat-int?))
 
 (defn safe-nth
-  "Like nth but returns not-found (default nil) for out-of-bounds indices
-   instead of throwing an exception.
-
-   Also handles negative indices gracefully by returning not-found.
+  "Like `nth` but returns `not-found` (default `nil`) for out-of-bounds indices instead of
+   throwing an exception. Also handles negative indices gracefully by returning `not-found`.
 
    Parameters:
-   - coll: A collection supporting nth
-   - i: The index to retrieve
-   - not-found: Value to return if index is out of bounds (default nil)
+   - `coll`: A collection supporting `nth`
+   - `i`: The index to retrieve
+   - `not-found`: Value to return if index is out of bounds (default `nil`)
 
    Examples:
    ```clojure
@@ -801,13 +779,12 @@
   :ret any?)
 
 (defn keep-kv
-  "Returns a lazy sequence of non-nil results of applying f to the index and each element of coll.
-
-   Like keep-indexed but with argument order (index, value) matching reduce-kv.
+  "Returns a lazy sequence of non-nil results of applying `f` to the index and each element of
+   `coll`. Like `keep-indexed` but with argument order `(index, value)` matching `reduce-kv`.
 
    Parameters:
-   - f: A function of two arguments (index, value) returning a value or nil
-   - coll: The collection to process
+   - `f`: A function of two arguments `(index, value)` returning a value or `nil`
+   - `coll`: The collection to process
 
    Examples:
    ```clojure
@@ -827,14 +804,13 @@
   :ret (s/every any?))
 
 (defn take-until
-  "Returns a lazy sequence of successive items from coll while pred returns
-   truthy, including the first item for which pred returns falsey.
-
-   Unlike take-while which excludes the terminating element, take-until includes it.
+  "Returns a lazy sequence of successive items from `coll` while `pred` returns truthy, including
+   the first item for which `pred` returns falsey. Unlike `take-while` which excludes the
+   terminating element, [[take-until]] includes it.
 
    Parameters:
-   - pred: A predicate function
-   - coll: The collection to process
+   - `pred`: A predicate function
+   - `coll`: The collection to process
 
    Examples:
    ```clojure
@@ -857,15 +833,13 @@
   :ret (s/every any?))
 
 (defn drop-until
-  "Returns a lazy sequence of items from coll starting from the first item
-   for which pred returns falsey.
-
-   Unlike drop-while which excludes the terminating element from the result,
-   drop-until includes it as the first element of the returned sequence.
+  "Returns a lazy sequence of items from `coll` starting from the first item for which `pred`
+   returns falsey. Unlike `drop-while` which excludes the terminating element from the result,
+   [[drop-until]] includes it as the first element of the returned sequence.
 
    Parameters:
-   - pred: A predicate function
-   - coll: The collection to process
+   - `pred`: A predicate function
+   - `coll`: The collection to process
 
    Examples:
    ```clojure
