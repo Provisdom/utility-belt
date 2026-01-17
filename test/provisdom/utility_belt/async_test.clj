@@ -4,7 +4,7 @@
     [provisdom.utility-belt.anomalies :as anomalies]
     [provisdom.utility-belt.async :as async]))
 
-;;14 seconds
+;;15 seconds
 
 (set! *warn-on-reflection* true)
 
@@ -14,20 +14,26 @@
   (t/with-instrument :all
     (t/is (async/catch-error-or-exception (constantly true)))
     (t/is= nil (async/catch-error-or-exception (constantly nil)))
-    (t/is= {::anomalies/message  "HI"
-            ::anomalies/category ::anomalies/exception
-            ::anomalies/fn       (var async/catch-error-or-exception)}
-      (async/catch-error-or-exception (constantly (Exception. "HI"))))))
+    ;; when function returns an Exception, it's rethrown and caught
+    (let [result (async/catch-error-or-exception (constantly (Exception. "HI")))]
+      (t/is= "HI" (::anomalies/message result))
+      (t/is= ::anomalies/exception (::anomalies/category result))
+      (t/is= (var async/catch-error-or-exception) (::anomalies/fn result))
+      ;; exception is preserved in ::data for stack trace access
+      (t/is (instance? Exception (get-in result [::anomalies/data :exception]))))))
 
 (t/deftest catch-error-or-exception-or-nil-test
   (t/with-instrument `async/catch-error-or-exception-or-nil
     (t/is-spec-check async/catch-error-or-exception-or-nil))
   (t/with-instrument :all
     (t/is (async/catch-error-or-exception-or-nil (constantly true)))
-    (t/is= {::anomalies/message  "HI"
-            ::anomalies/category ::anomalies/exception
-            ::anomalies/fn       (var async/catch-error-or-exception)}
-      (async/catch-error-or-exception-or-nil (constantly (Exception. "HI"))))
+    ;; when function returns an Exception, it's rethrown and caught
+    (let [result (async/catch-error-or-exception-or-nil (constantly (Exception. "HI")))]
+      (t/is= "HI" (::anomalies/message result))
+      (t/is= ::anomalies/exception (::anomalies/category result))
+      (t/is= (var async/catch-error-or-exception) (::anomalies/fn result))
+      (t/is (instance? Exception (get-in result [::anomalies/data :exception]))))
+    ;; nil return becomes anomaly (no ::data since no exception thrown)
     (t/is= {::anomalies/message  "'nil' return"
             ::anomalies/category ::anomalies/exception
             ::anomalies/fn       (var async/catch-error-or-exception-or-nil)}

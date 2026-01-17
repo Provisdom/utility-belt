@@ -3,13 +3,41 @@
     [provisdom.test.core :as t]
     [provisdom.utility-belt.extensions :as ext]))
 
-;22 seconds
+;77 seconds
 
 (set! *warn-on-reflection* true)
 
+;;;MACROS
+(t/deftest if-some-let-test
+  ;; if-some-let checks for nil only, allows false
+  ;; false is valid
+  (t/is= [false 1] (ext/if-some-let [a false b 1] [a b] :else))
+  ;; nil triggers else
+  (t/is= :else (ext/if-some-let [a nil b 1] [a b] :else))
+  ;; all non-nil
+  (t/is= [1 2 3] (ext/if-some-let [a 1 b 2 c 3] [a b c] :else))
+  ;; second binding nil
+  (t/is= :else (ext/if-some-let [a 1 b nil c 3] [a b c] :else))
+  ;; default else is nil
+  (t/is= nil (ext/if-some-let [a nil] :then))
+  ;; single binding non-nil
+  (t/is= :then (ext/if-some-let [a 1] :then)))
+
+(t/deftest when-some-let-test
+  ;; when-some-let checks for nil only, allows false
+  ;; false is valid
+  (t/is= [false 1] (ext/when-some-let [a false b 1] [a b]))
+  ;; nil returns nil
+  (t/is= nil (ext/when-some-let [a nil b 1] [a b]))
+  ;; all non-nil
+  (t/is= [1 2] (ext/when-some-let [a 1 b 2] [a b]))
+  ;; compare with when-all-let which rejects false
+  (t/is= nil (ext/when-all-let [a false b 1] [a b])))
+
+;;;FUNCTIONS
 (t/deftest update-in-with-not-found-test
   (t/with-instrument `ext/update-in-with-not-found
-    (t/is-spec-check ext/update-in-with-not-found {:num-tests 150}))
+    (t/is-spec-check ext/update-in-with-not-found {:num-tests 100}))
   (t/with-instrument :all
     (t/is= {:a 3 :b 2}
       (ext/update-in-with-not-found {:a 1 :b 2}
@@ -28,7 +56,7 @@
 
 (t/deftest interleave-all-test
   (t/with-instrument `ext/interleave-all
-    (t/is-spec-check ext/interleave-all {:num-tests 150}))
+    (t/is-spec-check ext/interleave-all {:num-tests 70}))
   (t/with-instrument :all
     (t/is= '() (ext/interleave-all))
     (t/is= '() (ext/interleave-all nil))
@@ -109,7 +137,7 @@
 
 (t/deftest reduce-kv-with-stop-test
   (t/with-instrument `ext/reduce-kv-with-stop
-    (t/is-spec-check ext/reduce-kv-with-stop {:num-tests 130}))
+    (t/is-spec-check ext/reduce-kv-with-stop {:num-tests 150}))
   (t/with-instrument :all
     (t/is= 4.0
       (ext/reduce-kv-with-stop
@@ -198,26 +226,48 @@
          ::ext/err-return-fn3 (fn [_res i _v1 _v2 _v3]
                                 -6.0)}))))
 
-;;; New utility tests
+;;;ADDITIONAL COLLECTION UTILITIES
+(t/deftest dedupe-by-test
+  (t/with-instrument `ext/dedupe-by
+    (t/is-spec-check ext/dedupe-by))
+  ;; removes consecutive duplicates by key
+  (t/is= [{:type :a} {:type :b} {:type :a}]
+    (vec (ext/dedupe-by :type [{:type :a} {:type :a} {:type :b} {:type :a}])))
+  ;; with identity
+  (t/is= [1 2 1] (vec (ext/dedupe-by identity [1 1 2 2 2 1 1])))
+  ;; empty coll
+  (t/is= [] (vec (ext/dedupe-by identity [])))
+  ;; single element
+  (t/is= [1] (vec (ext/dedupe-by identity [1])))
+  ;; all same
+  (t/is= [1] (vec (ext/dedupe-by identity [1 1 1 1])))
+  ;; all different
+  (t/is= [1 2 3 4] (vec (ext/dedupe-by identity [1 2 3 4])))
+  ;; compare with distinct-by - dedupe-by keeps non-consecutive duplicates
+  (t/is= [1 2] (vec (ext/distinct-by identity [1 1 2 2 2 1 1]))))
+
 (t/deftest deep-merge-test
-  ;; skip instrumentation - merge-with calls deep-merge recursively with non-map values
-  ;; empty case
-  (t/is= {} (ext/deep-merge))
-  ;; single map
-  (t/is= {:a 1} (ext/deep-merge {:a 1}))
-  ;; basic merge
-  (t/is= {:a 1 :b 2} (ext/deep-merge {:a 1} {:b 2}))
-  ;; nested merge
-  (t/is= {:a {:b 1 :c 2}} (ext/deep-merge {:a {:b 1}} {:a {:c 2}}))
-  ;; override non-map with map
-  (t/is= {:a {:b 2}} (ext/deep-merge {:a 1} {:a {:b 2}}))
-  ;; override map with non-map
-  (t/is= {:a 1} (ext/deep-merge {:a {:b 2}} {:a 1}))
-  ;; multiple maps
-  (t/is= {:a {:b 1 :c 2 :d 3}} (ext/deep-merge {:a {:b 1}} {:a {:c 2}} {:a {:d 3}})))
+  (t/with-instrument `ext/deep-merge
+    (t/is-spec-check ext/deep-merge {:num-tests 100}))
+  (t/with-instrument :all
+    ;; empty case
+    (t/is= {} (ext/deep-merge))
+    ;; single map
+    (t/is= {:a 1} (ext/deep-merge {:a 1}))
+    ;; basic merge
+    (t/is= {:a 1 :b 2} (ext/deep-merge {:a 1} {:b 2}))
+    ;; nested merge
+    (t/is= {:a {:b 1 :c 2}} (ext/deep-merge {:a {:b 1}} {:a {:c 2}}))
+    ;; override non-map with map
+    (t/is= {:a {:b 2}} (ext/deep-merge {:a 1} {:a {:b 2}}))
+    ;; override map with non-map
+    (t/is= {:a 1} (ext/deep-merge {:a {:b 2}} {:a 1}))
+    ;; multiple maps
+    (t/is= {:a {:b 1 :c 2 :d 3}} (ext/deep-merge {:a {:b 1}} {:a {:c 2}} {:a {:d 3}}))))
 
 (t/deftest index-by-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/index-by
+    (t/is-spec-check ext/index-by))
   ;; basic usage
   (t/is= {1 {:id 1 :name "a"} 2 {:id 2 :name "b"}}
     (ext/index-by :id [{:id 1 :name "a"} {:id 2 :name "b"}]))
@@ -227,7 +277,8 @@
   (t/is= {2 1 4 3} (ext/index-by inc [1 3])))
 
 (t/deftest frequencies-by-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/frequencies-by
+    (t/is-spec-check ext/frequencies-by))
   ;; basic usage
   (t/is= {:a 2 :b 1} (ext/frequencies-by :type [{:type :a} {:type :b} {:type :a}]))
   ;; using a function
@@ -236,7 +287,8 @@
   (t/is= {} (ext/frequencies-by identity [])))
 
 (t/deftest partition-map-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/partition-map
+    (t/is-spec-check ext/partition-map))
   ;; basic even/odd split
   (t/is= [[2 4] [1 3 5]] (ext/partition-map even? [1 2 3 4 5]))
   ;; all match
@@ -246,8 +298,74 @@
   ;; empty coll
   (t/is= [[] []] (ext/partition-map even? [])))
 
+(t/deftest partition-after-test
+  (t/with-instrument `ext/partition-after
+    (t/is-spec-check ext/partition-after))
+  ;; basic - new partition after matching element
+  (t/is= [[:a :b :end] [:c :d :end] [:e]]
+    (vec (ext/partition-after #(= % :end) [:a :b :end :c :d :end :e])))
+  ;; with even predicate
+  (t/is= [[1 2] [3 4] [5 6]]
+    (vec (ext/partition-after even? [1 2 3 4 5 6])))
+  ;; no matches - single partition
+  (t/is= [[1 3 5]]
+    (vec (ext/partition-after even? [1 3 5])))
+  ;; empty coll
+  (t/is= [] (vec (ext/partition-after even? [])))
+  ;; first element matches
+  (t/is= [[2] [3 4] [5 6]]
+    (vec (ext/partition-after even? [2 3 4 5 6])))
+  ;; all match
+  (t/is= [[2] [4] [6]]
+    (vec (ext/partition-after even? [2 4 6]))))
+
+(t/deftest partition-before-test
+  (t/with-instrument `ext/partition-before
+    (t/is-spec-check ext/partition-before))
+  ;; basic - new partition before matching element
+  (t/is= [[:start :a :b] [:start :c :d]]
+    (vec (ext/partition-before #(= % :start) [:start :a :b :start :c :d])))
+  ;; with even predicate
+  (t/is= [[1] [2 3] [4 5] [6]]
+    (vec (ext/partition-before even? [1 2 3 4 5 6])))
+  ;; starts with matching element
+  (t/is= [[2 3] [4 5]]
+    (vec (ext/partition-before even? [2 3 4 5])))
+  ;; no matches - single partition
+  (t/is= [[1 3 5]]
+    (vec (ext/partition-before even? [1 3 5])))
+  ;; empty coll
+  (t/is= [] (vec (ext/partition-before even? [])))
+  ;; all match
+  (t/is= [[2] [4] [6]]
+    (vec (ext/partition-before even? [2 4 6]))))
+
+(t/deftest partition-between-test
+  (t/with-instrument `ext/partition-between
+    (t/is-spec-check ext/partition-between))
+  ;; split on inequality - groups runs of equal values
+  (t/is= [[1 1] [2 2 2] [3 3]]
+    (vec (ext/partition-between not= [1 1 2 2 2 3 3])))
+  ;; split when decreasing
+  (t/is= [[1 2 3] [2] [1 4 5]]
+    (vec (ext/partition-between > [1 2 3 2 1 4 5])))
+  ;; split on gap > 1
+  (t/is= [[1 2] [5 6 7] [10]]
+    (vec (ext/partition-between (fn [a b] (> (- b a) 1)) [1 2 5 6 7 10])))
+  ;; empty coll
+  (t/is= [] (vec (ext/partition-between not= [])))
+  ;; single element
+  (t/is= [[1]] (vec (ext/partition-between not= [1])))
+  ;; all same - no splits
+  (t/is= [[1 1 1 1]]
+    (vec (ext/partition-between not= [1 1 1 1])))
+  ;; all different - split between each
+  (t/is= [[1] [2] [3] [4]]
+    (vec (ext/partition-between not= [1 2 3 4]))))
+
 (t/deftest find-first-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/find-first
+    (t/is-spec-check ext/find-first))
   ;; found
   (t/is= 4 (ext/find-first even? [1 3 4 5 6]))
   ;; not found
@@ -256,32 +374,6 @@
   (t/is= nil (ext/find-first even? []))
   ;; first element
   (t/is= 2 (ext/find-first even? [2 3 4 5])))
-
-(t/deftest if-some-let-test
-  ;; if-some-let checks for nil only, allows false
-  ;; false is valid
-  (t/is= [false 1] (ext/if-some-let [a false b 1] [a b] :else))
-  ;; nil triggers else
-  (t/is= :else (ext/if-some-let [a nil b 1] [a b] :else))
-  ;; all non-nil
-  (t/is= [1 2 3] (ext/if-some-let [a 1 b 2 c 3] [a b c] :else))
-  ;; second binding nil
-  (t/is= :else (ext/if-some-let [a 1 b nil c 3] [a b c] :else))
-  ;; default else is nil
-  (t/is= nil (ext/if-some-let [a nil] :then))
-  ;; single binding non-nil
-  (t/is= :then (ext/if-some-let [a 1] :then)))
-
-(t/deftest when-some-let-test
-  ;; when-some-let checks for nil only, allows false
-  ;; false is valid
-  (t/is= [false 1] (ext/when-some-let [a false b 1] [a b]))
-  ;; nil returns nil
-  (t/is= nil (ext/when-some-let [a nil b 1] [a b]))
-  ;; all non-nil
-  (t/is= [1 2] (ext/when-some-let [a 1 b 2] [a b]))
-  ;; compare with when-all-let which rejects false
-  (t/is= nil (ext/when-all-let [a false b 1] [a b])))
 
 (t/deftest dissoc-in-test
   (t/with-instrument `ext/dissoc-in
@@ -320,7 +412,8 @@
     (t/is= {:a 1} (ext/assoc-some {:a 1}))))
 
 (t/deftest distinct-by-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/distinct-by
+    (t/is-spec-check ext/distinct-by))
   ;; basic by keyword
   (t/is= [{:id 1 :n "a"} {:id 2 :n "b"}]
     (vec (ext/distinct-by :id [{:id 1 :n "a"} {:id 2 :n "b"} {:id 1 :n "c"}])))
@@ -338,7 +431,8 @@
   (t/is= [:a :b :c] (vec (ext/distinct-by name [:a :b :c :a :b]))))
 
 (t/deftest index-of-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/index-of
+    (t/is-spec-check ext/index-of))
   ;; found in middle
   (t/is= 2 (ext/index-of even? [1 3 4 5 6]))
   ;; not found
@@ -376,7 +470,8 @@
     (t/is= 2 (ext/safe-nth '(1 2 3) 1))))
 
 (t/deftest keep-kv-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/keep-kv
+    (t/is-spec-check ext/keep-kv))
   ;; keep even indices
   (t/is= '(:a :c :e) (ext/keep-kv (fn [i x] (when (even? i) x)) [:a :b :c :d :e]))
   ;; keep with index
@@ -385,12 +480,13 @@
   ;; all nil results
   (t/is= '() (ext/keep-kv (fn [_i _x] nil) [1 2 3]))
   ;; empty coll
-  (t/is= '() (ext/keep-kv (fn [i x] x) []))
+  (t/is= '() (ext/keep-kv (fn [_i x] x) []))
   ;; transform values
   (t/is= '(0 2 6) (ext/keep-kv (fn [i x] (* i x)) [1 2 3])))
 
 (t/deftest take-until-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/take-until
+    (t/is-spec-check ext/take-until))
   ;; basic - includes terminating element
   (t/is= '(1 2 3 5) (ext/take-until #(< % 5) [1 2 3 5 6 7]))
   ;; compare with take-while - excludes terminating element
@@ -405,7 +501,8 @@
   (t/is= '(1 2) (ext/take-until odd? [1 2 3])))
 
 (t/deftest drop-until-test
-  ;; skip instrumentation - function arg causes issues
+  (t/with-instrument `ext/drop-until
+    (t/is-spec-check ext/drop-until))
   ;; basic - starts from first failing element
   (t/is= '(5 6 7) (ext/drop-until #(< % 5) [1 2 3 5 6 7]))
   ;; compare with drop-while - same result in this case

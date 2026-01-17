@@ -32,13 +32,15 @@
            (throw (ex-info (.getMessage ^Exception r) {}))
            r))
        (catch Exception e
-         {::anomalies/message  (.getMessage e)
-          ::anomalies/category ::anomalies/exception
-          ::anomalies/fn       (var catch-error-or-exception)})
+         {::anomalies/category ::anomalies/exception
+          ::anomalies/data     {:exception e}
+          ::anomalies/fn       (var catch-error-or-exception)
+          ::anomalies/message  (.getMessage e)})
        (catch Error e
-         {::anomalies/message  (.getMessage e)
-          ::anomalies/category ::anomalies/error
-          ::anomalies/fn       (var catch-error-or-exception)})))
+         {::anomalies/category ::anomalies/error
+          ::anomalies/data     {:exception e}
+          ::anomalies/fn       (var catch-error-or-exception)
+          ::anomalies/message  (.getMessage e)})))
 
 (s/fdef catch-error-or-exception
   :args (s/cat :f (s/fspec :args (s/cat)
@@ -113,7 +115,7 @@
 
    Optional `opts` map:
    - `:timeout-ms` -- Maximum time in milliseconds to wait for all results. If exceeded, remaining
-     functions are cancelled and a timeout anomaly is returned for those slots.
+     functions are canceled and a timeout anomaly is returned for those slots.
    - `:allow-nil?` -- If `true`, `nil` returns are allowed. If `false` (default), `nil` returns
      are converted to anomalies.
 

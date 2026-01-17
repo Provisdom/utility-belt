@@ -1,8 +1,8 @@
 (ns provisdom.utility-belt.extensions
   "Extended functionality for Clojure's core data operations. Provides macros for conditional
    binding and functions for working with collections, including nested updates, interleaving,
-   reducing with indices, and common collection utilities like [[distinct-by]], [[index-of]], and
-   [[safe-nth]]."
+   reducing with indices, and common collection utilities like [[distinct-by]], [[dedupe-by]],
+   [[partition-after]], [[partition-before]], [[partition-between]], [[index-of]], and [[safe-nth]]."
   (:require
     [clojure.spec.alpha :as s]))
 
@@ -399,8 +399,8 @@
   :ret any?)
 
 (defn reduce-kv-with-stop
-  "Reduces a sequence using stopping predicates. Function `f` and predicates take the result
-   value, an index, and the item value(s)."
+  "Reduces a sequence using stopping predicates. Function `f` and predicates take the result value,
+  an index, and the item value(s)."
   ([f init coll {::keys [stop-pred1 err-pred1 err-return-fn1]}]
    (loop [i 0
           [h & t] coll
@@ -464,6 +464,46 @@
   :ret any?)
 
 ;;;ADDITIONAL COLLECTION UTILITIES
+(defn dedupe-by
+  "Returns a lazy sequence removing consecutive duplicates based on `key-fn`. Unlike [[distinct-by]]
+   which removes all duplicates, this only removes adjacent duplicates - useful for sorted or
+   ordered data where you want to collapse runs of similar values.
+
+   Parameters:
+   - `key-fn`: A function to apply to each element to get its deduplication key
+   - `coll`: The collection to process
+
+   Examples:
+   ```clojure
+   (dedupe-by :type [{:type :a} {:type :a} {:type :b} {:type :a}])
+   ;; => ({:type :a} {:type :b} {:type :a})  ; note: last :a kept, not first
+
+   (dedupe-by identity [1 1 2 2 2 1 1])
+   ;; => (1 2 1)
+
+   ;; Compare with distinct-by:
+   (distinct-by identity [1 1 2 2 2 1 1])
+   ;; => (1 2)  ; all duplicates removed
+   ```"
+  [key-fn coll]
+  (lazy-seq
+    (when-let [s (seq coll)]
+      (let [x (first s)]
+        (cons x (dedupe-by key-fn (drop-while #(= (key-fn x) (key-fn %)) (rest s))))))))
+
+(s/fdef dedupe-by
+  :args (s/cat :key-fn (s/fspec :args (s/cat :x any?) :ret any?)
+          :coll (s/every any?))
+  :ret (s/every any?))
+
+(defn- deep-merge*
+  "Internal helper for deep-merge. Handles any values during recursive merge - returns `m2` if args
+  aren't both maps."
+  [m1 m2]
+  (if (and (map? m1) (map? m2))
+    (merge-with deep-merge* m1 m2)
+    m2))
+
 (defn deep-merge
   "Recursively merges maps. If values at the same key are both maps, they are merged recursively.
    Otherwise, the value from the last map wins.
@@ -484,17 +524,13 @@
    ```"
   ([] {})
   ([m] m)
-  ([m1 m2]
-   (if (and (map? m1) (map? m2))
-     (merge-with deep-merge m1 m2)
-     m2))
+  ([m1 m2] (deep-merge* m1 m2))
   ([m1 m2 & maps]
    (reduce deep-merge (deep-merge m1 m2) maps)))
 
-(comment "documentation only -- merge-with calls deep-merge recursively with non-map values"
-  (s/fdef deep-merge
-    :args (s/cat :maps (s/* map?))
-    :ret map?))
+(s/fdef deep-merge
+  :args (s/cat :maps (s/* map?))
+  :ret map?)
 
 (defn index-by
   "Returns a map of the elements of `coll` keyed by the result of `f` on each element. Similar to
@@ -579,6 +615,106 @@
   :args (s/cat :pred (s/fspec :args (s/cat :x any?) :ret any?)
           :coll (s/every any?))
   :ret (s/tuple vector? vector?))
+
+(defn partition-after
+  "Partitions `coll` into sub-vectors, starting a new partition after each element for which `pred`
+   returns truthy. The matching element is included at the end of its partition.
+
+   Parameters:
+   - `pred`: A predicate function
+   - `coll`: The collection to partition
+
+   Examples:
+   ```clojure
+   (partition-after #(= % :end) [:a :b :end :c :d :end :e])
+   ;; => ([:a :b :end] [:c :d :end] [:e])
+
+   (partition-after even? [1 2 3 4 5 6])
+   ;; => ([1 2] [3 4] [5 6])
+   ```"
+  [pred coll]
+  (lazy-seq
+    (when-let [s (seq coll)]
+      (let [[taken remaining] (split-with (complement pred) s)]
+        (if (seq remaining)
+          (cons (vec (concat taken [(first remaining)]))
+            (partition-after pred (rest remaining)))
+          (when (seq taken)
+            (list (vec taken))))))))
+
+(s/fdef partition-after
+  :args (s/cat :pred (s/fspec :args (s/cat :x any?) :ret any?)
+          :coll (s/every any?))
+  :ret (s/every vector?))
+
+(defn partition-before
+  "Partitions `coll` into sub-vectors, starting a new partition before each element for which `pred`
+   returns truthy. The matching element is included at the beginning of the new partition.
+
+   Parameters:
+   - `pred`: A predicate function
+   - `coll`: The collection to partition
+
+   Examples:
+   ```clojure
+   (partition-before #(= % :start) [:start :a :b :start :c :d])
+   ;; => ([:start :a :b] [:start :c :d])
+
+   (partition-before even? [1 2 3 4 5 6])
+   ;; => ([1] [2 3] [4 5] [6])
+
+   (partition-before even? [2 3 4 5])
+   ;; => ([2 3] [4 5])
+   ```"
+  [pred coll]
+  (lazy-seq
+    (when-let [s (seq coll)]
+      (let [x (first s)
+            [taken remaining] (split-with (complement pred) (rest s))]
+        (cons (vec (cons x taken))
+          (partition-before pred remaining))))))
+
+(s/fdef partition-before
+  :args (s/cat :pred (s/fspec :args (s/cat :x any?) :ret any?)
+          :coll (s/every any?))
+  :ret (s/every vector?))
+
+(defn partition-between
+  "Partitions `coll` into sub-vectors, starting a new partition between adjacent elements when
+   `pred` returns truthy for the pair. The predicate receives two arguments: the previous element
+   and the current element.
+
+   Parameters:
+   - `pred`: A predicate function of two arguments `(prev, curr)`
+   - `coll`: The collection to partition
+
+   Examples:
+   ```clojure
+   (partition-between not= [1 1 2 2 2 3 3])
+   ;; => ([1 1] [2 2 2] [3 3])
+
+   (partition-between > [1 2 3 2 1 4 5])
+   ;; => ([1 2 3] [2] [1 4 5])
+
+   (partition-between (fn [a b] (> (- b a) 1)) [1 2 5 6 7 10])
+   ;; => ([1 2] [5 6 7] [10])  ; split when gap > 1
+   ```"
+  [pred coll]
+  (lazy-seq
+    (when-let [s (seq coll)]
+      (loop [acc [(first s)]
+             prev (first s)
+             remaining (rest s)]
+        (if-let [curr (first remaining)]
+          (if (pred prev curr)
+            (cons (vec acc) (partition-between pred remaining))
+            (recur (conj acc curr) curr (rest remaining)))
+          (list (vec acc)))))))
+
+(s/fdef partition-between
+  :args (s/cat :pred (s/fspec :args (s/cat :prev any? :curr any?) :ret any?)
+          :coll (s/every any?))
+  :ret (s/every vector?))
 
 (defn find-first
   "Returns the first element in `coll` for which `pred` returns truthy, or `nil` if no such
@@ -767,8 +903,8 @@
    (safe-nth coll i nil))
   ([coll i not-found]
    (if (and (int? i)
-            (>= i 0)
-            (< i (count coll)))
+         (>= i 0)
+         (< i (count coll)))
      (nth coll i)
      not-found)))
 
