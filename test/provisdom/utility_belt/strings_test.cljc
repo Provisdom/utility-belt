@@ -5,7 +5,7 @@
     [provisdom.test.core :as t]
     [provisdom.utility-belt.strings :as strings]))
 
-;2 seconds
+;5 seconds
 
 #?(:clj (set! *warn-on-reflection* true))
 

@@ -46,8 +46,8 @@
   :ret boolean?)
 
 (defn anomaly-ex?
-  "Tests whether `x` is an anomaly exception. An anomaly exception is an exception
-  with an anomaly in the ex-data."
+  "Tests whether `x` is an anomaly exception. An anomaly exception is an exception with an anomaly
+  in the ex-data."
   [x]
   (anomaly? (ex-data x)))
 
@@ -135,8 +135,8 @@
                     b (another-fn a)]
        (do-something a b))
      ```
-     If `possibly-anomalous-fn` returns an anomaly, it's immediately returned
-     without evaluating `another-fn` or `do-something`."
+     If `possibly-anomalous-fn` returns an anomaly, it's immediately returned without evaluating
+     `another-fn` or `do-something`."
      [bindings & body]
      (assert-args
        (vector? bindings) "a vector for its binding"
@@ -145,9 +145,8 @@
 
 #?(:clj
    (defmacro anomaly-try
-     "Evaluates body and catches exceptions, converting them to anomalies.
-     Returns the result of body if successful, or an anomaly with category
-     ::exception if an exception is thrown.
+     "Evaluates body and catches exceptions, converting them to anomalies. Returns the result of
+     body if successful, or an anomaly with category ::exception if an exception is thrown.
 
      Parameters:
      - body: Expressions to evaluate
@@ -200,7 +199,7 @@
 
 (defn chain->
   "Threading-friendly version of chain for use with ->.
-   Applies `f` with `args` to `x` if `x` is not an anomaly.
+  Applies `f` with `args` to `x` if `x` is not an anomaly.
 
    Parameters:
    - x: A value that may be an anomaly

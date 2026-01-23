@@ -26,8 +26,8 @@
         :symbol qualified-symbol?))
 
 (defn get-meta
-  "Returns the metadata map associated with spec `s`, or `nil` if none exists. Metadata is set
-   via the [[def]] macro's metamap parameter or the [[fdef]] macro's `:throws` clause."
+  "Returns the metadata map associated with spec `s`, or `nil` if none exists. Metadata is set via
+  the [[def]] macro's metamap parameter or the [[fdef]] macro's `:throws` clause."
   [s]
   (get @*spec->meta s))
 

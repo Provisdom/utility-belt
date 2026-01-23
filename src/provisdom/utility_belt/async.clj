@@ -234,8 +234,7 @@
 (defn thread-select
   "Executes functions and selects from their results using a custom selector function. Runs
    multiple functions (in parallel by default) and applies a selector function to the successful
-   (non-anomaly) results. This provides a flexible way to choose from multiple computation
-   results.
+   (non-anomaly) results. This provides a flexible way to choose from multiple computation results.
 
    Parameters:
    - `selector-fn`: A function that takes a collection of results and returns a single value

@@ -18,8 +18,24 @@
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]))
 
-(s/def ::comparator (s/fspec :args (s/cat :a any? :b any?)
-                             :ret int?))
+(def ^:private homogeneous-seqable-gen
+  "Generator for seqables where all elements are mutually comparable."
+  (gen/one-of [(gen/vector (gen/int))
+               (gen/vector (gen/string-alphanumeric))
+               (gen/vector (gen/keyword))
+               (gen/list (gen/int))
+               (gen/list (gen/string-alphanumeric))]))
+
+(def ^:private universal-comparator-gen
+  "Generator for comparators that work with any two values. Returns functions that impose an
+   arbitrary but consistent ordering based on hash codes."
+  (gen/return (fn [a b] (compare (hash a) (hash b)))))
+
+(s/def ::comparator
+  (s/with-gen
+    (s/fspec :args (s/cat :a any? :b any?)
+             :ret int?)
+    (fn [] universal-comparator-gen)))
 
 ;;;HELPER FUNCTIONS
 (defn- pairs-compare-satisfy?
@@ -60,7 +76,8 @@
   (pairs-compare-satisfy? #(<= % 0) coll))
 
 (s/fdef sorted?
-  :args (s/cat :coll seqable?)
+  :args (s/with-gen (s/cat :coll seqable?)
+          (fn [] (gen/fmap (fn [coll] [coll]) homogeneous-seqable-gen)))
   :ret boolean?)
 
 (defn sorted-by?
@@ -69,10 +86,10 @@
   [comparator coll]
   (pairs-satisfy-by? comparator #(<= % 0) coll))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef sorted-by?
-    :args (s/cat :comparator ::comparator :coll seqable?)
-    :ret boolean?))
+(s/fdef sorted-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :coll seqable?)
+          (fn [] (gen/tuple universal-comparator-gen homogeneous-seqable-gen)))
+  :ret boolean?)
 
 (defn strictly-sorted?
   "Tests whether `coll` is strictly sorted in ascending order (no duplicates). Works on any
@@ -81,7 +98,8 @@
   (pairs-compare-satisfy? #(< % 0) coll))
 
 (s/fdef strictly-sorted?
-  :args (s/cat :coll seqable?)
+  :args (s/with-gen (s/cat :coll seqable?)
+          (fn [] (gen/fmap (fn [coll] [coll]) homogeneous-seqable-gen)))
   :ret boolean?)
 
 (defn strictly-sorted-by?
@@ -90,10 +108,10 @@
   [comparator coll]
   (pairs-satisfy-by? comparator #(< % 0) coll))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef strictly-sorted-by?
-    :args (s/cat :comparator ::comparator :coll seqable?)
-    :ret boolean?))
+(s/fdef strictly-sorted-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :coll seqable?)
+          (fn [] (gen/tuple universal-comparator-gen homogeneous-seqable-gen)))
+  :ret boolean?)
 
 (defn sorted-desc?
   "Tests whether `coll` is sorted in descending order (allows duplicates). Works on any Comparable
@@ -102,7 +120,8 @@
   (pairs-compare-satisfy? #(>= % 0) coll))
 
 (s/fdef sorted-desc?
-  :args (s/cat :coll seqable?)
+  :args (s/with-gen (s/cat :coll seqable?)
+          (fn [] (gen/fmap (fn [coll] [coll]) homogeneous-seqable-gen)))
   :ret boolean?)
 
 (defn sorted-desc-by?
@@ -111,10 +130,10 @@
   [comparator coll]
   (pairs-satisfy-by? comparator #(>= % 0) coll))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef sorted-desc-by?
-    :args (s/cat :comparator ::comparator :coll seqable?)
-    :ret boolean?))
+(s/fdef sorted-desc-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :coll seqable?)
+          (fn [] (gen/tuple universal-comparator-gen homogeneous-seqable-gen)))
+  :ret boolean?)
 
 (defn strictly-sorted-desc?
   "Tests whether `coll` is strictly sorted in descending order (no duplicates). Works on any
@@ -123,7 +142,8 @@
   (pairs-compare-satisfy? #(> % 0) coll))
 
 (s/fdef strictly-sorted-desc?
-  :args (s/cat :coll seqable?)
+  :args (s/with-gen (s/cat :coll seqable?)
+          (fn [] (gen/fmap (fn [coll] [coll]) homogeneous-seqable-gen)))
   :ret boolean?)
 
 (defn strictly-sorted-desc-by?
@@ -132,10 +152,10 @@
   [comparator coll]
   (pairs-satisfy-by? comparator #(> % 0) coll))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef strictly-sorted-desc-by?
-    :args (s/cat :comparator ::comparator :coll seqable?)
-    :ret boolean?))
+(s/fdef strictly-sorted-desc-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :coll seqable?)
+          (fn [] (gen/tuple universal-comparator-gen homogeneous-seqable-gen)))
+  :ret boolean?)
 
 ;;;SEQ -- SORTED
 (defn seq-sorted?
@@ -144,7 +164,8 @@
   (and (sequential? coll) (sorted? coll)))
 
 (s/fdef seq-sorted?
-  :args (s/cat :coll any?)
+  :args (s/with-gen (s/cat :coll any?)
+          (fn [] (gen/fmap (fn [coll] [coll]) homogeneous-seqable-gen)))
   :ret boolean?)
 
 (defn seq-sorted-by?
@@ -152,10 +173,10 @@
   [comparator coll]
   (and (sequential? coll) (sorted-by? comparator coll)))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef seq-sorted-by?
-    :args (s/cat :comparator ::comparator :coll any?)
-    :ret boolean?))
+(s/fdef seq-sorted-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :coll any?)
+          (fn [] (gen/tuple universal-comparator-gen homogeneous-seqable-gen)))
+  :ret boolean?)
 
 ;;;LIST -- SORTED
 (defn list-sorted?
@@ -164,7 +185,9 @@
   (and (list? l) (sorted? l)))
 
 (s/fdef list-sorted?
-  :args (s/cat :l any?)
+  :args (s/with-gen (s/cat :l any?)
+          (fn [] (gen/fmap (fn [coll] [(apply list coll)])
+                   (gen/vector (gen/int)))))
   :ret boolean?)
 
 (defn list-sorted-by?
@@ -172,11 +195,11 @@
   [comparator l]
   (and (list? l) (sorted-by? comparator l)))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef list-sorted-by?
-    :args (s/cat :comparator ::comparator
-            :l any?)
-    :ret boolean?))
+(s/fdef list-sorted-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :l any?)
+          (fn [] (gen/tuple universal-comparator-gen
+                   (gen/fmap (fn [v] (apply list v)) (gen/vector (gen/int))))))
+  :ret boolean?)
 
 (defmacro list-sorted-of
   "This macro builds the spec for a list sorted."
@@ -205,7 +228,8 @@
   (and (vector? v) (sorted? v)))
 
 (s/fdef vector-sorted?
-  :args (s/cat :v any?)
+  :args (s/with-gen (s/cat :v any?)
+          (fn [] (gen/fmap (fn [v] [v]) (gen/vector (gen/int)))))
   :ret boolean?)
 
 (defn vector-sorted-by?
@@ -213,11 +237,10 @@
   [comparator v]
   (and (vector? v) (sorted-by? comparator v)))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef vector-sorted-by?
-    :args (s/cat :comparator ::comparator
-            :v any?)
-    :ret boolean?))
+(s/fdef vector-sorted-by?
+  :args (s/with-gen (s/cat :comparator ::comparator :v any?)
+          (fn [] (gen/tuple universal-comparator-gen (gen/vector (gen/int)))))
+  :ret boolean?)
 
 (defmacro vector-sorted-of
   "This macro builds the spec for a vector sorted."
@@ -256,7 +279,11 @@
             :else (recur low (dec mid))))))))
 
 (s/fdef binary-search
-  :args (s/cat :coll (s/and indexed? sorted?) :target any?)
+  :args (s/with-gen (s/cat :coll (s/and indexed? sorted?) :target any?)
+          (fn [] (gen/bind (gen/vector (gen/int))
+                   (fn [v]
+                     (let [sv (vec (sort v))]
+                       (gen/tuple (gen/return sv) (gen/int)))))))
   :ret (s/nilable nat-int?))
 
 (defn binary-search-by
@@ -275,12 +302,17 @@
             (neg? cmp) (recur (inc mid) high)
             :else (recur low (dec mid))))))))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef binary-search-by
-    :args (s/cat :comparator ::comparator
-                 :coll (s/and indexed? sorted?)
-                 :target any?)
-    :ret (s/nilable nat-int?)))
+(s/fdef binary-search-by
+  :args (s/with-gen (s/cat :comparator ::comparator
+                           :coll (s/and indexed? sorted?)
+                           :target any?)
+          (fn [] (gen/bind (gen/vector (gen/int))
+                   (fn [v]
+                     (let [sv (vec (sort v))]
+                       (gen/tuple universal-comparator-gen
+                         (gen/return sv)
+                         (gen/int)))))))
+  :ret (s/nilable nat-int?))
 
 (defn binary-search-insertion-point
   "Find the insertion point for `target` in a sorted indexed collection. Returns the index where
@@ -300,7 +332,11 @@
         low))))
 
 (s/fdef binary-search-insertion-point
-  :args (s/cat :coll (s/and indexed? sorted?) :target any?)
+  :args (s/with-gen (s/cat :coll (s/and indexed? sorted?) :target any?)
+          (fn [] (gen/bind (gen/vector (gen/int))
+                   (fn [v]
+                     (let [sv (vec (sort v))]
+                       (gen/tuple (gen/return sv) (gen/int)))))))
   :ret nat-int?)
 
 (defn binary-search-insertion-point-by
@@ -318,12 +354,17 @@
             (recur low mid)))
         low))))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef binary-search-insertion-point-by
-    :args (s/cat :comparator ::comparator
-                 :coll (s/and indexed? sorted?)
-                 :target any?)
-    :ret nat-int?))
+(s/fdef binary-search-insertion-point-by
+  :args (s/with-gen (s/cat :comparator ::comparator
+                           :coll (s/and indexed? sorted?)
+                           :target any?)
+          (fn [] (gen/bind (gen/vector (gen/int))
+                   (fn [v]
+                     (let [sv (vec (sort v))]
+                       (gen/tuple universal-comparator-gen
+                         (gen/return sv)
+                         (gen/int)))))))
+  :ret nat-int?)
 
 ;;;SORTED UTILITIES
 (defn insert-sorted
@@ -334,7 +375,11 @@
     (into (conj (subvec v 0 idx) x) (subvec v idx))))
 
 (s/fdef insert-sorted
-  :args (s/cat :v (s/and vector? sorted?) :x any?)
+  :args (s/with-gen (s/cat :v (s/and vector? sorted?) :x any?)
+          (fn [] (gen/bind (gen/vector (gen/int))
+                   (fn [v]
+                     (let [sv (vec (sort v))]
+                       (gen/tuple (gen/return sv) (gen/int)))))))
   :ret (s/and vector? sorted?))
 
 (defn insert-sorted-by
@@ -344,12 +389,17 @@
   (let [idx (binary-search-insertion-point-by comparator v x)]
     (into (conj (subvec v 0 idx) x) (subvec v idx))))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef insert-sorted-by
-    :args (s/cat :comparator ::comparator
-                 :v (s/and vector? sorted?)
-                 :x any?)
-    :ret vector?))
+(s/fdef insert-sorted-by
+  :args (s/with-gen (s/cat :comparator ::comparator
+                           :v (s/and vector? sorted?)
+                           :x any?)
+          (fn [] (gen/bind (gen/vector (gen/int))
+                   (fn [v]
+                     (let [sv (vec (sort v))]
+                       (gen/tuple universal-comparator-gen
+                         (gen/return sv)
+                         (gen/int)))))))
+  :ret vector?)
 
 (defn merge-sorted
   "Merge two sorted sequences into a single sorted vector. O(n + m) time complexity where n and m
@@ -368,8 +418,10 @@
                 (recur (conj result v2) s1 (next s2)))))))
 
 (s/fdef merge-sorted
-  :args (s/cat :coll1 (s/and seqable? sorted?)
-               :coll2 (s/and seqable? sorted?))
+  :args (s/with-gen (s/cat :coll1 (s/and seqable? sorted?)
+                           :coll2 (s/and seqable? sorted?))
+          (fn [] (gen/tuple (gen/fmap (comp vec sort) (gen/vector (gen/int)))
+                   (gen/fmap (comp vec sort) (gen/vector (gen/int))))))
   :ret (s/and vector? sorted?))
 
 (defn merge-sorted-by
@@ -388,9 +440,11 @@
                 (recur (conj result v1) (next s1) s2)
                 (recur (conj result v2) s1 (next s2)))))))
 
-(comment "documentation only -- causes instrumentation difficulties"
-  (s/fdef merge-sorted-by
-    :args (s/cat :comparator ::comparator
-                 :coll1 seqable?
-                 :coll2 seqable?)
-    :ret vector?))
+(s/fdef merge-sorted-by
+  :args (s/with-gen (s/cat :comparator ::comparator
+                           :coll1 seqable?
+                           :coll2 seqable?)
+          (fn [] (gen/tuple universal-comparator-gen
+                   (gen/fmap (comp vec sort) (gen/vector (gen/int)))
+                   (gen/fmap (comp vec sort) (gen/vector (gen/int))))))
+  :ret vector?)

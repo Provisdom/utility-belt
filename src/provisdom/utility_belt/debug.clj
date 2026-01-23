@@ -5,14 +5,22 @@
    globally disable debug output with `(binding [*debug-enabled* false] ...)`.
 
    Tap-based macros ([[tap-dbg]], [[tap-spy]], [[tap-timed]]) always send to `tap>` regardless of
-   `*debug-enabled*` since `tap>` listeners can filter as needed."
+   `*debug-enabled*` since `tap>` listeners can filter as needed.
+
+   Quick reference:
+   - [[dbg]]/[[dbg-pp]] - inline inspection, prints code form and value
+   - [[spy]] - pipeline debugging with custom label (use when code form would be a gensym)
+   - [[spy->]]/[[spy->>]] - trace every step in a threading macro
+   - [[timed]] - measure execution time with label (unlike `clojure.core/time`, can be disabled)
+   - [[dbg-fn]] - wrap a function to trace its calls and returns
+   - [[dbg-when]] - conditional debug output based on predicate
+   - `tap-*` variants - same behavior but send to `tap>` for tools like Portal, REBL, Reveal"
   (:require
     [clojure.pprint :as pprint]))
 
 (def ^:dynamic *debug-enabled*
   "Dynamic var to globally enable/disable print-based debug output. Bind to `false` to suppress
-   all [[dbg]], [[spy]], [[timed]], etc. output. Tap-based macros are not affected by this
-   setting."
+   all [[dbg]], [[spy]], [[timed]], etc. output. Tap-based macros are not affected by this setting."
   true)
 
 (defmacro dbg
@@ -86,8 +94,7 @@
      x#))
 
 (defmacro timed
-  "Measure and print execution time of an expression. Returns the value. Respects
-   `*debug-enabled*`.
+  "Measure and print execution time of an expression. Returns the value. Respects `*debug-enabled*`.
 
    Parameters:
    - `label`: A label to identify the timed operation
@@ -127,8 +134,8 @@
      x#))
 
 (defmacro tap-spy
-  "Send a labeled value to `tap>` and return the value unchanged. Combines [[tap-dbg]] with a
-   label for easier identification. Not affected by `*debug-enabled*`.
+  "Send a labeled value to `tap>` and return the value unchanged. Combines [[tap-dbg]] with a label
+  for easier identification. Not affected by `*debug-enabled*`.
 
    Parameters:
    - `label`: A label to identify the value
@@ -168,8 +175,8 @@
      result#))
 
 (defn dbg-fn
-  "Wrap a function to print its arguments and return value on each call. Useful for tracing
-   function calls. Respects `*debug-enabled*`.
+  "Wrap a function to print its arguments and return value on each call. Useful for tracing function
+  calls. Respects `*debug-enabled*`.
 
    Parameters:
    - `label`: A label to identify the function

@@ -326,8 +326,8 @@
   :ret map?)
 
 (defn invert-map
-  "Returns a map with keys and values swapped. Note: If the original map has duplicate values,
-   only one will be preserved in the result (which one is undefined for hash maps).
+  "Returns a map with keys and values swapped. Note: If the original map has duplicate values, only
+  one will be preserved in the result (which one is undefined for hash maps).
 
    Parameters:
    - `m`: The map to invert
@@ -348,8 +348,8 @@
   :ret map?)
 
 (defn map-kv
-  "Transforms both keys and values of a map simultaneously. The function receives key and value,
-   and must return a `[new-key new-value]` pair.
+  "Transforms both keys and values of a map simultaneously. The function receives key and value, and
+  must return a `[new-key new-value]` pair.
 
    Parameters:
    - `f`: A function taking `(key, value)` and returning `[new-key new-value]`

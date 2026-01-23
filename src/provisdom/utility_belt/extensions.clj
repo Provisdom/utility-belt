@@ -2,7 +2,8 @@
   "Extended functionality for Clojure's core data operations. Provides macros for conditional
    binding and functions for working with collections, including nested updates, interleaving,
    reducing with indices, and common collection utilities like [[distinct-by]], [[dedupe-by]],
-   [[partition-after]], [[partition-before]], [[partition-between]], [[index-of]], and [[safe-nth]]."
+   [[partition-after]], [[partition-before]], [[partition-between]], [[index-of]], and
+   [[safe-nth]]."
   (:require
     [clojure.spec.alpha :as s]))
 
@@ -63,8 +64,8 @@
 ;;;MACROS
 (defmacro if-all-let
   "A variant of `if-let` that tests multiple bindings, requiring all to be truthy. Similar to
-   `if-let` but requires all bindings to be non-nil/non-false. If any binding evaluates to `nil`
-   or `false`, the else expression is evaluated.
+  `if-let` but requires all bindings to be non-nil/non-false. If any binding evaluates to `nil` or
+   `false`, the else expression is evaluated.
 
    Parameters:
    - `bindings`: A vector of binding forms (as in `let`)
@@ -558,8 +559,8 @@
   :ret map?)
 
 (defn frequencies-by
-  "Returns a map from the result of applying `f` to each element of `coll` to the count of
-   elements that produced that result. Like `frequencies` but applies `f` first.
+  "Returns a map from the result of applying `f` to each element of `coll` to the count of elements
+  that produced that result. Like `frequencies` but applies `f` first.
 
    Parameters:
    - `f`: A function to apply to each element
@@ -588,8 +589,8 @@
 
 (defn partition-map
   "Partitions `coll` into two vectors based on a predicate. Returns `[matches non-matches]` where
-   `matches` contains elements for which `pred` returns truthy and `non-matches` contains the
-   rest. More efficient than calling `filter` and `remove` separately.
+   `matches` contains elements for which `pred` returns truthy and `non-matches` contains the rest.
+   More efficient than calling `filter` and `remove` separately.
 
    Parameters:
    - `pred`: A predicate function
@@ -681,7 +682,7 @@
 
 (defn partition-between
   "Partitions `coll` into sub-vectors, starting a new partition between adjacent elements when
-   `pred` returns truthy for the pair. The predicate receives two arguments: the previous element
+  `pred` returns truthy for the pair. The predicate receives two arguments: the previous element
    and the current element.
 
    Parameters:
@@ -782,8 +783,8 @@
   :ret map?)
 
 (defn assoc-some
-  "Like `assoc` but skips key-value pairs where the value is `nil`. Useful for conditionally
-   adding keys to a map without cluttering the code with `when`/`if` checks.
+  "Like `assoc` but skips key-value pairs where the value is `nil`. Useful for conditionally adding
+  keys to a map without cluttering the code with `when`/`if` checks.
 
    Parameters:
    - `m`: The map to assoc into
@@ -845,8 +846,8 @@
   :ret (s/every any?))
 
 (defn index-of
-  "Returns the index of the first element in `coll` for which `pred` returns truthy, or `nil` if
-   no such element exists.
+  "Returns the index of the first element in `coll` for which `pred` returns truthy, or `nil` if no
+  such element exists.
 
    Parameters:
    - `pred`: A predicate function

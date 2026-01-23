@@ -1,6 +1,6 @@
 (ns provisdom.utility-belt.nils
   "Utilities for handling `nil` values in different ways. Provides functions for ignoring,
-   reporting, or replacing `nil` values when applying functions or processing collections.
+  reporting, or replacing `nil` values when applying functions or processing collections.
 
    Core functions:
    - [[ignore-nils]] / [[ignore-nils-fn]] - Remove `nil` args before calling function
@@ -62,8 +62,8 @@
 
 (defn nil-nils
   "Applies function `f` but returns `nil` if any argument is `nil`. A simpler alternative to
-   [[anomaly-nils]] when you don't need the detailed error reporting of anomalies. Can be used
-   with threading macros to short-circuit on `nil` values.
+   [[anomaly-nils]] when you don't need the detailed error reporting of anomalies. Can be used with
+   threading macros to short-circuit on `nil` values.
 
    Parameters:
    - `f`: The function to apply
@@ -122,8 +122,8 @@
 
 ;;;; Higher-order function wrappers
 (defn ignore-nils-fn
-  "Returns a function that ignores `nil` args when calling `f`. This is the higher-order version
-   of [[ignore-nils]], useful for composition and passing to higher-order functions.
+  "Returns a function that ignores `nil` args when calling `f`. This is the higher-order version of
+  [[ignore-nils]], useful for composition and passing to higher-order functions.
 
    Examples:
    ```clojure

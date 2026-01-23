@@ -1,7 +1,7 @@
 (ns provisdom.utility-belt.strings
   "Extended string manipulation utilities that complement clojure.string.
-   Provides functions for substring operations, trimming, insertion, and abbreviation
-   with full spec definitions for validation and testing."
+  Provides functions for substring operations, trimming, insertion, and abbreviation with full spec
+  definitions for validation and testing."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen]
@@ -41,8 +41,7 @@
   :ret any?)
 
 (defn substring
-  "Returns substring of string `s` starting at `start-index` and ending at
-  optional `end-index`."
+  "Returns substring of string `s` starting at `start-index` and ending at optional `end-index`."
   ([s start-index]
    (let [s (str s)
          c (count s)
@@ -68,8 +67,8 @@
 (defn trim-end
   "Recursively trims all occurrences of `suffix` from the end of string `s`.
 
-   This function removes all consecutive occurrences of the suffix from the end,
-   not just a single occurrence.
+   This function removes all consecutive occurrences of the suffix from the end, not just a single
+   occurrence.
 
    Parameters:
    - s: The string to trim
@@ -102,8 +101,8 @@
 (defn trim-start
   "Recursively trims all occurrences of `prefix` from the start of string `s`.
 
-   This function removes all consecutive occurrences of the prefix from the beginning,
-   not just a single occurrence.
+   This function removes all consecutive occurrences of the prefix from the beginning, not just a
+   single occurrence.
 
    Parameters:
    - s: The string to trim
@@ -171,9 +170,9 @@
 (defn abbreviate
   "Shortens a string to the specified maximum length, adding ellipses if truncated.
 
-   Ensures the resulting string doesn't exceed `max-length` by replacing the end
-   with an ellipsis marker (\"...\") if necessary. Will always leave at least two
-   characters from the original string plus the marker.
+   Ensures the resulting string doesn't exceed `max-length` by replacing the end with an ellipsis
+   marker (\"...\") if necessary. Will always leave at least two characters from the original string
+   plus the marker.
 
    Parameters:
    - s: The string to abbreviate
@@ -232,8 +231,8 @@
 (defn truncate-words
   "Truncates a string at word boundary to fit within max-length.
 
-   Unlike `abbreviate` which can cut mid-word, this function respects word
-   boundaries. If truncation occurs, adds an ellipsis marker.
+   Unlike `abbreviate` which can cut mid-word, this function respects word boundaries. If truncation
+   occurs, adds an ellipsis marker.
 
    Parameters:
    - s: The string to truncate
@@ -457,8 +456,8 @@
 
 ;;;WHITESPACE & WORDS
 (defn normalize-whitespace
-  "Collapses multiple consecutive whitespace characters into a single space
-   and trims leading/trailing whitespace.
+  "Collapses multiple consecutive whitespace characters into a single space and trims
+  leading/trailing whitespace.
 
    Examples:
    ```clojure
@@ -525,8 +524,8 @@
 (defn truncate-middle
   "Truncates a string in the middle, keeping the start and end.
 
-   Useful for displaying long file paths or URLs while preserving
-   the beginning and end which are often most informative.
+   Useful for displaying long file paths or URLs while preserving the beginning and end which are
+   often most informative.
 
    Parameters:
    - s: The string to truncate
