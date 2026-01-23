@@ -4,7 +4,7 @@
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen])
-  (:import (clojure.lang ExceptionInfo)))
+  #?(:clj (:import (clojure.lang ExceptionInfo))))
 
 (s/def ::category #{::error
                     ::exception
