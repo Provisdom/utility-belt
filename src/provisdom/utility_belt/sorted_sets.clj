@@ -6,7 +6,7 @@
     [clojure.spec.gen.alpha :as gen]))
 
 ;; Generator for comparators that work with any two values.
-(def ^:private universal-comparator-gen
+(defn- universal-comparator-gen []
   (gen/return (fn [a b] (compare (hash a) (hash b)))))
 
 ;; A comparator function that takes two arguments and returns either:
@@ -16,11 +16,11 @@
 (s/def ::comparator
   (s/with-gen
     (s/fspec :args (s/cat :a any? :b any?)
-             :ret (s/or :bool boolean? :int int?))
-    (fn [] universal-comparator-gen)))
+      :ret (s/or :bool boolean? :int int?))
+    universal-comparator-gen))
 
 ;; Generator for sorted sets of integers
-(def ^:private sorted-set-gen
+(defn- sorted-set-gen []
   (gen/fmap #(into (sorted-set) %) (gen/vector (gen/int))))
 
 ;;;SORTED SET
@@ -31,7 +31,7 @@
 
 (s/fdef sorted-set?
   :args (s/with-gen (s/cat :s any?)
-          (fn [] (gen/fmap (fn [ss] [ss]) sorted-set-gen)))
+          #(gen/fmap (fn [ss] [ss]) (sorted-set-gen)))
   :ret boolean?)
 
 (defn sorted-set-by?
@@ -41,8 +41,7 @@
 
 (s/fdef sorted-set-by?
   :args (s/with-gen (s/cat :comparator ::comparator :s any?)
-          (fn [] (gen/tuple universal-comparator-gen
-                   (gen/fmap #(into (sorted-set) %) (gen/vector (gen/int))))))
+          #(gen/tuple (universal-comparator-gen) (sorted-set-gen)))
   :ret boolean?)
 
 (defmacro sorted-set-of
@@ -99,7 +98,7 @@
 
 (s/fdef floor
   :args (s/with-gen (s/cat :sorted-set sorted-set? :val any?)
-          (fn [] (gen/tuple sorted-set-gen (gen/int))))
+          #(gen/tuple (sorted-set-gen) (gen/int)))
   :ret any?)
 
 (defn ceiling
@@ -110,7 +109,7 @@
 
 (s/fdef ceiling
   :args (s/with-gen (s/cat :sorted-set sorted-set? :val any?)
-          (fn [] (gen/tuple sorted-set-gen (gen/int))))
+          #(gen/tuple (sorted-set-gen) (gen/int)))
   :ret any?)
 
 (defn lower
@@ -121,7 +120,7 @@
 
 (s/fdef lower
   :args (s/with-gen (s/cat :sorted-set sorted-set? :val any?)
-          (fn [] (gen/tuple sorted-set-gen (gen/int))))
+          #(gen/tuple (sorted-set-gen) (gen/int)))
   :ret any?)
 
 (defn higher
@@ -132,7 +131,7 @@
 
 (s/fdef higher
   :args (s/with-gen (s/cat :sorted-set sorted-set? :val any?)
-          (fn [] (gen/tuple sorted-set-gen (gen/int))))
+          #(gen/tuple (sorted-set-gen) (gen/int)))
   :ret any?)
 
 (defn subset
@@ -143,7 +142,7 @@
 
 (s/fdef subset
   :args (s/with-gen (s/cat :sorted-set sorted-set? :from any? :to any?)
-          (fn [] (gen/tuple sorted-set-gen (gen/int) (gen/int))))
+          #(gen/tuple (sorted-set-gen) (gen/int) (gen/int)))
   :ret seqable?)
 
 (defn subset-inclusive
@@ -154,6 +153,6 @@
 
 (s/fdef subset-inclusive
   :args (s/with-gen (s/cat :sorted-set sorted-set? :from any? :to any?)
-          (fn [] (gen/tuple sorted-set-gen (gen/int) (gen/int))))
+          #(gen/tuple (sorted-set-gen) (gen/int) (gen/int)))
   :ret seqable?)
 
