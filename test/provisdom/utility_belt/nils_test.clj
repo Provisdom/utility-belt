@@ -10,6 +10,7 @@
 
 (t/deftest ignore-nils-test
   (t/with-instrument `nils/ignore-nils
+    ;;150 tests for fspec with arbitrary function arg
     (t/is-spec-check nils/ignore-nils {:num-tests 150}))
   (t/with-instrument :all
     (t/is-not (nils/ignore-nils (fn [& args]
@@ -30,6 +31,7 @@
 
 (t/deftest anomaly-nils-test
   (t/with-instrument `nils/anomaly-nils
+    ;;150 tests for fspec with arbitrary function arg
     (t/is-spec-check nils/anomaly-nils {:num-tests 150}))
   (t/with-instrument :all
     (t/is= {::anomalies/category ::anomalies/forbidden
@@ -56,6 +58,7 @@
 
 (t/deftest nil-nils-test
   (t/with-instrument `nils/nil-nils
+    ;;150 tests for fspec with arbitrary function arg
     (t/is-spec-check nils/nil-nils {:num-tests 150}))
   (t/with-instrument :all
     (t/is= nil

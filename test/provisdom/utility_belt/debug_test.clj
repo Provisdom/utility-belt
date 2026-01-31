@@ -9,6 +9,15 @@
 
 (set! *warn-on-reflection* true)
 
+;; *debug-enabled*
+(t/deftest debug-enabled-test
+  (t/with-instrument :all
+    ;; enabled by default
+    (t/is debug/*debug-enabled*)
+    ;; can be bound to false
+    (binding [debug/*debug-enabled* false]
+      (t/is-not debug/*debug-enabled*))))
+
 ;; dbg
 (t/deftest dbg-test
   (t/with-instrument `debug/dbg
@@ -226,11 +235,3 @@
                      (debug/spy->> (range 3) (map inc))))]
       (t/is= "" output))))
 
-;; *debug-enabled*
-(t/deftest debug-enabled-test
-  (t/with-instrument :all
-    ;; enabled by default
-    (t/is debug/*debug-enabled*)
-    ;; can be bound to false
-    (binding [debug/*debug-enabled* false]
-      (t/is-not debug/*debug-enabled*))))

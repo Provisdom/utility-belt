@@ -33,6 +33,30 @@
   ;; test with compare (returns int)
   (t/is (sorted-sets/sorted-set-by? compare (sorted-set 1 2 3))))
 
+(s/def ::test-sorted-set (sorted-sets/sorted-set-of int? :min-count 1 :gen-max 5))
+
+(t/deftest sorted-set-of-test
+  (t/with-instrument :all
+    (t/is (s/valid? ::test-sorted-set (sorted-set 1 2 3)))
+    (t/is-not (s/valid? ::test-sorted-set #{1 2 3}))
+    (t/is-not (s/valid? ::test-sorted-set (sorted-set)))
+    (t/is-not (s/valid? ::test-sorted-set (sorted-set "a" "b")))
+    ;; test generator produces valid values
+    (let [generated (first (s/exercise ::test-sorted-set 1))]
+      (t/is (s/valid? ::test-sorted-set (first generated))))))
+
+(s/def ::test-sorted-set-by
+  (sorted-sets/sorted-set-by-of int? > :min-count 1 :gen-max 5))
+
+(t/deftest sorted-set-by-of-test
+  (t/with-instrument :all
+    (t/is (s/valid? ::test-sorted-set-by (sorted-set-by > 1 2 3)))
+    (t/is-not (s/valid? ::test-sorted-set-by #{1 2 3}))
+    (t/is-not (s/valid? ::test-sorted-set-by (sorted-set 1 2 3)))
+    ;; test generator produces valid values
+    (let [generated (first (s/exercise ::test-sorted-set-by 1))]
+      (t/is (s/valid? ::test-sorted-set-by (first generated))))))
+
 ;;;NAVIGABLE SET OPERATIONS
 (t/deftest floor-test
   (t/with-instrument `sorted-sets/floor
@@ -97,28 +121,3 @@
       (t/is= [3 5 7] (vec (sorted-sets/subset-inclusive ss 2 8)))
       (t/is= [] (vec (sorted-sets/subset-inclusive ss 10 20)))
       (t/is= [1 3 5 7 9] (vec (sorted-sets/subset-inclusive ss 0 10))))))
-
-;;;MACRO TESTS
-(s/def ::test-sorted-set (sorted-sets/sorted-set-of int? :min-count 1 :gen-max 5))
-
-(t/deftest sorted-set-of-test
-  (t/with-instrument :all
-    (t/is (s/valid? ::test-sorted-set (sorted-set 1 2 3)))
-    (t/is-not (s/valid? ::test-sorted-set #{1 2 3}))
-    (t/is-not (s/valid? ::test-sorted-set (sorted-set)))
-    (t/is-not (s/valid? ::test-sorted-set (sorted-set "a" "b")))
-    ;; test generator produces valid values
-    (let [generated (first (s/exercise ::test-sorted-set 1))]
-      (t/is (s/valid? ::test-sorted-set (first generated))))))
-
-(s/def ::test-sorted-set-by
-  (sorted-sets/sorted-set-by-of int? > :min-count 1 :gen-max 5))
-
-(t/deftest sorted-set-by-of-test
-  (t/with-instrument :all
-    (t/is (s/valid? ::test-sorted-set-by (sorted-set-by > 1 2 3)))
-    (t/is-not (s/valid? ::test-sorted-set-by #{1 2 3}))
-    (t/is-not (s/valid? ::test-sorted-set-by (sorted-set 1 2 3)))
-    ;; test generator produces valid values
-    (let [generated (first (s/exercise ::test-sorted-set-by 1))]
-      (t/is (s/valid? ::test-sorted-set-by (first generated))))))

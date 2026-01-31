@@ -128,6 +128,7 @@
 
 (t/deftest thread-select-test
   (t/with-instrument `async/thread-select
+    ;;150 tests for fspec with multiple channel operations
     (t/is-spec-check async/thread-select {:num-tests 150}))
   (t/with-instrument :all
     ;; Results may come back in any order in parallel mode

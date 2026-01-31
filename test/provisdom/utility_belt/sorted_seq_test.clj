@@ -1,6 +1,7 @@
 (ns provisdom.utility-belt.sorted-seq-test
   (:refer-clojure :exclude [sorted?])
   (:require
+    [clojure.spec.alpha :as s]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.sorted-seq :as sorted-seq]))
 
@@ -38,6 +39,7 @@
 
 (t/deftest sorted-by?-test
   ;;no instrumentation; Orchestra fspec validation fails with comparator args
+  ;;300 tests needed due to fspec comparator arg complexity
   (t/is-spec-check sorted-seq/sorted-by? {:num-tests 300})
   (t/is (sorted-seq/sorted-by? compare [1 2 3]))
   (t/is (sorted-seq/sorted-by? #(- (compare %1 %2)) [3 2 1]))
@@ -125,6 +127,31 @@
   (t/is-not (sorted-seq/list-sorted-by? #(- (compare %1 %2)) '(1 2)))
   (t/is (sorted-seq/list-sorted-by? compare '(1 2))))
 
+;;macro - no spec-check or instrumentation
+(t/deftest list-sorted-of-test
+  (s/def ::sorted-int-list (sorted-seq/list-sorted-of int?))
+  (t/is (s/valid? ::sorted-int-list '()))
+  (t/is (s/valid? ::sorted-int-list '(1)))
+  (t/is (s/valid? ::sorted-int-list '(1 2 3)))
+  (t/is (s/valid? ::sorted-int-list '(1 1 2 3)))
+  (t/is-not (s/valid? ::sorted-int-list '(3 2 1)))
+  (t/is-not (s/valid? ::sorted-int-list [1 2 3]))
+  (t/is-not (s/valid? ::sorted-int-list '("a" "b")))
+  (let [samples (s/exercise ::sorted-int-list 10)]
+    (t/is (every? #(s/valid? ::sorted-int-list (first %)) samples))))
+
+;;macro - no spec-check or instrumentation
+(t/deftest list-sorted-by-of-test
+  (s/def ::desc-int-list (sorted-seq/list-sorted-by-of int? #(- (compare %1 %2))))
+  (t/is (s/valid? ::desc-int-list '()))
+  (t/is (s/valid? ::desc-int-list '(1)))
+  (t/is (s/valid? ::desc-int-list '(3 2 1)))
+  (t/is (s/valid? ::desc-int-list '(3 3 2 1)))
+  (t/is-not (s/valid? ::desc-int-list '(1 2 3)))
+  (t/is-not (s/valid? ::desc-int-list [3 2 1]))
+  (let [samples (s/exercise ::desc-int-list 10)]
+    (t/is (every? #(s/valid? ::desc-int-list (first %)) samples))))
+
 ;;;VECTOR -- SORTED
 (t/deftest vector-sorted?-test
   (t/with-instrument `sorted-seq/vector-sorted?
@@ -140,6 +167,31 @@
   (t/is-not (sorted-seq/vector-sorted-by? #(- (compare %1 %2)) [1 2]))
   (t/is-not (sorted-seq/vector-sorted-by? #(- (compare %1 %2)) '(1 2)))
   (t/is (sorted-seq/vector-sorted-by? compare [1 2])))
+
+;;macro - no spec-check or instrumentation
+(t/deftest vector-sorted-of-test
+  (s/def ::sorted-int-vector (sorted-seq/vector-sorted-of int?))
+  (t/is (s/valid? ::sorted-int-vector []))
+  (t/is (s/valid? ::sorted-int-vector [1]))
+  (t/is (s/valid? ::sorted-int-vector [1 2 3]))
+  (t/is (s/valid? ::sorted-int-vector [1 1 2 3]))
+  (t/is-not (s/valid? ::sorted-int-vector [3 2 1]))
+  (t/is-not (s/valid? ::sorted-int-vector '(1 2 3)))
+  (t/is-not (s/valid? ::sorted-int-vector ["a" "b"]))
+  (let [samples (s/exercise ::sorted-int-vector 10)]
+    (t/is (every? #(s/valid? ::sorted-int-vector (first %)) samples))))
+
+;;macro - no spec-check or instrumentation
+(t/deftest vector-sorted-by-of-test
+  (s/def ::desc-int-vector (sorted-seq/vector-sorted-by-of int? #(- (compare %1 %2))))
+  (t/is (s/valid? ::desc-int-vector []))
+  (t/is (s/valid? ::desc-int-vector [1]))
+  (t/is (s/valid? ::desc-int-vector [3 2 1]))
+  (t/is (s/valid? ::desc-int-vector [3 3 2 1]))
+  (t/is-not (s/valid? ::desc-int-vector [1 2 3]))
+  (t/is-not (s/valid? ::desc-int-vector '(3 2 1)))
+  (let [samples (s/exercise ::desc-int-vector 10)]
+    (t/is (every? #(s/valid? ::desc-int-vector (first %)) samples))))
 
 ;;;BINARY SEARCH
 (t/deftest binary-search-test

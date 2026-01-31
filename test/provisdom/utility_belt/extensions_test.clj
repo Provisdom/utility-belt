@@ -8,6 +8,40 @@
 (set! *warn-on-reflection* true)
 
 ;;;MACROS
+(t/deftest if-all-let-test
+  ;; if-all-let checks for truthiness, rejects both nil and false
+  ;; false triggers else
+  (t/is= :else (ext/if-all-let [_a false _b 1] [_a _b] :else))
+  ;; nil triggers else
+  (t/is= :else (ext/if-all-let [_a nil _b 1] [_a _b] :else))
+  ;; all truthy
+  (t/is= [1 2 3] (ext/if-all-let [a 1 b 2 c 3] [a b c] :else))
+  ;; second binding nil
+  (t/is= :else (ext/if-all-let [_a 1 _b nil _c 3] [_a _b _c] :else))
+  ;; second binding false
+  (t/is= :else (ext/if-all-let [_a 1 _b false _c 3] [_a _b _c] :else))
+  ;; default else is nil
+  (t/is= nil (ext/if-all-let [_a nil] :then))
+  ;; single binding truthy
+  (t/is= :then (ext/if-all-let [_a 1] :then))
+  ;; single binding false
+  (t/is= nil (ext/if-all-let [_a false] :then))
+  ;; bindings can reference earlier bindings
+  (t/is= 6 (ext/if-all-let [a 2 b (* a 3)] b :else)))
+
+(t/deftest when-all-let-test
+  ;; when-all-let checks for truthiness, rejects both nil and false
+  ;; false returns nil
+  (t/is= nil (ext/when-all-let [_a false _b 1] [_a _b]))
+  ;; nil returns nil
+  (t/is= nil (ext/when-all-let [_a nil _b 1] [_a _b]))
+  ;; all truthy
+  (t/is= [1 2] (ext/when-all-let [a 1 b 2] [a b]))
+  ;; compare with when-some-let which accepts false
+  (t/is= [false 1] (ext/when-some-let [a false b 1] [a b]))
+  ;; bindings can reference earlier bindings
+  (t/is= 6 (ext/when-all-let [a 2 b (* a 3)] b)))
+
 (t/deftest if-some-let-test
   ;; if-some-let checks for nil only, allows false
   ;; false is valid

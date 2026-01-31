@@ -8,25 +8,25 @@
     [clojure.string :as str]))
 
 ;;;String.format "%[argument number] [flags] [width] [.precision] type"
-;;;examples: (format "%02d" long) returns a string with at least 
+;;;examples: (format "%02d" long) returns a string with at least
 ;;;   two places with a leading zero if necessary
 ;;;http://docs.oracle.com/javase/1.5.0/docs/api/java/util/Formatter.html
-
-(defn- not-empty?
-  [x]
-  (not (empty? x)))
-
-(s/def ::not-empty-string
-  (s/and string? not-empty?))
 
 (def ^:private max-index
   #?(:clj Integer/MAX_VALUE
      :cljs (.-MAX_SAFE_INTEGER js/Number)))
 
+(defn- not-empty?
+  [x]
+  (not (empty? x)))
+
 (s/def ::index
   (s/with-gen
     (s/int-in 0 max-index)
     #(gen/large-integer* {:max 6 :min 0})))
+
+(s/def ::not-empty-string
+  (s/and string? not-empty?))
 
 ;;;STRING MANIPULATION
 (defn maybe-keyword-to-string

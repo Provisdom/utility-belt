@@ -1,5 +1,6 @@
 (ns provisdom.utility-belt.maps-test
   (:require
+    [clojure.spec.alpha :as s]
     [provisdom.test.core :as t]
     [provisdom.utility-belt.maps :as maps]))
 
@@ -17,6 +18,15 @@
     (t/is-not (maps/priority-map? {:a 1 :b 3}))
     (t/is (maps/priority-map? prio-map))))
 
+;;macro - no spec-check or instrumentation
+(t/deftest priority-map-of-test
+  (s/def ::test-prio-map (maps/priority-map-of keyword? int? identity < :min-count 1 :gen-max 5))
+  (t/is (s/valid? ::test-prio-map (maps/priority-map identity < :a 1 :b 2)))
+  (t/is-not (s/valid? ::test-prio-map {:a 1 :b 2}))
+  (t/is-not (s/valid? ::test-prio-map (maps/priority-map identity <)))
+  (let [samples (s/exercise ::test-prio-map 5)]
+    (t/is (every? #(s/valid? ::test-prio-map (first %)) samples))))
+
 (t/deftest priority-map-test
   (t/is= {[:a 1] [:b 3]} prio-map))
 
@@ -29,8 +39,27 @@
     (t/is (maps/sorted-map? (apply sorted-map [:a 1 :b 2])))))
 
 (t/deftest sorted-map-by?-test
-  (t/is-not (maps/sorted-map-by? > (apply sorted-map-by < [1 10 2 20])))
-  (t/is (maps/sorted-map-by? > (apply sorted-map-by > [1 10 2 20]))))
+  (t/with-instrument :all
+    (t/is-not (maps/sorted-map-by? > (apply sorted-map-by < [1 10 2 20])))
+    (t/is (maps/sorted-map-by? > (apply sorted-map-by > [1 10 2 20])))))
+
+;;macro - no spec-check or instrumentation
+(t/deftest sorted-map-of-test
+  (s/def ::test-sorted-map (maps/sorted-map-of keyword? int? :min-count 1 :gen-max 5))
+  (t/is (s/valid? ::test-sorted-map (sorted-map :a 1 :b 2)))
+  (t/is-not (s/valid? ::test-sorted-map {:a 1 :b 2}))
+  (t/is-not (s/valid? ::test-sorted-map (sorted-map)))
+  (let [samples (s/exercise ::test-sorted-map 5)]
+    (t/is (every? #(s/valid? ::test-sorted-map (first %)) samples))))
+
+;;macro - no spec-check or instrumentation
+(t/deftest sorted-map-by-of-test
+  (s/def ::test-sorted-map-by (maps/sorted-map-by-of int? string? > :min-count 1 :gen-max 5))
+  (t/is (s/valid? ::test-sorted-map-by (sorted-map-by > 3 "c" 1 "a" 2 "b")))
+  (t/is-not (s/valid? ::test-sorted-map-by (sorted-map 1 "a" 2 "b")))
+  (t/is-not (s/valid? ::test-sorted-map-by {1 "a" 2 "b"}))
+  (let [samples (s/exercise ::test-sorted-map-by 5)]
+    (t/is (every? #(s/valid? ::test-sorted-map-by (first %)) samples))))
 
 ;;;SORTED MAP MONOTONIC
 (t/deftest sorted-map-monotonic?-test
@@ -52,25 +81,48 @@
     (t/is (maps/sorted-map-strictly-monotonic? (apply sorted-map [:b 2 :a 1])))))
 
 (t/deftest sorted-map-monotonic-by?-test
-  (t/is-not (maps/sorted-map-monotonic-by?
-              > > (apply sorted-map-by > [2 10 1 20])))
-  (t/is (maps/sorted-map-monotonic-by?
-          > > (apply sorted-map-by > [2 10 1 10])))
-  (t/is (maps/sorted-map-monotonic-by?
-          > > (apply sorted-map-by > [2 20 1 10])))
-  (t/is-not (maps/sorted-map-monotonic-by?
-              > > (apply sorted-map-by < [2 20 1 10]))))
+  (t/with-instrument :all
+    (t/is-not (maps/sorted-map-monotonic-by?
+                > > (apply sorted-map-by > [2 10 1 20])))
+    (t/is (maps/sorted-map-monotonic-by?
+            > > (apply sorted-map-by > [2 10 1 10])))
+    (t/is (maps/sorted-map-monotonic-by?
+            > > (apply sorted-map-by > [2 20 1 10])))
+    (t/is-not (maps/sorted-map-monotonic-by?
+                > > (apply sorted-map-by < [2 20 1 10])))))
 
 (t/deftest sorted-map-strictly-monotonic-by?-test
-  (t/is-not (maps/sorted-map-strictly-monotonic-by?
-              > > (apply sorted-map-by > [2 10 1 20])))
-  (t/is-not (maps/sorted-map-strictly-monotonic-by?
-              > > (apply sorted-map-by > [2 10 1 10])))
-  (t/is (maps/sorted-map-strictly-monotonic-by?
-          > > (apply sorted-map-by > [2 20 1 10])))
-  (t/is-not (maps/sorted-map-strictly-monotonic-by?
-              > > (apply sorted-map-by < [2 20 1 10]))))
+  (t/with-instrument :all
+    (t/is-not (maps/sorted-map-strictly-monotonic-by?
+                > > (apply sorted-map-by > [2 10 1 20])))
+    (t/is-not (maps/sorted-map-strictly-monotonic-by?
+                > > (apply sorted-map-by > [2 10 1 10])))
+    (t/is (maps/sorted-map-strictly-monotonic-by?
+            > > (apply sorted-map-by > [2 20 1 10])))
+    (t/is-not (maps/sorted-map-strictly-monotonic-by?
+                > > (apply sorted-map-by < [2 20 1 10])))))
 
+;;macro - no spec-check or instrumentation
+(t/deftest sorted-map-monotonic-of-test
+  (s/def ::test-monotonic-map (maps/sorted-map-monotonic-of keyword? int? 1 5 false))
+  (t/is (s/valid? ::test-monotonic-map (sorted-map :a 1 :b 2 :c 3)))
+  (t/is (s/valid? ::test-monotonic-map (sorted-map :a 1 :b 1 :c 1)))
+  (t/is-not (s/valid? ::test-monotonic-map (sorted-map :a 3 :b 2 :c 1)))
+  (t/is-not (s/valid? ::test-monotonic-map {:a 1 :b 2}))
+  (let [samples (s/exercise ::test-monotonic-map 5)]
+    (t/is (every? #(s/valid? ::test-monotonic-map (first %)) samples))))
+
+;;macro - no spec-check or instrumentation
+(t/deftest sorted-map-monotonic-by-of-test
+  (s/def ::test-monotonic-by-map (maps/sorted-map-monotonic-by-of int? int? > > 1 5 false))
+  (t/is (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 10 2 20 1 30)))
+  (t/is (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 10 2 10 1 10)))
+  (t/is-not (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 30 2 20 1 10)))
+  (t/is-not (s/valid? ::test-monotonic-by-map {3 10 2 20 1 30}))
+  (let [samples (s/exercise ::test-monotonic-by-map 5)]
+    (t/is (every? #(s/valid? ::test-monotonic-by-map (first %)) samples))))
+
+;;;MAP MANIPULATION
 (t/deftest filter-map-test
   (t/with-instrument `maps/filter-map
     (t/is-spec-check maps/filter-map))
@@ -81,8 +133,8 @@
         {:a 1 :b 3}))))
 
 (t/deftest submap?-test
-  (t/with-instrument `maps/filter-map
-    (t/is-spec-check maps/filter-map))
+  (t/with-instrument `maps/submap?
+    (t/is-spec-check maps/submap?))
   (t/with-instrument :all
     (t/is (maps/submap? {:a 1 :b 3} {:a 1}))
     (t/is-not (maps/submap? {:a 1 :b 3} {:a 1 :b 2}))

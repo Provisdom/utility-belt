@@ -9,6 +9,7 @@
 
 #?(:clj (set! *warn-on-reflection* true))
 
+;;;STRING MANIPULATION
 (t/deftest maybe-keyword-to-string-test
   (t/with-instrument `strings/maybe-keyword-to-string
     (t/is-spec-check strings/maybe-keyword-to-string))
@@ -120,6 +121,7 @@
     ;; multi-char suffix
     (t/is= "file.txt" (strings/ensure-suffix "file" ".txt"))))
 
+;;;CASE CONVERSIONS
 (t/deftest kebab->camel-test
   (t/with-instrument `strings/kebab->camel
     (t/is-spec-check strings/kebab->camel))
@@ -157,6 +159,7 @@
     (t/is= "already" (strings/snake->kebab "already"))
     (t/is= "" (strings/snake->kebab ""))))
 
+;;;PADDING
 (t/deftest pad-left-test
   (t/with-instrument `strings/pad-left
     (t/is-spec-check strings/pad-left))
@@ -175,6 +178,7 @@
     (t/is= "toolong" (strings/pad-right "toolong" 3 \0))
     (t/is= "x" (strings/pad-right "x" 1))))
 
+;;;WHITESPACE & WORDS
 (t/deftest normalize-whitespace-test
   (t/with-instrument `strings/normalize-whitespace
     (t/is-spec-check strings/normalize-whitespace))

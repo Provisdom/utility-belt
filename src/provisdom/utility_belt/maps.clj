@@ -165,7 +165,7 @@
                  (s/and sorted-map-monotonic? ~sform))]
     `(s/with-gen
        ~xform
-       #(gen/let
+       #(clojure.test.check.generators/let
           [i# (s/gen (s/int-in ~min-count (inc ~gen-max)))
            ks# (s/gen (s/coll-of ~kpred
                         :count i#
@@ -195,7 +195,7 @@
                    ~sform))]
     `(s/with-gen
        ~xform
-       #(gen/let
+       #(clojure.test.check.generators/let
           [i# (s/gen (s/int-in ~min-count (inc ~gen-max)))
            ks# (s/gen (s/coll-of ~kpred
                         :count i#
@@ -209,7 +209,7 @@
           (into (sorted-map-by ~comparator-k)
             (zipmap (sort-by ~comparator-k ks#) (sort-by ~comparator-v vs#)))))))
 
-;;MAP MANIPULATION
+;;;MAP MANIPULATION
 (defn filter-map
   "Returns a filtered map containing only the key-value pairs that satisfy the predicate. Unlike
    `clojure.core/filter` (which returns a sequence), this maintains the map type and works with
