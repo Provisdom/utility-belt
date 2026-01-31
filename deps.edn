@@ -8,7 +8,7 @@
 
                                            provisdom/test
                                            {:git/url "https://github.com/Provisdom/test.git"
-                                            :git/sha "b59af7bf2d9cb9d81dc1695c6ef6f618f271dccc"}}}
+                                            :git/sha "5fc75ab26c1f82145ccc3fba7d118924ebece34f"}}}
            :test-clj-runner {:extra-deps {lambdaisland/kaocha           {:mvn/version "1.91.1392"}
                                           lambdaisland/kaocha-junit-xml {:mvn/version "1.17.101"}}
                              :main-opts  ["-m" "kaocha.runner"]}
