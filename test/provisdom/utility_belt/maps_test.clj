@@ -114,11 +114,12 @@
 
 ;;macro - no spec-check or instrumentation
 (t/deftest sorted-map-monotonic-by-of-test
+  ;; keys sorted by > (descending: 3,2,1), values monotonic by > (descending: 30,20,10)
   (s/def ::test-monotonic-by-map (maps/sorted-map-monotonic-by-of int? int? > > 1 5 false))
-  (t/is (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 10 2 20 1 30)))
+  (t/is (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 30 2 20 1 10)))
   (t/is (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 10 2 10 1 10)))
-  (t/is-not (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 30 2 20 1 10)))
-  (t/is-not (s/valid? ::test-monotonic-by-map {3 10 2 20 1 30}))
+  (t/is-not (s/valid? ::test-monotonic-by-map (sorted-map-by > 3 10 2 20 1 30)))
+  (t/is-not (s/valid? ::test-monotonic-by-map {3 30 2 20 1 10}))
   (let [samples (s/exercise ::test-monotonic-by-map 5)]
     (t/is (every? #(s/valid? ::test-monotonic-by-map (first %)) samples))))
 
