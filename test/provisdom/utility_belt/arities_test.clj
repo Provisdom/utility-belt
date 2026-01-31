@@ -9,9 +9,9 @@
 
 (defn hi
   ([] "")
-  ([x] "")
-  ([x y] "")
-  ([x y & z] ""))
+  ([_x] "")
+  ([_x _y] "")
+  ([_x _y & _z] ""))
 
 (defn single-arity [a b] (+ a b))
 

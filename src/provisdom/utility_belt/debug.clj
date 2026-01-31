@@ -171,7 +171,7 @@
   `(let [start# (System/nanoTime)
          result# ~x
          elapsed# (/ (- (System/nanoTime) start#) 1e6)]
-     (tap> {:label ~label :elapsed-ms elapsed# :value result#})
+     (tap> {:elapsed-ms elapsed#, :label ~label, :value result#})
      result#))
 
 (defn dbg-fn
@@ -233,9 +233,9 @@
                                     `[~curr-sym ~(thread-form prev-sym form)
                                       ~'_ (when *debug-enabled*
                                             (println "spy->" '~form "=>" ~curr-sym))])
-                                  (cons init-sym (butlast step-syms))
-                                  step-syms
-                                  forms)]
+                            (cons init-sym (butlast step-syms))
+                            step-syms
+                            forms)]
         `(let [~@init-binding
                ~'_ (when *debug-enabled*
                      (println "spy->" '~x "=>" ~init-sym))
@@ -273,9 +273,9 @@
                                     `[~curr-sym ~(thread-form prev-sym form)
                                       ~'_ (when *debug-enabled*
                                             (println "spy->>" '~form "=>" ~curr-sym))])
-                                  (cons init-sym (butlast step-syms))
-                                  step-syms
-                                  forms)]
+                            (cons init-sym (butlast step-syms))
+                            step-syms
+                            forms)]
         `(let [~@init-binding
                ~'_ (when *debug-enabled*
                      (println "spy->>" '~x "=>" ~init-sym))

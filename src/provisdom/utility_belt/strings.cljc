@@ -26,7 +26,7 @@
 (s/def ::index
   (s/with-gen
     (s/int-in 0 max-index)
-    #(gen/large-integer* {:min 0 :max 6})))
+    #(gen/large-integer* {:max 6 :min 0})))
 
 ;;;STRING MANIPULATION
 (defn maybe-keyword-to-string

@@ -31,16 +31,16 @@
          (if (instance? Exception r)
            (throw (ex-info (.getMessage ^Exception r) {}))
            r))
-       (catch Exception e
-         {::anomalies/category ::anomalies/exception
-          ::anomalies/data     {:exception e}
-          ::anomalies/fn       (var catch-error-or-exception)
-          ::anomalies/message  (.getMessage e)})
-       (catch Error e
-         {::anomalies/category ::anomalies/error
-          ::anomalies/data     {:exception e}
-          ::anomalies/fn       (var catch-error-or-exception)
-          ::anomalies/message  (.getMessage e)})))
+    (catch Exception e
+      {::anomalies/category ::anomalies/exception
+       ::anomalies/data     {:exception e}
+       ::anomalies/fn       (var catch-error-or-exception)
+       ::anomalies/message  (.getMessage e)})
+    (catch Error e
+      {::anomalies/category ::anomalies/error
+       ::anomalies/data     {:exception e}
+       ::anomalies/fn       (var catch-error-or-exception)
+       ::anomalies/message  (.getMessage e)})))
 
 (s/fdef catch-error-or-exception
   :args (s/cat :f (s/fspec :args (s/cat)
@@ -69,9 +69,9 @@
   [f]
   (let [r (catch-error-or-exception f)]
     (if (nil? r)
-      {::anomalies/message  "'nil' return"
-       ::anomalies/category ::anomalies/exception
-       ::anomalies/fn       (var catch-error-or-exception-or-nil)}
+      {::anomalies/category ::anomalies/exception
+       ::anomalies/fn       (var catch-error-or-exception-or-nil)
+       ::anomalies/message  "'nil' return"}
       r)))
 
 (s/fdef catch-error-or-exception-or-nil
@@ -82,9 +82,9 @@
 (defn- make-timeout-anomaly
   "Creates a timeout anomaly."
   [timeout-ms]
-  {::anomalies/message  (str "Timeout after " timeout-ms "ms")
-   ::anomalies/category ::anomalies/unavailable
-   ::anomalies/fn       (var make-timeout-anomaly)})
+  {::anomalies/category ::anomalies/unavailable
+   ::anomalies/fn       (var make-timeout-anomaly)
+   ::anomalies/message  (str "Timeout after " timeout-ms "ms")})
 
 ;; Wrapper to handle nil values through core.async channels (which close on nil)
 (defrecord ValueWrapper [value])
@@ -184,13 +184,10 @@
                        (do (cancel-all) true))
                  :any-ordered (let [[first-val i] (reduce-kv
                                                     (fn [tot i e]
-                                                      (cond (fn? e)
-                                                            (reduced [nil -1])
-
-                                                            (anomalies/anomaly? e)
-                                                            tot
-
-                                                            :else (reduced [e i])))
+                                                      (cond
+                                                        (fn? e) (reduced [nil -1])
+                                                        (anomalies/anomaly? e) tot
+                                                        :else (reduced [e i])))
                                                     [nil -1]
                                                     results-and-fns)]
                                 (if (= i -1)
@@ -225,11 +222,10 @@
 (s/def ::progress-fn (s/fspec :args (s/cat :completed nat-int?
                                       :total nat-int?
                                       :successes nat-int?)
-                        :ret any?))
+                       :ret any?))
 
 (s/def ::thread-select-opts
-  (s/keys :opt-un [::allow-nil? ::min-successes ::parallel? ::progress-fn
-                   ::timeout-ms]))
+  (s/keys :opt-un [::allow-nil? ::min-successes ::parallel? ::progress-fn ::timeout-ms]))
 
 (defn thread-select
   "Executes functions and selects from their results using a custom selector function. Runs

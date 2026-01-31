@@ -13,15 +13,15 @@
   ;; false is valid
   (t/is= [false 1] (ext/if-some-let [a false b 1] [a b] :else))
   ;; nil triggers else
-  (t/is= :else (ext/if-some-let [a nil b 1] [a b] :else))
+  (t/is= :else (ext/if-some-let [_a nil b 1] [_a b] :else))
   ;; all non-nil
   (t/is= [1 2 3] (ext/if-some-let [a 1 b 2 c 3] [a b c] :else))
   ;; second binding nil
-  (t/is= :else (ext/if-some-let [a 1 b nil c 3] [a b c] :else))
+  (t/is= :else (ext/if-some-let [_a 1 _b nil c 3] [_a _b c] :else))
   ;; default else is nil
-  (t/is= nil (ext/if-some-let [a nil] :then))
+  (t/is= nil (ext/if-some-let [_a nil] :then))
   ;; single binding non-nil
-  (t/is= :then (ext/if-some-let [a 1] :then)))
+  (t/is= :then (ext/if-some-let [_a 1] :then)))
 
 (t/deftest when-some-let-test
   ;; when-some-let checks for nil only, allows false
@@ -167,12 +167,12 @@
             (+ res i v1)))
         0.0
         [1 2 3]
-        {::ext/stop-pred1     (fn [_res i _v1]
-                                (> i 1))
-         ::ext/err-pred1      (fn [_res i _v1]
+        {::ext/err-pred1      (fn [_res i _v1]
                                 (> i 0))
          ::ext/err-return-fn1 (fn [_res _i _v1]
-                                -6.0)}))
+                                -6.0)
+         ::ext/stop-pred1     (fn [_res i _v1]
+                                (> i 1))}))
     (t/is= -6.0
       (ext/reduce-kv-with-stop
         (fn [res i v1 v2]
@@ -183,12 +183,12 @@
         0.0
         [1 2 3]
         [4 5 6]
-        {::ext/stop-pred2     (fn [_res i _v1 _v2]
-                                (> i 1))
-         ::ext/err-pred2      (fn [_res i _v1 _v2]
-                                (> i 0))
-         ::ext/err-return-fn2 (fn [_res i _v1 _v2]
-                                -6.0)}))
+        {::ext/err-pred2      (fn [_res _i _v1 _v2]
+                                (> _i 0))
+         ::ext/err-return-fn2 (fn [_res _i _v1 _v2]
+                                -6.0)
+         ::ext/stop-pred2     (fn [_res _i _v1 _v2]
+                                (> _i 1))}))
     (t/is= -6.0
       (ext/reduce-kv-with-stop
         (fn [res i v1 v2 v3]
@@ -201,12 +201,12 @@
         [1 2 3]
         [4 5 6]
         [7 8 9]
-        {::ext/stop-pred3     (fn [_res i _v1 _v2 _v3]
-                                (> i 1))
-         ::ext/err-pred3      (fn [_res i _v1 _v2 _v3]
-                                (> i 0))
-         ::ext/err-return-fn3 (fn [_res i _v1 _v2 _v3]
-                                -6.0)}))
+        {::ext/err-pred3      (fn [_res _i _v1 _v2 _v3]
+                                (> _i 0))
+         ::ext/err-return-fn3 (fn [_res _i _v1 _v2 _v3]
+                                -6.0)
+         ::ext/stop-pred3     (fn [_res _i _v1 _v2 _v3]
+                                (> _i 1))}))
     (t/is= 12.0
       (ext/reduce-kv-with-stop
         (fn [res i v1 v2 v3]
@@ -219,12 +219,12 @@
         [1 2 3]
         [4 5 6]
         [7 8 9]
-        {::ext/stop-pred3     (fn [_res i _v1 _v2 _v3]
-                                (> i 0))
-         ::ext/err-pred3      (fn [_res i _v1 _v2 _v3]
-                                (> i 1))
-         ::ext/err-return-fn3 (fn [_res i _v1 _v2 _v3]
-                                -6.0)}))))
+        {::ext/err-pred3      (fn [_res _i _v1 _v2 _v3]
+                                (> _i 1))
+         ::ext/err-return-fn3 (fn [_res _i _v1 _v2 _v3]
+                                -6.0)
+         ::ext/stop-pred3     (fn [_res _i _v1 _v2 _v3]
+                                (> _i 0))}))))
 
 ;;;ADDITIONAL COLLECTION UTILITIES
 (t/deftest dedupe-by-test

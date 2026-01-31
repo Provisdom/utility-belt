@@ -1,6 +1,6 @@
-/(ns provisdom.utility-belt.anomalies
+(ns provisdom.utility-belt.anomalies
   "Implements a standard anomaly (error) handling system based on Cognitect's approach.
-   Provides functions and macros for working with anomalies as data rather than exceptions."
+    Provides functions and macros for working with anomalies as data rather than exceptions."
   (:require
     [clojure.spec.alpha :as s]
     [clojure.spec.gen.alpha :as gen])
@@ -61,7 +61,7 @@
    The exception message will be the anomaly's ::message if present, otherwise a default message."
   [anomaly]
   (let [message (::message anomaly
-                  (str "Anomaly '" (name (::category anomaly)) "' category"))
+                           (str "Anomaly '" (name (::category anomaly)) "' category"))
         data (dissoc anomaly ::message ::ex-cause)]
     (if-let [ex-cause (::ex-cause anomaly)]
       (ex-info message data ex-cause)
@@ -162,8 +162,8 @@
         ~@body
         (catch #?(:clj Throwable :cljs js/Error) e#
           {::category ::exception
-           ::message  (.getMessage e#)
-           ::data     {:exception e#}}))))
+           ::data     {:exception e#}
+           ::message  (.getMessage e#)}))))
 
 (defn chain
   "Chains anomaly-aware functions together. If `x` is an anomaly, returns it.

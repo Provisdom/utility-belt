@@ -34,9 +34,9 @@
       (t/is= (var async/catch-error-or-exception) (::anomalies/fn result))
       (t/is (instance? Exception (get-in result [::anomalies/data :exception]))))
     ;; nil return becomes anomaly (no ::data since no exception thrown)
-    (t/is= {::anomalies/message  "'nil' return"
-            ::anomalies/category ::anomalies/exception
-            ::anomalies/fn       (var async/catch-error-or-exception-or-nil)}
+    (t/is= {::anomalies/category ::anomalies/exception
+            ::anomalies/fn       (var async/catch-error-or-exception-or-nil)
+            ::anomalies/message  "'nil' return"}
       (async/catch-error-or-exception-or-nil (constantly nil)))))
 
 (t/deftest thread-test
@@ -122,7 +122,7 @@
     (t/is= 2 (count result))
     ;; One should be timeout anomaly, one should be 2
     (t/is (some #(and (anomalies/anomaly? %)
-                      (= ::anomalies/unavailable (::anomalies/category %)))
+                   (= ::anomalies/unavailable (::anomalies/category %)))
             result))
     (t/is (some #(= 2 %) result))))
 
@@ -134,7 +134,7 @@
     (t/is= #{4 2}
       (set (async/thread-select (fn [results]
                                   (when (and (seq results)
-                                             (every? number? results))
+                                          (every? number? results))
                                     (mapv (partial * 2) results)))
              [(constantly 2)
               (constantly 1)
@@ -143,7 +143,7 @@
     (t/is= nil
       (async/thread-select (fn [results]
                              (when (and (seq results)
-                                        (every? number? results))
+                                     (every? number? results))
                                (mapv (partial * 2) results)))
         [(constantly {::anomalies/category
                       ::anomalies/exception})]))))
@@ -172,9 +172,9 @@
     (async/thread-select
       identity
       [(constantly 1) (constantly 2) (constantly 3)]
-      {:progress-fn (fn [done total ok]
-                      (swap! progress-log conj [done total ok]))
-       :parallel? false})
+      {:parallel? false
+       :progress-fn (fn [done total ok]
+                      (swap! progress-log conj [done total ok]))})
     (t/is= [[1 3 1] [2 3 2] [3 3 3]] @progress-log)))
 
 (t/deftest thread-select-timeout-test

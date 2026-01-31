@@ -9,6 +9,7 @@
 
 (def prio-map (apply maps/priority-map identity < {:a 1 :b 3}))
 
+;;;PRIORITY MAP
 (t/deftest priority-map?-test
   (t/with-instrument `maps/priority-map?
     (t/is-spec-check maps/priority-map?))
@@ -19,17 +20,19 @@
 (t/deftest priority-map-test
   (t/is= {[:a 1] [:b 3]} prio-map))
 
+;;;SORTED MAP
 (t/deftest sorted-map?-test
   (t/with-instrument `maps/sorted-map?
     (t/is-spec-check maps/sorted-map?))
   (t/with-instrument :all
-    (t/is-not (maps/sorted-map? {:b 2 :a 1}))
-    (t/is (maps/sorted-map? (apply sorted-map [:b 2 :a 1])))))
+    (t/is-not (maps/sorted-map? {:a 1 :b 2}))
+    (t/is (maps/sorted-map? (apply sorted-map [:a 1 :b 2])))))
 
 (t/deftest sorted-map-by?-test
   (t/is-not (maps/sorted-map-by? > (apply sorted-map-by < [1 10 2 20])))
   (t/is (maps/sorted-map-by? > (apply sorted-map-by > [1 10 2 20]))))
 
+;;;SORTED MAP MONOTONIC
 (t/deftest sorted-map-monotonic?-test
   (t/with-instrument `maps/sorted-map-monotonic?
     (t/is-spec-check maps/sorted-map-monotonic?))
@@ -73,7 +76,7 @@
     (t/is-spec-check maps/filter-map))
   (t/with-instrument :all
     (t/is= {:a 1}
-      (maps/filter-map (fn [k v]
+      (maps/filter-map (fn [_k v]
                          (and (number? v) (< v 2)))
         {:a 1 :b 3}))))
 

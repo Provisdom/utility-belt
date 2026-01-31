@@ -48,8 +48,8 @@
    ```"
   [f & args]
   (let [anomaly {::anomalies/category ::anomalies/forbidden
-                 ::anomalies/message  "nil not allowed"
-                 ::anomalies/fn       (var anomaly-nils)}]
+                 ::anomalies/fn       (var anomaly-nils)
+                 ::anomalies/message  "nil not allowed"}]
     (if (some nil? args)
       anomaly
       (or (apply f args) anomaly))))
@@ -172,8 +172,8 @@
   [f]
   (fn [& args]
     (let [anomaly {::anomalies/category ::anomalies/forbidden
-                   ::anomalies/message  "nil not allowed"
-                   ::anomalies/fn       (var anomaly-nils-fn)}]
+                   ::anomalies/fn       (var anomaly-nils-fn)
+                   ::anomalies/message  "nil not allowed"}]
       (if (some nil? args)
         anomaly
         (or (apply f args) anomaly)))))

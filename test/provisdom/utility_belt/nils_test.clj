@@ -14,61 +14,61 @@
   (t/with-instrument :all
     (t/is-not (nils/ignore-nils (fn [& args]
                                   (when (and (= 1 (count args))
-                                             (number? (first args)))
+                                          (number? (first args)))
                                     (< (first args) 2)))
-                                nil 4 nil))
+                nil 4 nil))
     (t/is (nils/ignore-nils (fn [& args]
                               (when (and (= 1 (count args))
-                                         (number? (first args)))
+                                      (number? (first args)))
                                 (< (first args) 2)))
-                            nil 1 nil))
+            nil 1 nil))
     (t/is (nils/ignore-nils (fn [& args]
                               (when (and (= 1 (count args))
-                                         (number? (first args)))
+                                      (number? (first args)))
                                 (< (first args) 2)))
-                            1))))
+            1))))
 
 (t/deftest anomaly-nils-test
   (t/with-instrument `nils/anomaly-nils
     (t/is-spec-check nils/anomaly-nils {:num-tests 150}))
   (t/with-instrument :all
     (t/is= {::anomalies/category ::anomalies/forbidden
-            ::anomalies/message  "nil not allowed"
-            ::anomalies/fn       (var nils/anomaly-nils)}
-           (nils/anomaly-nils (fn [& args]
-                                (when (and (= 1 (count args))
-                                           (number? (first args)))
-                                  (< (first args) 2)))
-                              nil 4 nil))
+            ::anomalies/fn       (var nils/anomaly-nils)
+            ::anomalies/message  "nil not allowed"}
+      (nils/anomaly-nils (fn [& args]
+                           (when (and (= 1 (count args))
+                                   (number? (first args)))
+                             (< (first args) 2)))
+        nil 4 nil))
     (t/is= {::anomalies/category ::anomalies/forbidden
-            ::anomalies/message  "nil not allowed"
-            ::anomalies/fn       (var nils/anomaly-nils)}
-           (nils/anomaly-nils (fn [& args]
-                                (when (and (= 1 (count args))
-                                           (number? (first args)))
-                                  (< (first args) 2)))
-                              4))
+            ::anomalies/fn       (var nils/anomaly-nils)
+            ::anomalies/message  "nil not allowed"}
+      (nils/anomaly-nils (fn [& args]
+                           (when (and (= 1 (count args))
+                                   (number? (first args)))
+                             (< (first args) 2)))
+        4))
     (t/is (nils/anomaly-nils (fn [& args]
                                (when (and (= 1 (count args))
-                                          (number? (first args)))
+                                       (number? (first args)))
                                  (< (first args) 2)))
-                             1))))
+            1))))
 
 (t/deftest nil-nils-test
   (t/with-instrument `nils/nil-nils
     (t/is-spec-check nils/nil-nils {:num-tests 150}))
   (t/with-instrument :all
     (t/is= nil
-           (nils/nil-nils (fn [& args]
-                            (when (and (= 1 (count args))
-                                       (number? (first args)))
-                              (< (first args) 2)))
-                          nil 4 nil))
+      (nils/nil-nils (fn [& args]
+                       (when (and (= 1 (count args))
+                               (number? (first args)))
+                         (< (first args) 2)))
+        nil 4 nil))
     (t/is-not (nils/nil-nils (fn [& args]
                                (when (and (= 1 (count args))
-                                          (number? (first args)))
+                                       (number? (first args)))
                                  (< (first args) 2)))
-                             4))))
+                4))))
 
 (t/deftest replace-nils-test
   (t/with-instrument `nils/replace-nils
@@ -78,6 +78,7 @@
     (t/is= [1 2 4 nil 5] (nils/replace-nils [1 2 nil nil nil] [4 nil 5]))
     (t/is= [1 2 4 5 nil] (nils/replace-nils [1 2 nil nil nil] [4 5]))))
 
+;;;; Higher-order function wrappers
 (t/deftest ignore-nils-fn-test
   (t/with-instrument `nils/ignore-nils-fn
     (t/is-spec-check nils/ignore-nils-fn))
@@ -105,15 +106,16 @@
   (t/with-instrument :all
     (t/is= 6 ((nils/anomaly-nils-fn +) 1 2 3))
     (t/is= {::anomalies/category ::anomalies/forbidden
-            ::anomalies/message  "nil not allowed"
-            ::anomalies/fn       (var nils/anomaly-nils-fn)}
-           ((nils/anomaly-nils-fn +) 1 nil 3))
+            ::anomalies/fn       (var nils/anomaly-nils-fn)
+            ::anomalies/message  "nil not allowed"}
+      ((nils/anomaly-nils-fn +) 1 nil 3))
     ;; returns anomaly when function returns nil
     (t/is= {::anomalies/category ::anomalies/forbidden
-            ::anomalies/message  "nil not allowed"
-            ::anomalies/fn       (var nils/anomaly-nils-fn)}
-           ((nils/anomaly-nils-fn (constantly nil)) 1 2 3))))
+            ::anomalies/fn       (var nils/anomaly-nils-fn)
+            ::anomalies/message  "nil not allowed"}
+      ((nils/anomaly-nils-fn (constantly nil)) 1 2 3))))
 
+;;;; Nil coalescing and defaults
 (t/deftest coalesce-test
   (t/with-instrument `nils/coalesce
     (t/is-spec-check nils/coalesce))
@@ -138,6 +140,7 @@
     (t/is= :missing (nils/default-nil nil :missing))
     (t/is= "hello" (nils/default-nil "hello" "default"))))
 
+;;;; Map utilities
 (t/deftest remove-nil-vals-test
   (t/with-instrument `nils/remove-nil-vals
     (t/is-spec-check nils/remove-nil-vals))
